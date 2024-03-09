@@ -2,6 +2,10 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Blink3.Bot", "Blink3.Bot\Blink3.Bot.csproj", "{949868F1-3B85-4A10-BF11-9E4EBAAAC725}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Blink3.Common", "Blink3.Common\Blink3.Common.csproj", "{A377B2D4-5F96-4A5E-A8E6-8062415F9477}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Blink3.DataAccess", "Blink3.DataAccess\Blink3.DataAccess.csproj", "{CA278D5B-D775-4142-91E5-7B017200063D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -12,5 +16,13 @@ Global
 		{949868F1-3B85-4A10-BF11-9E4EBAAAC725}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{949868F1-3B85-4A10-BF11-9E4EBAAAC725}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{949868F1-3B85-4A10-BF11-9E4EBAAAC725}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A377B2D4-5F96-4A5E-A8E6-8062415F9477}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A377B2D4-5F96-4A5E-A8E6-8062415F9477}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A377B2D4-5F96-4A5E-A8E6-8062415F9477}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A377B2D4-5F96-4A5E-A8E6-8062415F9477}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CA278D5B-D775-4142-91E5-7B017200063D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CA278D5B-D775-4142-91E5-7B017200063D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CA278D5B-D775-4142-91E5-7B017200063D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CA278D5B-D775-4142-91E5-7B017200063D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
