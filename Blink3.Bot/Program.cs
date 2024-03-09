@@ -1,7 +1,9 @@
 ﻿using Blink3.Bot.Services;
+using Blink3.DataAccess;
 using Discord;
 using Discord.Addons.Hosting;
 using Discord.WebSocket;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -15,7 +17,6 @@ Log.Logger = new LoggerConfiguration()
     .CreateLogger();
 
 var configurationBuilder = new ConfigurationBuilder()
-    .SetBasePath(Directory.GetCurrentDirectory())
     .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
 
 try
@@ -25,6 +26,11 @@ try
     builder.Configuration.AddConfiguration(configurationBuilder.Build());
 
     builder.Services.AddSerilog();
+
+    builder.Services.AddDbContext<BlinkDbContext>(options =>
+    {
+        options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection"));
+    });
     
     builder.Services.AddDiscordShardedHost((config, _) =>
     {
