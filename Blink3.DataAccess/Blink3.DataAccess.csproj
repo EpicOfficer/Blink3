@@ -10,4 +10,8 @@
       <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="8.0.2" />
     </ItemGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\Blink3.Common\Blink3.Common.csproj" />
+    </ItemGroup>
+
 </Project>

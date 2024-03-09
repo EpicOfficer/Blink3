@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace Blink3.DataAccess.Entities;
+namespace Blink3.Common.Entities;
 
 public class BlinkGuild
 {

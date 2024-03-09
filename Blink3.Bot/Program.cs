@@ -1,5 +1,7 @@
 ﻿using Blink3.Bot.Services;
+using Blink3.Common.Interfaces;
 using Blink3.DataAccess;
+using Blink3.DataAccess.Repositories;
 using Discord;
 using Discord.Addons.Hosting;
 using Discord.WebSocket;
@@ -53,6 +55,8 @@ try
 
     builder.Services.AddHostedService<InteractionHandler>();
     builder.Services.AddHostedService<BotStatusService>();
+
+    builder.Services.AddScoped<IBlinkGuildRepository, BlinkGuildRepository>();
 
     var host = builder.Build();
 

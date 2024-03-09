@@ -1,4 +1,4 @@
-using Blink3.DataAccess.Entities;
+using Blink3.Common.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace Blink3.DataAccess;
