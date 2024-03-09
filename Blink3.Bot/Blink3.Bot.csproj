@@ -19,4 +19,9 @@
       <ProjectReference Include="..\Blink3.DataAccess\Blink3.DataAccess.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <PackageReference Include="Discord.Addons.Hosting" Version="6.0.0" />
+      <PackageReference Include="Discord.Net" Version="3.13.1" />
+    </ItemGroup>
+
 </Project>
