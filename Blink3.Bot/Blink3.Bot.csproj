@@ -12,6 +12,10 @@
       <Content Include="..\.dockerignore">
         <Link>.dockerignore</Link>
       </Content>
+      <Content Include="..\Configuration\appsettings.json">
+        <Link>appsettings.json</Link>
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Content>
     </ItemGroup>
 
     <ItemGroup>
@@ -22,6 +26,10 @@
     <ItemGroup>
       <PackageReference Include="Discord.Addons.Hosting" Version="6.0.0" />
       <PackageReference Include="Discord.Net" Version="3.13.1" />
+      <PackageReference Include="Serilog" Version="4.0.0-dev-02113" />
+      <PackageReference Include="Serilog.Extensions.Hosting" Version="8.0.0" />
+      <PackageReference Include="Serilog.Extensions.Logging" Version="8.0.1-dev-10377" />
+      <PackageReference Include="Serilog.Sinks.Console" Version="5.0.1" />
     </ItemGroup>
 
 </Project>
