@@ -9,11 +9,11 @@ using Microsoft.Extensions.Logging;
 namespace Blink3.Bot.Services;
 
 public class InteractionHandler(
-    DiscordShardedClient client,
-    ILogger<DiscordShardedClientService> logger,
+    DiscordSocketClient client,
+    ILogger<DiscordClientService> logger,
     InteractionService handler,
     IServiceProvider provider)
-    : DiscordShardedClientService(client, logger)
+    : DiscordClientService(client, logger)
 {
     protected override async Task ExecuteAsync(CancellationToken cancellationToken)
     {
@@ -37,7 +37,7 @@ public class InteractionHandler(
         try
         {
             // Create an execution context that matches the generic type parameter of your InteractionModuleBase<T> modules.
-            var context = new ShardedInteractionContext(Client, interaction);
+            var context = new SocketInteractionContext(Client, interaction);
 
             // Execute the incoming command.
             var result = await handler.ExecuteCommandAsync(context, provider);

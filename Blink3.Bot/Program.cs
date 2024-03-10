@@ -1,5 +1,5 @@
 ﻿using Blink3.Bot.Services;
-using Blink3.Common.Interfaces;
+using Blink3.DataAccess.Interfaces;
 using Blink3.DataAccess;
 using Blink3.DataAccess.Repositories;
 using Discord;
@@ -34,7 +34,7 @@ try
         options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection"));
     });
     
-    builder.Services.AddDiscordShardedHost((config, _) =>
+    builder.Services.AddDiscordHost((config, _) =>
     {
         config.SocketConfig = new DiscordSocketConfig
         {

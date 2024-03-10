@@ -1,4 +1,4 @@
-namespace Blink3.Common.Interfaces;
+namespace Blink3.DataAccess.Interfaces;
 
 public interface IReadOnlyRepository<T> where T : class
 {

@@ -6,8 +6,8 @@ using Microsoft.Extensions.Logging;
 
 namespace Blink3.Bot.Services;
 
-public class BotStatusService(DiscordShardedClient client, ILogger<DiscordShardedClientService> logger)
-    : DiscordShardedClientService(client, logger)
+public class BotStatusService(DiscordSocketClient client, ILogger<DiscordClientService> logger)
+    : DiscordClientService(client, logger)
 {
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
