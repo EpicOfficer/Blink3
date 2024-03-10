@@ -1,6 +1,7 @@
 ﻿using Blink3.Bot.Services;
 using Blink3.DataAccess.Interfaces;
 using Blink3.DataAccess;
+using Blink3.DataAccess.DIExtensions;
 using Blink3.DataAccess.Repositories;
 using Discord;
 using Discord.Addons.Hosting;
@@ -32,11 +33,8 @@ try
 
     builder.Services.AddSerilog();
 
-    builder.Services.AddDbContext<BlinkDbContext>(options =>
-    {
-        options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection"));
-    });
-    
+    builder.Services.AddDataAccess(builder.Configuration);
+
     builder.Services.AddDiscordHost((config, _) =>
     {
         config.SocketConfig = new DiscordSocketConfig
@@ -58,8 +56,6 @@ try
 
     builder.Services.AddHostedService<InteractionHandler>();
     builder.Services.AddHostedService<BotStatusService>();
-
-    builder.Services.AddScoped<IBlinkGuildRepository, BlinkGuildRepository>();
 
     IHost host = builder.Build();
 
