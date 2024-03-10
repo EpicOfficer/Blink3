@@ -6,6 +6,7 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+        <UserSecretsId>14eff9f0-46d1-4c6d-a6f3-13b66b7fb75c</UserSecretsId>
     </PropertyGroup>
 
     <ItemGroup>
@@ -38,6 +39,10 @@
 
     <ItemGroup>
       <None Remove="blink.db" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Modules\" />
     </ItemGroup>
 
 </Project>
