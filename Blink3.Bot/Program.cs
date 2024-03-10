@@ -1,13 +1,9 @@
 ﻿using Blink3.Bot.Services;
-using Blink3.DataAccess.Interfaces;
-using Blink3.DataAccess;
 using Blink3.DataAccess.DIExtensions;
-using Blink3.DataAccess.Repositories;
 using Discord;
 using Discord.Addons.Hosting;
 using Discord.WebSocket;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Serilog;
@@ -22,14 +18,9 @@ if (!EF.IsDesignTime)
        .CreateLogger(); 
 }
 
-IConfigurationBuilder configurationBuilder = new ConfigurationBuilder()
-    .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
-
 try
 {
     HostApplicationBuilder builder = Host.CreateApplicationBuilder(args);
-
-    builder.Configuration.AddConfiguration(configurationBuilder.Build());
 
     builder.Services.AddSerilog();
 

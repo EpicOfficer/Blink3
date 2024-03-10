@@ -45,28 +45,9 @@ public class InteractionHandler(
             // Due to async nature of InteractionFramework, the result here may always be success.
             // That's why we also need to handle the InteractionExecuted event.
             if (!result.IsSuccess)
-                switch (result.Error)
-                {
-                    case InteractionCommandError.UnmetPrecondition:
-                        // implement
-                        break;
-                    case InteractionCommandError.UnknownCommand:
-                        break;
-                    case InteractionCommandError.ConvertFailed:
-                        break;
-                    case InteractionCommandError.BadArgs:
-                        break;
-                    case InteractionCommandError.Exception:
-                        break;
-                    case InteractionCommandError.Unsuccessful:
-                        break;
-                    case InteractionCommandError.ParseFailed:
-                        break;
-                    case null:
-                        break;
-                    default:
-                        break;
-                }
+            {
+                // TODO: Implement
+            }
         }
         catch
         {
@@ -80,27 +61,9 @@ public class InteractionHandler(
     private static Task HandleInteractionExecute(ICommandInfo commandInfo, IInteractionContext context, IResult result)
     {
         if (!result.IsSuccess)
-            switch (result.Error)
-            {
-                case InteractionCommandError.UnmetPrecondition:
-                    break;
-                case InteractionCommandError.UnknownCommand:
-                    break;
-                case InteractionCommandError.ConvertFailed:
-                    break;
-                case InteractionCommandError.BadArgs:
-                    break;
-                case InteractionCommandError.Exception:
-                    break;
-                case InteractionCommandError.Unsuccessful:
-                    break;
-                case InteractionCommandError.ParseFailed:
-                    break;
-                case null:
-                    break;
-                default:
-                    break;
-            }
+        {
+            // TODO: Implement
+        }
 
         return Task.CompletedTask;
     }
