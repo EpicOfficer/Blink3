@@ -1,4 +1,5 @@
 ﻿using Blink3.Bot.Services;
+using Blink3.Common.DIExtensions;
 using Blink3.DataAccess.DIExtensions;
 using Discord;
 using Discord.Addons.Hosting;
@@ -23,8 +24,8 @@ try
     HostApplicationBuilder builder = Host.CreateApplicationBuilder(args);
 
     builder.Services.AddSerilog();
-
     builder.Services.AddDataAccess(builder.Configuration);
+    builder.Services.AddCaching(builder.Configuration);
 
     builder.Services.AddDiscordHost((config, _) =>
     {
