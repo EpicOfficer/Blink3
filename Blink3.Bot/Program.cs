@@ -12,11 +12,14 @@ using Microsoft.Extensions.Hosting;
 using Serilog;
 using Serilog.Events;
 
-Log.Logger = new LoggerConfiguration()
-    .MinimumLevel.Information()
-    .MinimumLevel.Override("Microsoft", LogEventLevel.Error)
-    .WriteTo.Console()
-    .CreateLogger();
+if (!EF.IsDesignTime)
+{
+    Log.Logger = new LoggerConfiguration()
+       .MinimumLevel.Information()
+       .MinimumLevel.Override("Microsoft", LogEventLevel.Error)
+       .WriteTo.Console()
+       .CreateLogger(); 
+}
 
 IConfigurationBuilder configurationBuilder = new ConfigurationBuilder()
     .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
