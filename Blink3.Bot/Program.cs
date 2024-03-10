@@ -18,12 +18,12 @@ Log.Logger = new LoggerConfiguration()
     .WriteTo.Console()
     .CreateLogger();
 
-var configurationBuilder = new ConfigurationBuilder()
+IConfigurationBuilder configurationBuilder = new ConfigurationBuilder()
     .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
 
 try
 {
-    var builder = Host.CreateApplicationBuilder(args);
+    HostApplicationBuilder builder = Host.CreateApplicationBuilder(args);
 
     builder.Configuration.AddConfiguration(configurationBuilder.Build());
 
@@ -58,7 +58,7 @@ try
 
     builder.Services.AddScoped<IBlinkGuildRepository, BlinkGuildRepository>();
 
-    var host = builder.Build();
+    IHost host = builder.Build();
 
     await host.RunAsync();
 }

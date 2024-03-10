@@ -37,10 +37,10 @@ public class InteractionHandler(
         try
         {
             // Create an execution context that matches the generic type parameter of your InteractionModuleBase<T> modules.
-            var context = new SocketInteractionContext(Client, interaction);
+            SocketInteractionContext context = new(Client, interaction);
 
             // Execute the incoming command.
-            var result = await handler.ExecuteCommandAsync(context, provider);
+            IResult? result = await handler.ExecuteCommandAsync(context, provider);
 
             // Due to async nature of InteractionFramework, the result here may always be success.
             // That's why we also need to handle the InteractionExecuted event.
