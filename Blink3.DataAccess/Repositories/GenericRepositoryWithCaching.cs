@@ -3,6 +3,10 @@ using Blink3.Common.Caching.Interfaces;
 
 namespace Blink3.DataAccess.Repositories;
 
+/// <summary>
+/// The GenericRepositoryWithCaching class provides a generic repository implementation with caching capability.
+/// </summary>
+/// <typeparam name="T">The entity type.</typeparam>
 public class GenericRepositoryWithCaching<T>(BlinkDbContext dbContext, ICachingService cache) : GenericRepository<T>(dbContext) where T : class, ICacheKeyIdentifiable
 {
     private static string GetCacheKey(object[] keyValues)

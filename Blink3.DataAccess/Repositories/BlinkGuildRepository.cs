@@ -21,7 +21,12 @@ public class BlinkGuildRepository(BlinkDbContext dbContext, ICachingService cach
         await AddAsync(guild);
         return guild;
     }
-    
+
+    /// <summary>
+    /// Verifies and extracts the Guild ID from the given key values.
+    /// </summary>
+    /// <param name="keyValues">The key values.</param>
+    /// <returns>The extracted Guild ID.</returns>
     private static ulong VerifyAndExtractGuildId(object[] keyValues)
     {
         if (keyValues.Length < 1 || ulong.TryParse(keyValues[0].ToString(), out ulong id) != true)
