@@ -3,7 +3,9 @@ using Blink3.Common.DIExtensions;
 using Blink3.DataAccess.DIExtensions;
 using Discord;
 using Discord.Addons.Hosting;
+using Discord.Interactions;
 using Discord.WebSocket;
+using Lavalink4NET.Extensions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -26,6 +28,7 @@ try
     builder.Services.AddSerilog();
     builder.Services.AddDataAccess(builder.Configuration);
     builder.Services.AddCaching(builder.Configuration);
+    builder.Services.AddLavalink();
 
     builder.Services.AddDiscordHost((config, _) =>
     {
@@ -42,6 +45,7 @@ try
 
     builder.Services.AddInteractionService((config, _) =>
     {
+        config.DefaultRunMode = RunMode.Async;
         config.LogLevel = LogSeverity.Info;
         config.UseCompiledLambda = true;
     });

@@ -29,7 +29,7 @@ public class InteractionHandler(
         await Client.WaitForReadyAsync(cancellationToken);
 
         // Register the commands globally.
-        await handler.RegisterCommandsGloballyAsync();
+        await handler.RegisterCommandsToGuildAsync(787646005641216040);
     }
     
     private async Task HandleInteraction(SocketInteraction interaction)

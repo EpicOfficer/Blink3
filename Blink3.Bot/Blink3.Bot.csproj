@@ -27,6 +27,7 @@
     <ItemGroup>
       <PackageReference Include="Discord.Addons.Hosting" Version="6.0.0" />
       <PackageReference Include="Discord.Net" Version="3.13.1" />
+      <PackageReference Include="Lavalink4NET.Discord.NET" Version="4.0.13" />
       <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.2">
         <PrivateAssets>all</PrivateAssets>
         <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -39,10 +40,6 @@
 
     <ItemGroup>
       <None Remove="blink.db" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <Folder Include="Modules\" />
     </ItemGroup>
 
 </Project>
