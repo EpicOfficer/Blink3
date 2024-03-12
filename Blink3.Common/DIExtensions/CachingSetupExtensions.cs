@@ -6,8 +6,18 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Blink3.Common.DIExtensions;
 
+/// <summary>
+/// Contains extension methods for configuring caching services.
+/// </summary>
 public static class CachingSetupExtensions
 {
+    /// <summary>
+    /// Adds caching support to the <see cref="IServiceCollection"/>.
+    /// Will use Redis if configured, falling back to in-memory caching.
+    /// </summary>
+    /// <param name="services">The <see cref="IServiceCollection"/> to add caching to.</param>
+    /// <param name="config">The configuration, optionally containing the Redis connection string.</param>
+    /// <returns>The modified <see cref="IServiceCollection"/>.</returns>
     public static IServiceCollection AddCaching(this IServiceCollection services, IConfiguration config)
     {
         string? redisConnectionString = config.GetConnectionString("Redis");

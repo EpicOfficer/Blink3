@@ -1,0 +1,36 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+        <UserSecretsId>14eff9f0-46d1-4c6d-a6f3-13b66b7fb75c</UserSecretsId>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Discord.Net.Rest" Version="3.13.1" />
+        <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.2"/>
+        <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0"/>
+    </ItemGroup>
+
+    <ItemGroup>
+      <Content Include="..\.dockerignore">
+        <Link>.dockerignore</Link>
+      </Content>
+      <Content Include="..\Configuration\appsettings.Development.json">
+        <Link>appsettings.Development.json</Link>
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Content>
+      <Content Include="..\Configuration\appsettings.json">
+        <Link>appsettings.json</Link>
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Content>
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Blink3.Common\Blink3.Common.csproj" />
+      <ProjectReference Include="..\Blink3.DataAccess\Blink3.DataAccess.csproj" />
+    </ItemGroup>
+
+</Project>

@@ -7,8 +7,17 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Blink3.DataAccess.DIExtensions;
 
+/// <summary>
+/// Contains extension methods for configuring data access services.
+/// </summary>
 public static class ServiceCollectionExtensions
 {
+    /// <summary>
+    /// Adds the data access services to the service collection.
+    /// </summary>
+    /// <param name="services">The service collection.</param>
+    /// <param name="configuration">The configuration.</param>
+    /// <returns>The modified service collection.</returns>
     public static IServiceCollection AddDataAccess(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddDbContext<BlinkDbContext>(options =>

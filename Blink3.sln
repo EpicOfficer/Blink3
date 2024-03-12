@@ -8,6 +8,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Blink3.DataAccess", "Blink3
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Blink3.Bot.Tests", "Blink3.Bot.Tests\Blink3.Bot.Tests.csproj", "{DDD75314-0E3C-4526-8129-2BA363E7FB9C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Blink3.API", "Blink3.API\Blink3.API.csproj", "{B72051D1-5839-4021-BCA6-29C33E44AD45}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -30,5 +32,9 @@ Global
 		{DDD75314-0E3C-4526-8129-2BA363E7FB9C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DDD75314-0E3C-4526-8129-2BA363E7FB9C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DDD75314-0E3C-4526-8129-2BA363E7FB9C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B72051D1-5839-4021-BCA6-29C33E44AD45}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B72051D1-5839-4021-BCA6-29C33E44AD45}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B72051D1-5839-4021-BCA6-29C33E44AD45}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B72051D1-5839-4021-BCA6-29C33E44AD45}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
