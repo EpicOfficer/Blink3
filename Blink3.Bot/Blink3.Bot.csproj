@@ -13,6 +13,9 @@
       <Content Include="..\.dockerignore">
         <Link>.dockerignore</Link>
       </Content>
+      <Content Include="..\Configuration\appsettings.Development.json">
+        <Link>appsettings.Development.json</Link>
+      </Content>
       <Content Include="..\Configuration\appsettings.json">
         <Link>appsettings.json</Link>
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
