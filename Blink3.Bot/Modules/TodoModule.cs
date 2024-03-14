@@ -36,7 +36,7 @@ public class TodoModule(IUserTodoRepository todoRepository) : BlinkModuleBase<II
     [SlashCommand("view", "View your todo list")]
     public async Task View()
     {
-        IReadOnlyCollection<UserTodo> todos = await todoRepository.GetByUserIdAsync(Context.User.Id!);
+        IReadOnlyCollection<UserTodo> todos = await todoRepository.GetByUserIdAsync(Context.User.Id);
         if (todos.Count < 1)
         {
             await RespondInfoAsync("You don't have any todo items!");
