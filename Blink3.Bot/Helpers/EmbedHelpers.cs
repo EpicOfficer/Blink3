@@ -17,11 +17,13 @@ public static class EmbedHelpers
     /// <returns></returns>
     private static Embed CreateEmbed(EmbedStyle style, string? name = null, string message = "", EmbedFieldBuilder[]? fields = null)
     {
-        return new EmbedBuilder()
+        EmbedBuilder embed = new EmbedBuilder()
             .WithStyle(style, name)
-            .WithDescription(message)
-            .WithFields(fields)
-            .Build();
+            .WithDescription(message);
+
+        if (fields?.Length > 0) embed = embed.WithFields(fields);
+        
+        return embed.Build();
     }
 
     /// <summary>
