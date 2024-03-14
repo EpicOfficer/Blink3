@@ -12,4 +12,9 @@ public class BlinkDbContext(DbContextOptions<BlinkDbContext> options) : DbContex
     /// Represents a collection of BlinkGuild entities in the BlinkDbContext.
     /// </summary>
     public DbSet<BlinkGuild> BlinkGuilds { get; set; }
+
+    /// <summary>
+    /// Represents a user's todo items.
+    /// </summary>
+    public DbSet<UserTodo> UserTodos { get; set; }
 }

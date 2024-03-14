@@ -3,13 +3,16 @@ using Blink3.Common.Caching.Interfaces;
 
 namespace Blink3.DataAccess.Entities;
 
+/// <summary>
+/// Represents a guild in the Blink3 application.
+/// </summary>
 public class BlinkGuild : ICacheKeyIdentifiable
 {
+    /// <summary>
+    /// Represents the identifier of a BlinkGuild entity.
+    /// </summary>
     [Key]
-    public ulong Id { get; set; }
+    public required ulong Id { get; set; }
 
-    public string GetCacheKey()
-    {
-        return $"{Id.ToString()}";
-    }
+    public string GetCacheKey() => Id.ToString();
 }

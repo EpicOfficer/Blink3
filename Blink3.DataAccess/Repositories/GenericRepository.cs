@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Blink3.DataAccess.Repositories;
 
+/// <inheritdoc cref="IGenericRepository{T}"/>
 public class GenericRepository<T>(BlinkDbContext dbContext) : IGenericRepository<T> where T : class
 {
     public virtual async Task<T?> GetByIdAsync(params object[] keyValues)

@@ -9,6 +9,11 @@ namespace Blink3.DataAccess.Repositories;
 /// <typeparam name="T">The entity type.</typeparam>
 public class GenericRepositoryWithCaching<T>(BlinkDbContext dbContext, ICachingService cache) : GenericRepository<T>(dbContext) where T : class, ICacheKeyIdentifiable
 {
+    /// <summary>
+    /// Generates a cache key for the specified entity.
+    /// </summary>
+    /// <param name="keyValues">The key values used to uniquely identify the entity.</param>
+    /// <returns>The cache key as a string.</returns>
     private static string GetCacheKey(object[] keyValues)
     {
         if (keyValues.Length == 0)
@@ -20,14 +25,32 @@ public class GenericRepositoryWithCaching<T>(BlinkDbContext dbContext, ICachingS
         return $"{nameof(T)}:{key}";
     }
 
+    /// <summary>
+    /// Gets the cache key for the specified entity.
+    /// </summary>
+    /// <typeparam name="T">The entity type.</typeparam>
+    /// <param name="entity">The entity.</param>
+    /// <returns>The cache key for the entity.</returns>
     private static string GetCacheKeyFromEntity(T entity) => $"{nameof(T)}:{entity.GetCacheKey()}";
-    
+
+    /// <summary>
+    /// Sets the specified entity in the cache.
+    /// </summary>
+    /// <typeparam name="T">The entity type.</typeparam>
+    /// <param name="entity">The entity to be set in the cache.</param>
+    /// <returns>A task representing the asynchronous operation.</returns>
     private async Task SetEntityInCache(T entity)
     {
         string cacheKey = GetCacheKeyFromEntity(entity);
         await cache.SetAsync(cacheKey, entity);
     }
 
+    /// <summary>
+    /// Removes the specified entity from the cache.
+    /// </summary>
+    /// <typeparam name="T">The entity type.</typeparam>
+    /// <param name="entity">The entity to remove from the cache.</param>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     private async Task RemoveEntityFromCache(T entity)
     {
         string cacheKey = GetCacheKeyFromEntity(entity);

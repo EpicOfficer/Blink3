@@ -2,6 +2,7 @@
 using Blink3.DataAccess;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -9,9 +10,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Blink3.DataAccess.Migrations
 {
     [DbContext(typeof(BlinkDbContext))]
-    partial class BlinkDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240314140630_AddUserTodo")]
+    partial class AddUserTodo
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.2");
