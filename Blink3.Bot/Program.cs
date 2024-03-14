@@ -28,7 +28,6 @@ try
     builder.Services.AddSerilog();
     builder.Services.AddDataAccess(builder.Configuration);
     builder.Services.AddCaching(builder.Configuration);
-    builder.Services.AddLavalink();
 
     builder.Services.AddDiscordHost((config, _) =>
     {

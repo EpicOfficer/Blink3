@@ -1,12 +1,13 @@
 using System.Text;
 using Blink3.DataAccess.Entities;
 using Blink3.DataAccess.Interfaces;
+using Discord;
 using Discord.Interactions;
 
 namespace Blink3.Bot.Modules;
 
 [Group("todo", "Simple todo list")]
-public class TodoModule(IUserTodoRepository todoRepository) : BlinkModuleBase<SocketInteractionContext>
+public class TodoModule(IUserTodoRepository todoRepository) : BlinkModuleBase<IInteractionContext>
 {
     [SlashCommand("view", "View your todo list")]
     public async Task View()
@@ -14,13 +15,11 @@ public class TodoModule(IUserTodoRepository todoRepository) : BlinkModuleBase<So
         IReadOnlyCollection<UserTodo> todos = await todoRepository.GetByUserIdAsync(Context.User.Id!);
         if (todos.Count < 1)
         {
-            await RespondSuccessAsync("You don't have any todo items!");
+            await RespondInfoAsync("You don't have any todo items!");
             return;
         }
 
         StringBuilder sb = new();
-        sb.AppendLine("**Your todo list**");
-        
         foreach (UserTodo todo in todos)
         {
             if (todo.Complete) sb.Append("~~");
@@ -34,6 +33,6 @@ public class TodoModule(IUserTodoRepository todoRepository) : BlinkModuleBase<So
             sb.AppendLine();
         }
 
-        await RespondSuccessAsync(sb.ToString());
+        await RespondPlainAsync("Your todo list", sb.ToString());
     }
 }
