@@ -47,6 +47,6 @@ public class BlinkModuleBase<T> : InteractionModuleBase<T> where T : class, IInt
     /// <param name="ephemeral">Whether the message should be ephemeral, defaults to true.</param>
     /// <param name="components">Optional message components to include</param>
     /// <returns></returns>
-    protected virtual async Task RespondErrorAsync(string message, string? name = null, bool ephemeral = true, MessageComponent? components = null) =>
+    protected virtual async Task RespondErrorAsync(string? name = null, string message = "", bool ephemeral = true, MessageComponent? components = null) =>
         await RespondAsync("", embed: MessageHelpers.CreateError(message, name), ephemeral: ephemeral, components: components);
 }

@@ -12,6 +12,13 @@ public class TodoModule(IUserTodoRepository todoRepository) : BlinkModuleBase<II
     [SlashCommand("add", "Add an item to your todo list")]
     public async Task Add([MaxLength(25)] string label, [MaxLength(50)] string? description = null)
     {
+        int count = await todoRepository.GetCountByUserIdAsync(Context.User.Id);
+        if (count >= 25)
+        {
+            await RespondErrorAsync("Too many todo items!", "You cannot create more than 25 todo list items, please remove some first!");
+            return;
+        }
+        
         await todoRepository.AddAsync(new UserTodo
         {
             UserId = Context.User.Id,

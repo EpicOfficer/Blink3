@@ -13,4 +13,11 @@ public interface IUserTodoRepository : IGenericRepository<UserTodo>
     /// <param name="userId">The ID of the user.</param>
     /// <returns>A task representing the asynchronous operation. The task result contains a collection of UserTodos.</returns>
     Task<IReadOnlyCollection<UserTodo>> GetByUserIdAsync(ulong userId);
+
+    /// <summary>
+    /// Retrieves the count of UserTodos by user ID asynchronously.
+    /// </summary>
+    /// <param name="userId">The ID of the user.</param>
+    /// <returns>A task representing the asynchronous operation. The task result contains the count of UserTodos.</returns>
+    Task<int> GetCountByUserIdAsync(ulong userId);
 }

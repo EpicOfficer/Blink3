@@ -17,4 +17,9 @@ public class UserTodoRepository(BlinkDbContext dbContext) :
             .Where(u => u.UserId.Equals(userId))
             .ToListAsync();
     }
+
+    public async Task<int> GetCountByUserIdAsync(ulong userId)
+    {
+        return await _dbContext.UserTodos.CountAsync(c => c.UserId.Equals(userId));
+    }
 }
