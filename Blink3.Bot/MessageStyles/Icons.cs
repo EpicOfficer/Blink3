@@ -19,4 +19,14 @@ public static class Icons
     /// Contains URLs for different icons used in the application.
     /// </summary>
     public const string Info = "https://i.ibb.co/6scHp2G/info.png";
+
+    /// <summary>
+    /// Represents an empty box character.
+    /// </summary>
+    public const string Box = "\u2610";
+
+    /// <summary>
+    /// Represents a checked box character.
+    /// </summary>
+    public const string BoxChecked = "\u2611";
 }
