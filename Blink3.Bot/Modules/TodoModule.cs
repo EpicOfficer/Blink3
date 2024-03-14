@@ -9,6 +9,20 @@ namespace Blink3.Bot.Modules;
 [Group("todo", "Simple todo list")]
 public class TodoModule(IUserTodoRepository todoRepository) : BlinkModuleBase<IInteractionContext>
 {
+    [SlashCommand("add", "Add an item to your todo list")]
+    public async Task Add([MaxLength(25)] string label, [MaxLength(50)] string? description)
+    {
+        await todoRepository.AddAsync(new UserTodo
+        {
+            UserId = Context.User.Id,
+            Label = label,
+            Description = description,
+            Complete = false
+        });
+
+        await RespondSuccessAsync($"Created todo item \"{label}\"");
+    }
+    
     [SlashCommand("view", "View your todo list")]
     public async Task View()
     {
