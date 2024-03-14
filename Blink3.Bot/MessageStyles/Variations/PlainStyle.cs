@@ -7,7 +7,7 @@ public class PlainStyle : EmbedStyle
 {
     public override void Apply(string? name = null)
     {
-        Name = name ?? "Info";
+        Name = name ?? "_ _";
         Color = Colours.Info;
     }
 }
