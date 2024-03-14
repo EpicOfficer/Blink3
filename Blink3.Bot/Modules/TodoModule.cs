@@ -1,4 +1,4 @@
-using System.Text;
+using Blink3.Bot.Extensions;
 using Blink3.DataAccess.Entities;
 using Blink3.DataAccess.Interfaces;
 using Discord;
@@ -50,6 +50,7 @@ public class TodoModule(IUserTodoRepository todoRepository) : BlinkModuleBase<II
             IsInline = false
         }).ToArray();
         
-        await RespondPlainAsync("Your todo list", embedFields: fields);
+        IGuildUser? user = Context.User as IGuildUser;
+        await RespondPlainAsync($"{(user is null ? "Your" : user.GetFriendlyName() + "'s")} todo list", embedFields: fields);
     }
 }
