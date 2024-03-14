@@ -9,6 +9,9 @@ namespace Blink3.Bot.Modules;
 [Group("todo", "Simple todo list")]
 public class TodoModule(IUserTodoRepository todoRepository) : BlinkModuleBase<IInteractionContext>
 {
+    private const string Box = "\u2610";
+    private const string BoxChecked = "\u2611";
+    
     [SlashCommand("add", "Add an item to your todo list")]
     public async Task Add([MaxLength(25)] string label, [MaxLength(50)] string? description = null)
     {
@@ -40,20 +43,13 @@ public class TodoModule(IUserTodoRepository todoRepository) : BlinkModuleBase<II
             return;
         }
 
-        StringBuilder sb = new();
-        foreach (UserTodo todo in todos)
+        EmbedFieldBuilder[] fields = todos.Select(todo => new EmbedFieldBuilder()
         {
-            if (todo.Complete) sb.Append("~~");
-            
-            sb.AppendLine($"**{todo.Label}**");
-            if (!string.IsNullOrWhiteSpace(todo.Description))
-                sb.AppendLine(todo.Description);
-
-            if (todo.Complete) sb.Append("~~");
-            
-            sb.AppendLine();
-        }
-
-        await RespondPlainAsync("Your todo list", sb.ToString());
+            Name = $"{(todo.Complete ? BoxChecked : Box)} {todo.Label}",
+            Value = todo.Description ?? "_ _",
+            IsInline = false
+        }).ToArray();
+        
+        await RespondPlainAsync("Your todo list", embedFields: fields);
     }
 }
