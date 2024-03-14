@@ -14,7 +14,7 @@ public class BlinkDbContext(DbContextOptions<BlinkDbContext> options) : DbContex
     public DbSet<BlinkGuild> BlinkGuilds { get; set; }
 
     /// <summary>
-    /// Represents a user's todo items.
+    /// Represents a user's "to do" items.
     /// </summary>
     public DbSet<UserTodo> UserTodos { get; set; }
 }

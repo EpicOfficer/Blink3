@@ -19,7 +19,7 @@ public class UserTodo
     public required ulong UserId { get; set; }
 
     /// <summary>
-    /// Represents a label associated with a user's todo.
+    /// Represents a label associated with a user's "to do".
     /// </summary>
     /// <remarks>
     /// The maximum length of the label is 25 characters
@@ -28,7 +28,7 @@ public class UserTodo
     public required string Label { get; set; }
 
     /// <summary>
-    /// Gets or sets the description of the user todo.
+    /// Gets or sets the description of the user "to do".
     /// </summary>
     /// <remarks>
     /// The maximum length of the description is 50 characters.
@@ -37,7 +37,7 @@ public class UserTodo
     public string? Description { get; set; }
 
     /// <summary>
-    /// Gets or sets a value indicating whether the user todo is complete.
+    /// Gets or sets a value indicating whether the user "to do" is complete.
     /// </summary>
     public required bool Complete { get; set; } = false;
 }
