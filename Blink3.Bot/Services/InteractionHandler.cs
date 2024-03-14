@@ -59,9 +59,9 @@ public class InteractionHandler(
     
     private async Task HandleInteractionExecute(ICommandInfo commandInfo, IInteractionContext context, IResult result)
     {
-        if (!result.IsSuccess)
+        if (result?.IsSuccess is not true)
         {
-            logger.LogWarning("Error handling interaction {interaction} in module {module} for user {userId}: {ErrorReason}", commandInfo.Name, commandInfo.Module.Name, context.User.Id, result?.ErrorReason);
+            logger.LogWarning("Error handling interaction {interaction} in module {module} for user {userId}: {ErrorReason}", commandInfo?.Name, commandInfo?.Module?.Name, context?.User?.Id, result?.ErrorReason);
         }
         else
         {
