@@ -106,8 +106,7 @@ public class TodoModule(IUserTodoRepository todoRepository) : BlinkModuleBase<II
     [ComponentInteraction("todo:complete", ignoreGroupNames: true)]
     public async Task Complete(string id)
     {
-        ulong? key = await GetId(id);
-        if (key is null) return;
+        ulong key = GetId(id);
 
         await todoRepository.CompleteByIdAsync((ulong)key);
 
@@ -117,20 +116,21 @@ public class TodoModule(IUserTodoRepository todoRepository) : BlinkModuleBase<II
     [ComponentInteraction("todo:remove", ignoreGroupNames: true)]
     public async Task Remove(string id)
     {
-        ulong? key = await GetId(id);
-        if (key is null) return;
+        ulong key = GetId(id);
         
         await todoRepository.DeleteByIdAsync(key);
         
         await RespondSuccessAsync("Todo item removed");
     }
 
-    private async Task<ulong?> GetId(string id)
+    private static ulong GetId(string id)
     {
-        if (ulong.TryParse(id, out ulong key)) return key;
-        
-        await RespondErrorAsync($"Unable to validate todo item ID \"{id}\"");
-        return null;
+        if (!ulong.TryParse(id, out ulong key))
+        {
+            throw new ArgumentOutOfRangeException(nameof(id));
+        }
+
+        return key;
     }
     
     private async Task<MessageComponent?> BuildSelectMenuWithTodos(string customId)
