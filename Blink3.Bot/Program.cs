@@ -1,11 +1,14 @@
 ﻿using Blink3.Bot.Services;
 using Blink3.Common.Caching.Extensions;
+using Blink3.Common.Configuration;
+using Blink3.Common.Configuration.Extensions;
 using Blink3.DataAccess.DIExtensions;
 using Discord;
 using Discord.Addons.Hosting;
 using Discord.Interactions;
 using Discord.WebSocket;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Serilog;
@@ -25,6 +28,7 @@ try
     HostApplicationBuilder builder = Host.CreateApplicationBuilder(args);
 
     builder.Services.AddSerilog();
+    builder.Services.AddAppConfiguration(builder.Configuration);
     builder.Services.AddDataAccess(builder.Configuration);
     builder.Services.AddCaching(builder.Configuration);
 
@@ -38,7 +42,9 @@ try
             GatewayIntents = GatewayIntents.All
         };
     
-        config.Token = builder.Configuration["Token"]!;
+        BlinkConfiguration appConfig =
+            builder.Configuration.Get<BlinkConfiguration>() ?? throw new InvalidOperationException();
+        config.Token = appConfig.Discord.BotToken;
     });
 
     builder.Services.AddInteractionService((config, _) =>
