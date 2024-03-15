@@ -129,7 +129,7 @@ public class TodoModule(IUserTodoRepository todoRepository) : BlinkModuleBase<II
     {
         if (ulong.TryParse(id, out ulong key)) return key;
         
-        await RespondErrorAsync($"Unable to todo item ID \"{id}\"");
+        await RespondErrorAsync($"Unable to validate todo item ID \"{id}\"");
         return null;
     }
     
