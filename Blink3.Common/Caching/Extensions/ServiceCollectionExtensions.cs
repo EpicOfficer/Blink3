@@ -4,12 +4,12 @@ using Blink3.Common.Caching.Redis;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Blink3.Common.DIExtensions;
+namespace Blink3.Common.Caching.Extensions;
 
 /// <summary>
 /// Contains extension methods for configuring caching services.
 /// </summary>
-public static class CachingSetupExtensions
+public static class ServiceCollectionExtensions
 {
     /// <summary>
     /// Adds caching support to the <see cref="IServiceCollection"/>.

@@ -1,11 +1,10 @@
 ﻿using Blink3.Bot.Services;
-using Blink3.Common.DIExtensions;
+using Blink3.Common.Caching.Extensions;
 using Blink3.DataAccess.DIExtensions;
 using Discord;
 using Discord.Addons.Hosting;
 using Discord.Interactions;
 using Discord.WebSocket;
-using Lavalink4NET.Extensions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
