@@ -20,4 +20,11 @@ public interface IUserTodoRepository : IGenericRepository<UserTodo>
     /// <param name="userId">The ID of the user.</param>
     /// <returns>A task representing the asynchronous operation. The task result contains the count of UserTodos.</returns>
     Task<int> GetCountByUserIdAsync(ulong userId);
+
+    /// <summary>
+    /// Marks a UserTodo as complete by its ID asynchronously.
+    /// </summary>
+    /// <param name="id">The ID of the UserTodo to complete.</param>
+    /// <returns>A task representing the asynchronous operation.</returns>
+    Task CompleteByIdAsync(ulong id);
 }

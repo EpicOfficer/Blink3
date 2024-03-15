@@ -40,4 +40,11 @@ public interface IGenericRepository<T> where T : class
     /// <param name="entity">The entity to be deleted.</param>
     /// <returns>A task representing the asynchronous operation.</returns>
     Task DeleteAsync(T entity);
+
+    /// <summary>
+    /// Deletes an entity from the database by it's key values asynchronously.
+    /// </summary>
+    /// <param name="keyValues">The key values of the entity.</param>
+    /// <returns>A task representing the asynchronous operation.</returns>
+    Task DeleteByIdAsync(params object[] keyValues);
 }

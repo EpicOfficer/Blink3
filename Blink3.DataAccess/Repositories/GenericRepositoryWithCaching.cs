@@ -94,4 +94,11 @@ public class GenericRepositoryWithCaching<T>(BlinkDbContext dbContext, ICachingS
         await base.DeleteAsync(entity);
         await RemoveEntityFromCache(entity);
     }
+    
+    public override async Task DeleteByIdAsync(params object[] keyValues)
+    {
+        string cacheKey = GetCacheKey(keyValues);
+        await base.DeleteByIdAsync(keyValues);
+        await cache.RemoveAsync(cacheKey);
+    }
 }

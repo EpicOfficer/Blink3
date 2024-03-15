@@ -62,7 +62,7 @@ public class TodoModule(IUserTodoRepository todoRepository) : BlinkModuleBase<II
         EmbedFieldBuilder[] fields = todos.Select(todo => new EmbedFieldBuilder()
         {
             Name = $"{(todo.Complete ? Icons.BoxChecked : Icons.Box)} {todo.Label}",
-            Value = todo.Description ?? "_ _",
+            Value = string.IsNullOrWhiteSpace(todo.Description) ? "_ _" : todo.Description,
             IsInline = false
         }).ToArray();
         
@@ -106,35 +106,30 @@ public class TodoModule(IUserTodoRepository todoRepository) : BlinkModuleBase<II
     [ComponentInteraction("todo:complete", ignoreGroupNames: true)]
     public async Task Complete(string id)
     {
-        UserTodo? todo = await GetTodo(id);
-        if (todo is null) return;
+        ulong? key = await GetId(id);
+        if (key is null) return;
 
-        todo.Complete = true;
-        await todoRepository.UpdateAsync(todo);
+        await todoRepository.CompleteByIdAsync((ulong)key);
 
-        await RespondSuccessAsync($"Marked todo item \"{todo.Label}\" as complete!");
+        await RespondSuccessAsync("Marked todo as complete");
     }
     
     [ComponentInteraction("todo:remove", ignoreGroupNames: true)]
     public async Task Remove(string id)
     {
-        UserTodo? todo = await GetTodo(id);
-        if (todo is null) return;
-
-        await todoRepository.DeleteAsync(todo);
+        ulong? key = await GetId(id);
+        if (key is null) return;
         
-        await RespondSuccessAsync($"Removed todo item \"{todo.Label}\"!");
+        await todoRepository.DeleteByIdAsync(key);
+        
+        await RespondSuccessAsync("Todo item removed");
     }
 
-    private async Task<UserTodo?> GetTodo(string id)
+    private async Task<ulong?> GetId(string id)
     {
-        if (ulong.TryParse(id, out ulong key))
-        {
-            UserTodo? todo = await todoRepository.GetByIdAsync(key);
-            if (todo is not null) return todo;
-        }
-
-        await RespondErrorAsync($"Unable to get todo item with ID \"{id}\"");
+        if (ulong.TryParse(id, out ulong key)) return key;
+        
+        await RespondErrorAsync($"Unable to todo item ID \"{id}\"");
         return null;
     }
     
@@ -143,15 +138,21 @@ public class TodoModule(IUserTodoRepository todoRepository) : BlinkModuleBase<II
         IReadOnlyCollection<UserTodo> todos = await todoRepository.GetByUserIdAsync(Context.User.Id);
         if (todos.Count < 1) return null;
         
-        SelectMenuBuilder menuBuilder = new();
-        menuBuilder.WithCustomId(customId);
-        menuBuilder.WithPlaceholder("Select todo list item");
-        menuBuilder.WithMaxValues(1);
-        menuBuilder.WithMaxValues(1);
+        SelectMenuBuilder menuBuilder = new SelectMenuBuilder()
+            .WithCustomId(customId)
+            .WithPlaceholder("Select todo list item")
+            .WithMaxValues(1)
+            .WithMaxValues(1);
         
         foreach (UserTodo todo in todos)
         {
-            menuBuilder.AddOption(label: todo.Label, value: todo.Id.ToString(), description: todo.Description);
+            if (!string.IsNullOrWhiteSpace(todo.Description))
+            {
+                menuBuilder.AddOption(label: todo.Label, value: todo.Id.ToString(), description: todo.Description);
+                continue;
+            }
+            
+            menuBuilder.AddOption(label: todo.Label, value: todo.Id.ToString());
         }
         
         return new ComponentBuilder().WithSelectMenu(menuBuilder).Build();

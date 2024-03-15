@@ -22,4 +22,21 @@ public class UserTodoRepository(BlinkDbContext dbContext) :
     {
         return await _dbContext.UserTodos.CountAsync(c => c.UserId.Equals(userId));
     }
+
+    public async Task CompleteByIdAsync(ulong id)
+    {
+        UserTodo todo = new()
+        {
+            Id = id,
+            UserId = 0,
+            Label = "",
+            Description = "",
+            Complete = true
+        };
+
+        _dbContext.UserTodos.Attach(todo);
+        _dbContext.Entry(todo).Property(u => u.Complete).IsModified = true;
+        
+        await dbContext.SaveChangesAsync();
+    }
 }
