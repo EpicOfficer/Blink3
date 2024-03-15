@@ -1,10 +1,9 @@
-using System.Diagnostics;
 using AspNet.Security.OAuth.Discord;
 using Blink3.API.Services;
 using Blink3.Common.Caching.Extensions;
 using Blink3.Common.Configuration;
 using Blink3.Common.Configuration.Extensions;
-using Blink3.DataAccess.DIExtensions;
+using Blink3.DataAccess.Extensions;
 using Discord.Rest;
 using Microsoft.AspNetCore.Authentication.Cookies;
 
@@ -18,10 +17,11 @@ builder.Services.AddSwaggerGen();
 
 // Add Application configurations
 builder.Services.AddAppConfiguration(builder.Configuration);
+BlinkConfiguration appConfig = builder.Configuration.GetAppConfiguration();
 
 // Add Data Access layer and cache provider
-builder.Services.AddDataAccess(builder.Configuration);
-builder.Services.AddCaching(builder.Configuration);
+builder.Services.AddDataAccess(appConfig);
+builder.Services.AddCaching(appConfig);
 
 // Add Discord Rest Client and startup service
 builder.Services.AddSingleton<DiscordRestClient>();
@@ -37,9 +37,6 @@ builder.Services.AddAuthentication(options =>
 .AddCookie()
 .AddOAuth(DiscordAuthenticationDefaults.AuthenticationScheme, options =>
 {
-    BlinkConfiguration appConfig =
-        builder.Configuration.Get<BlinkConfiguration>() ?? throw new InvalidOperationException();
-
     options.ClientId = appConfig.Discord.ClientId;
     options.ClientSecret = appConfig.Discord.ClientSecret;
     options.CallbackPath = new PathString("/api/auth/callback");

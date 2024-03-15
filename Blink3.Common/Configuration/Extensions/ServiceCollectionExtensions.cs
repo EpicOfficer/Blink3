@@ -16,7 +16,6 @@ public static class ServiceCollectionExtensions
     /// <returns>The updated <see cref="IServiceCollection"/>.</returns>
     public static IServiceCollection AddAppConfiguration(this IServiceCollection services, IConfiguration configuration)
     {
-        BlinkConfiguration appConfig = configuration.Get<BlinkConfiguration>() ?? throw new InvalidOperationException();
-        return services.AddSingleton(appConfig);
+        return services.AddSingleton(configuration.GetAppConfiguration());
     }
 }

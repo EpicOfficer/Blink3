@@ -2,7 +2,7 @@
 using Blink3.Common.Caching.Extensions;
 using Blink3.Common.Configuration;
 using Blink3.Common.Configuration.Extensions;
-using Blink3.DataAccess.DIExtensions;
+using Blink3.DataAccess.Extensions;
 using Discord;
 using Discord.Addons.Hosting;
 using Discord.Interactions;
@@ -28,9 +28,12 @@ try
     HostApplicationBuilder builder = Host.CreateApplicationBuilder(args);
 
     builder.Services.AddSerilog();
+    
     builder.Services.AddAppConfiguration(builder.Configuration);
-    builder.Services.AddDataAccess(builder.Configuration);
-    builder.Services.AddCaching(builder.Configuration);
+    BlinkConfiguration appConfig = builder.Configuration.GetAppConfiguration();
+    
+    builder.Services.AddDataAccess(appConfig);
+    builder.Services.AddCaching(appConfig);
 
     builder.Services.AddDiscordHost((config, _) =>
     {

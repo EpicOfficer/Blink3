@@ -1,11 +1,11 @@
-using Blink3.DataAccess.Entities;
+using Blink3.Common.Configuration;
 using Blink3.DataAccess.Interfaces;
 using Blink3.DataAccess.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Blink3.DataAccess.DIExtensions;
+namespace Blink3.DataAccess.Extensions;
 
 /// <summary>
 /// Contains extension methods for configuring data access services.
@@ -18,10 +18,13 @@ public static class ServiceCollectionExtensions
     /// <param name="services">The service collection.</param>
     /// <param name="configuration">The configuration.</param>
     /// <returns>The modified service collection.</returns>
-    public static IServiceCollection AddDataAccess(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection AddDataAccess(this IServiceCollection services, BlinkConfiguration configuration)
     {
-        services.AddDbContext<BlinkDbContext>(options =>
-            options.UseSqlite(configuration.GetConnectionString("DefaultConnection")));
+        if (!string.IsNullOrWhiteSpace(configuration.ConnectionStrings.DefaultConnection))
+        {
+            services.AddDbContext<BlinkDbContext>(options =>
+                options.UseSqlite(configuration.ConnectionStrings.DefaultConnection));
+        }
 
         services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
         services.AddScoped<IBlinkGuildRepository, BlinkGuildRepository>();
