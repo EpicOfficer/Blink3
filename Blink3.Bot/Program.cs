@@ -8,7 +8,6 @@ using Discord.Addons.Hosting;
 using Discord.Interactions;
 using Discord.WebSocket;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Serilog;
@@ -45,8 +44,6 @@ try
             GatewayIntents = GatewayIntents.All
         };
     
-        BlinkConfiguration appConfig =
-            builder.Configuration.Get<BlinkConfiguration>() ?? throw new InvalidOperationException();
         config.Token = appConfig.Discord.BotToken;
     });
 
