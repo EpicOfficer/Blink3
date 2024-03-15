@@ -16,14 +16,7 @@ public static class ServiceCollectionExtensions
     /// <returns>The updated <see cref="IServiceCollection"/>.</returns>
     public static IServiceCollection AddAppConfiguration(this IServiceCollection services, IConfiguration configuration)
     {
-        BlinkConfiguration appConfig = new()
-        {
-            Discord = configuration.GetSection(nameof(BlinkConfiguration.DiscordConfig)).Get<BlinkConfiguration.DiscordConfig>() ?? throw new InvalidOperationException(),
-            ConnectionStrings = configuration.GetSection(nameof(BlinkConfiguration.ConnectionStringsConfig)).Get<BlinkConfiguration.ConnectionStringsConfig>() ?? throw new InvalidOperationException(),
-            Redis = configuration.GetSection(nameof(BlinkConfiguration.RedisConfig)).Exists() ?
-                configuration.GetSection(nameof(BlinkConfiguration.RedisConfig)).Get<BlinkConfiguration.RedisConfig>() : null
-        };
-
+        BlinkConfiguration appConfig = configuration.Get<BlinkConfiguration>() ?? throw new InvalidOperationException();
         return services.AddSingleton(appConfig);
     }
 }
