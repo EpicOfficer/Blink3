@@ -1,4 +1,4 @@
-using Blink3.Bot.Helpers;
+using Blink3.Bot.MessageStyles.Helpers;
 using Discord;
 using Discord.Interactions;
 

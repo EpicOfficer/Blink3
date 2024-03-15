@@ -3,7 +3,7 @@ using Blink3.Bot.MessageStyles.Extensions;
 using Blink3.Bot.MessageStyles.Variations;
 using Discord;
 
-namespace Blink3.Bot.Helpers;
+namespace Blink3.Bot.MessageStyles.Helpers;
 
 public static class EmbedHelpers
 {
