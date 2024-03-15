@@ -5,7 +5,6 @@ using Blink3.Bot.MessageStyles;
 using Blink3.Bot.Modals;
 using Blink3.DataAccess.Entities;
 using Blink3.DataAccess.Interfaces;
-using Blink3.DataAccess.Repositories;
 using Discord;
 using Discord.Interactions;
 
