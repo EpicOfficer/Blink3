@@ -29,13 +29,13 @@ public static class ServiceCollectionExtensions
             {
                 options.Configuration = config.Redis.ConnectionString;
             });
-            services.AddTransient<ICachingService, RedisCachingService>();
+            services.AddSingleton<ICachingService, RedisCachingService>();
 
             return services;
         }
         
         services.AddMemoryCache();
-        services.AddTransient<ICachingService, MemoryCachingService>();
+        services.AddSingleton<ICachingService, MemoryCachingService>();
 
         return services;
     }
