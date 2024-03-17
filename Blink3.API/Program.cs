@@ -17,7 +17,7 @@ builder.Services.AddSwaggerGen();
 
 // Add Application configurations
 builder.Services.AddAppConfiguration(builder.Configuration);
-BlinkConfiguration appConfig = builder.Services.GetBlinkConfiguration();
+BlinkConfiguration appConfig = builder.Services.GetAppConfiguration();
 
 // Add Data Access layer and cache provider
 builder.Services.AddDataAccess(appConfig);

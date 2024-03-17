@@ -30,7 +30,7 @@ public static class ServiceCollectionExtensions
     /// </summary>
     /// <param name="services">The <see cref="IServiceCollection"/> containing the application configuration.</param>
     /// <returns>The <see cref="BlinkConfiguration"/> object.</returns>
-    public static BlinkConfiguration GetBlinkConfiguration(this IServiceCollection services)
+    public static BlinkConfiguration GetAppConfiguration(this IServiceCollection services)
     {
         ServiceProvider provider = services.BuildServiceProvider();
         return provider.GetRequiredService<IOptions<BlinkConfiguration>>()?.Value ?? throw new InvalidOperationException();
