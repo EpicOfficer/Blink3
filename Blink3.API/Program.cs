@@ -44,6 +44,9 @@ builder.Services.AddAuthentication(options =>
     options.AuthorizationEndpoint = DiscordAuthenticationDefaults.AuthorizationEndpoint;
     options.TokenEndpoint = DiscordAuthenticationDefaults.TokenEndpoint;
     options.UserInformationEndpoint = DiscordAuthenticationDefaults.UserInformationEndpoint;
+    
+    options.Scope.Add("identify");
+    options.Scope.Add("guilds");
 });
 
 WebApplication app = builder.Build();
