@@ -1,25 +1,39 @@
+// ReSharper disable ClassNeverInstantiated.Global
+
+using System.ComponentModel.DataAnnotations;
+
 namespace Blink3.Common.Configuration;
 
-public class BlinkConfiguration
+public record BlinkConfiguration
 {
-    public DiscordConfig Discord { get; set; } = null!;
-    public ConnectionStringsConfig ConnectionStrings { get; set; } = null!;
-    public RedisConfig? Redis { get; set; }
+    [Required]
+    public DiscordConfig Discord { get; init; } = null!;
+    
+    [Required]
+    public ConnectionStringsConfig ConnectionStrings { get; init; } = null!;
+    
+    public RedisConfig? Redis { get; init; }
 }
 
-public class DiscordConfig
+public record DiscordConfig
 {
-    public string ClientId { get; set; } = null!;
-    public string ClientSecret { get; set; } = null!;
-    public string BotToken { get; set; } = null!;
+    [Required]
+    public string ClientId { get; init; } = null!;
+    
+    [Required]
+    public string ClientSecret { get; init; } = null!;
+    
+    [Required]
+    public string BotToken { get; init; } = null!;
 }
 
-public class ConnectionStringsConfig
+public record ConnectionStringsConfig
 {
-    public string DefaultConnection { get; set; } = null!;
+    [Required]
+    public string DefaultConnection { get; init; } = null!;
 }
 
-public class RedisConfig
+public record RedisConfig
 {
-    public string? ConnectionString { get; set; }
+    public string? ConnectionString { get; init; }
 }

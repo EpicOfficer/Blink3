@@ -29,7 +29,7 @@ try
     builder.Services.AddSerilog();
     
     builder.Services.AddAppConfiguration(builder.Configuration);
-    BlinkConfiguration appConfig = builder.Configuration.GetAppConfiguration();
+    BlinkConfiguration appConfig = builder.Services.GetBlinkConfiguration();
     
     builder.Services.AddDataAccess(appConfig);
     builder.Services.AddCaching(appConfig);

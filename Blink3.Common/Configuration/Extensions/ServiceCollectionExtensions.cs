@@ -1,5 +1,7 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Options;
 
 namespace Blink3.Common.Configuration.Extensions;
 
@@ -16,6 +18,21 @@ public static class ServiceCollectionExtensions
     /// <returns>The updated <see cref="IServiceCollection"/>.</returns>
     public static IServiceCollection AddAppConfiguration(this IServiceCollection services, IConfiguration configuration)
     {
-        return services.AddSingleton(configuration.GetAppConfiguration());
+        services.AddOptions<BlinkConfiguration>()
+            .Bind(configuration)
+            .ValidateDataAnnotations()
+            .ValidateOnStart();
+        return services;
+    }
+
+    /// <summary>
+    /// Retrieves the <see cref="BlinkConfiguration"/> from the <see cref="IServiceCollection"/>.
+    /// </summary>
+    /// <param name="services">The <see cref="IServiceCollection"/> containing the application configuration.</param>
+    /// <returns>The <see cref="BlinkConfiguration"/> object.</returns>
+    public static BlinkConfiguration GetBlinkConfiguration(this IServiceCollection services)
+    {
+        ServiceProvider provider = services.BuildServiceProvider();
+        return provider.GetRequiredService<IOptions<BlinkConfiguration>>()?.Value ?? throw new InvalidOperationException();
     }
 }
