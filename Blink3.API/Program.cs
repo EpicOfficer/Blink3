@@ -23,7 +23,10 @@ try
     builder.Host.UseSerilog();
     builder.Services.AddControllers();
     builder.Services.AddEndpointsApiExplorer();
-    builder.Services.AddSwaggerGen();
+    builder.Services.AddSwaggerGen(c =>
+    {
+        c.EnableAnnotations();
+    });
 
     // Add Application configurations
     builder.Services.AddAppConfiguration(builder.Configuration);

@@ -24,12 +24,12 @@ namespace Blink3.DataAccess.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("BlinkGuilds", (string)null);
+                    b.ToTable("BlinkGuilds");
                 });
 
             modelBuilder.Entity("Blink3.DataAccess.Entities.UserTodo", b =>
                 {
-                    b.Property<ulong>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
@@ -50,7 +50,7 @@ namespace Blink3.DataAccess.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("UserTodos", (string)null);
+                    b.ToTable("UserTodos");
                 });
 #pragma warning restore 612, 618
         }

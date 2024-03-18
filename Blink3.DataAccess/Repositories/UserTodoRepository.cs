@@ -23,7 +23,7 @@ public class UserTodoRepository(BlinkDbContext dbContext) :
         return await _dbContext.UserTodos.CountAsync(c => c.UserId.Equals(userId));
     }
 
-    public async Task CompleteByIdAsync(ulong id)
+    public async Task CompleteByIdAsync(int id)
     {
         UserTodo todo = new()
         {

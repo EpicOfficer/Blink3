@@ -5,16 +5,28 @@
 namespace Blink3.DataAccess.Migrations
 {
     /// <inheritdoc />
-    public partial class AddUserTodo : Migration
+    public partial class Initial : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "UserTodos",
+                name: "BlinkGuilds",
                 columns: table => new
                 {
                     Id = table.Column<ulong>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_BlinkGuilds", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "UserTodos",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
                     UserId = table.Column<ulong>(type: "INTEGER", nullable: false),
                     Label = table.Column<string>(type: "TEXT", maxLength: 25, nullable: false),
@@ -30,6 +42,9 @@ namespace Blink3.DataAccess.Migrations
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropTable(
+                name: "BlinkGuilds");
+
             migrationBuilder.DropTable(
                 name: "UserTodos");
         }

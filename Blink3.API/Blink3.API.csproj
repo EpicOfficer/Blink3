@@ -17,6 +17,7 @@
         <PackageReference Include="Serilog.Extensions.Logging" Version="8.0.0" />
         <PackageReference Include="Serilog.Sinks.Console" Version="5.0.1" />
         <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0"/>
+        <PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="6.5.0" />
     </ItemGroup>
 
     <ItemGroup>
@@ -36,6 +37,10 @@
     <ItemGroup>
       <ProjectReference Include="..\Blink3.Common\Blink3.Common.csproj" />
       <ProjectReference Include="..\Blink3.DataAccess\Blink3.DataAccess.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Interfaces\" />
     </ItemGroup>
 
 </Project>

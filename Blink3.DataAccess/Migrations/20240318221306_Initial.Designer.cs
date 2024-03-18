@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Blink3.DataAccess.Migrations
 {
     [DbContext(typeof(BlinkDbContext))]
-    [Migration("20240310110539_RemoveJoinedDate")]
-    partial class RemoveJoinedDate
+    [Migration("20240318221306_Initial")]
+    partial class Initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -28,6 +28,32 @@ namespace Blink3.DataAccess.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("BlinkGuilds");
+                });
+
+            modelBuilder.Entity("Blink3.DataAccess.Entities.UserTodo", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("Complete")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(50)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Label")
+                        .IsRequired()
+                        .HasMaxLength(25)
+                        .HasColumnType("TEXT");
+
+                    b.Property<ulong>("UserId")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("UserTodos");
                 });
 #pragma warning restore 612, 618
         }

@@ -5,6 +5,10 @@ namespace Blink3.API.Extensions;
 
 public static class ClaimsPrincipleExtensions
 {
+    public static ulong GetUserId(this ClaimsPrincipal user)
+        => ulong.TryParse(user.FindFirst(ClaimTypes.NameIdentifier)?.Value, out ulong userId) ? userId
+            : throw new InvalidOperationException("Unable to get user ID of logged in user");
+    
     public static AuthStatus GetAuthStatusModel(this ClaimsPrincipal user)
     {
         if (user.Identity?.IsAuthenticated is not true)

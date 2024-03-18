@@ -26,5 +26,5 @@ public interface IUserTodoRepository : IGenericRepository<UserTodo>
     /// </summary>
     /// <param name="id">The ID of the UserTodo to complete.</param>
     /// <returns>A task representing the asynchronous operation.</returns>
-    Task CompleteByIdAsync(ulong id);
+    Task CompleteByIdAsync(int id);
 }

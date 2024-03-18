@@ -47,7 +47,7 @@ public class TodoModule(IUserTodoRepository todoRepository) : BlinkModuleBase<II
     public async Task View([Description("Whether to post the todo list so that it is visible to other users.")] bool postPublicly = false)
     {
         ComponentBuilder builder = new ComponentBuilder()
-            .WithButton("Add", "todo:addButton", ButtonStyle.Primary)
+            .WithButton("Add", "todo:addButton")
             .WithButton("Complete", "todo:completeButton", ButtonStyle.Secondary)
             .WithButton("Remove", "todo:removeButton", ButtonStyle.Danger);
         
@@ -105,9 +105,9 @@ public class TodoModule(IUserTodoRepository todoRepository) : BlinkModuleBase<II
     [ComponentInteraction("todo:complete", ignoreGroupNames: true)]
     public async Task Complete(string id)
     {
-        ulong key = GetId(id);
+        int key = GetId(id);
 
-        await todoRepository.CompleteByIdAsync((ulong)key);
+        await todoRepository.CompleteByIdAsync(key);
 
         await RespondSuccessAsync("Marked todo as complete");
     }
@@ -115,16 +115,16 @@ public class TodoModule(IUserTodoRepository todoRepository) : BlinkModuleBase<II
     [ComponentInteraction("todo:remove", ignoreGroupNames: true)]
     public async Task Remove(string id)
     {
-        ulong key = GetId(id);
+        int key = GetId(id);
         
         await todoRepository.DeleteByIdAsync(key);
         
         await RespondSuccessAsync("Todo item removed");
     }
 
-    private static ulong GetId(string id)
+    private static int GetId(string id)
     {
-        if (!ulong.TryParse(id, out ulong key))
+        if (!int.TryParse(id, out int key))
         {
             throw new ArgumentOutOfRangeException(nameof(id));
         }

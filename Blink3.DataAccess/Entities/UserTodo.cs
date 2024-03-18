@@ -11,7 +11,7 @@ public class UserTodo
     /// Gets or sets the Id of the UserTodo.
     /// </summary>
     [Key]
-    public ulong Id { get; set; }
+    public int Id { get; set; }
 
     /// <summary>
     /// Represents the ID of a user.
