@@ -1,6 +1,9 @@
+using System.Security.Claims;
 using AspNet.Security.OAuth.Discord;
+using Blink3.API.Extensions;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Blink3.API.Controllers;
@@ -34,7 +37,6 @@ public class AuthController(IAuthenticationService authenticationService) : Cont
     [HttpGet("status")]
     public IActionResult Status()
     {
-        bool isAuthenticated = User.Identity?.IsAuthenticated ?? false;
-        return Ok(new { isAuthenticated });
+        return Ok(User.GetAuthStatusModel());
     }
 }

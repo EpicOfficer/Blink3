@@ -1,13 +1,10 @@
-using System.Security.Claims;
-using AspNet.Security.OAuth.Discord;
+using Blink3.API.Extensions;
 using Blink3.API.Services;
 using Blink3.Common.Caching.Extensions;
 using Blink3.Common.Configuration;
 using Blink3.Common.Configuration.Extensions;
 using Blink3.DataAccess.Extensions;
 using Discord.Rest;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Cookies;
 using Serilog;
 using Serilog.Events;
 
@@ -24,7 +21,6 @@ try
     // Add services to the container.
     // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
     builder.Host.UseSerilog();
-
     builder.Services.AddControllers();
     builder.Services.AddEndpointsApiExplorer();
     builder.Services.AddSwaggerGen();
@@ -42,32 +38,7 @@ try
     builder.Services.AddHostedService<DiscordStartupService>();
 
     // Configure Authentication and Discord OAuth
-    builder.Services.AddAuthentication(options =>
-    {
-        options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-        options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-        options.DefaultChallengeScheme = DiscordAuthenticationDefaults.AuthenticationScheme;
-    })
-    .AddCookie()
-    .AddOAuth(DiscordAuthenticationDefaults.AuthenticationScheme, options =>
-    {
-        options.ClientId = appConfig.Discord.ClientId;
-        options.ClientSecret = appConfig.Discord.ClientSecret;
-        options.CallbackPath = new PathString("/api/auth/callback");
-
-        options.AuthorizationEndpoint = DiscordAuthenticationDefaults.AuthorizationEndpoint;
-        options.TokenEndpoint = DiscordAuthenticationDefaults.TokenEndpoint;
-        options.UserInformationEndpoint = DiscordAuthenticationDefaults.UserInformationEndpoint;
-        
-        options.Scope.Add("identify");
-        options.Scope.Add("guilds");
-        
-        options.ClaimActions.MapJsonKey(ClaimTypes.NameIdentifier, "id");
-        options.ClaimActions.MapJsonKey(ClaimTypes.Name, "username");
-        options.ClaimActions.MapJsonKey(ClaimTypes.GivenName, "global_name");
-        
-        options.SaveTokens = true;
-    });
+    builder.Services.AddDiscordAuth(appConfig);
 
     WebApplication app = builder.Build();
 
