@@ -53,6 +53,8 @@ builder.Services.AddAuthentication(options =>
     options.ClaimActions.MapJsonKey(ClaimTypes.NameIdentifier, "id");
     options.ClaimActions.MapJsonKey(ClaimTypes.Name, "username");
     options.ClaimActions.MapJsonKey(ClaimTypes.GivenName, "global_name");
+    
+    options.SaveTokens = true;
 });
 
 WebApplication app = builder.Build();
