@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using AspNet.Security.OAuth.Discord;
 using Blink3.API.Services;
 using Blink3.Common.Caching.Extensions;
@@ -5,6 +6,7 @@ using Blink3.Common.Configuration;
 using Blink3.Common.Configuration.Extensions;
 using Blink3.DataAccess.Extensions;
 using Discord.Rest;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
@@ -47,6 +49,10 @@ builder.Services.AddAuthentication(options =>
     
     options.Scope.Add("identify");
     options.Scope.Add("guilds");
+    
+    options.ClaimActions.MapJsonKey(ClaimTypes.NameIdentifier, "id");
+    options.ClaimActions.MapJsonKey(ClaimTypes.Name, "username");
+    options.ClaimActions.MapJsonKey(ClaimTypes.GivenName, "global_name");
 });
 
 WebApplication app = builder.Build();
