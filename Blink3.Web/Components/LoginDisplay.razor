@@ -1,0 +1,9 @@
+@using Blink3.Common.Extensions
+<AuthorizeView>
+    <Authorized>
+        <a>@(context.User.GetDisplayName())</a>
+    </Authorized>
+    <NotAuthorized>
+        <a href="Login">Log in</a>
+    </NotAuthorized>
+</AuthorizeView>

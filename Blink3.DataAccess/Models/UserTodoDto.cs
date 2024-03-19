@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using Blink3.DataAccess.Entities;
 
-namespace Blink3.API.Models;
+namespace Blink3.DataAccess.Models;
 
 public class UserTodoDto
 {

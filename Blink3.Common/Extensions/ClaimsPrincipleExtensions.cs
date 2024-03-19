@@ -1,13 +1,18 @@
 using System.Security.Claims;
-using Blink3.API.Models;
+using Blink3.Common.Models;
 
-namespace Blink3.API.Extensions;
+namespace Blink3.Common.Extensions;
 
 public static class ClaimsPrincipleExtensions
 {
     public static ulong GetUserId(this ClaimsPrincipal user)
         => ulong.TryParse(user.FindFirst(ClaimTypes.NameIdentifier)?.Value, out ulong userId) ? userId
             : throw new InvalidOperationException("Unable to get user ID of logged in user");
+
+    public static string GetDisplayName(this ClaimsPrincipal user)
+        => user.FindFirst(c => c.Type == ClaimTypes.GivenName)?.Value ??
+           user.FindFirst(c => c.Type == ClaimTypes.Name)?.Value ??
+           string.Empty;
     
     public static AuthStatus GetAuthStatusModel(this ClaimsPrincipal user)
     {

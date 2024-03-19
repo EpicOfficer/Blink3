@@ -1,7 +1,7 @@
-using Blink3.API.Extensions;
-using Blink3.API.Models;
+using Blink3.Common.Extensions;
 using Blink3.DataAccess.Entities;
 using Blink3.DataAccess.Interfaces;
+using Blink3.DataAccess.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;

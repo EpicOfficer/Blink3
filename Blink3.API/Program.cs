@@ -27,6 +27,17 @@ try
     {
         c.EnableAnnotations();
     });
+    
+    // Configure Cors
+    builder.Services.AddCors(options =>
+    {
+        options.AddPolicy("CorsPolicy",
+            corsPolicyBuilder => corsPolicyBuilder
+                .WithOrigins("https://localhost:7041")  // adjust with your client url
+                .AllowAnyMethod()
+                .AllowAnyHeader()
+                .AllowCredentials());
+    });
 
     // Add Application configurations
     builder.Services.AddAppConfiguration(builder.Configuration);
@@ -54,6 +65,9 @@ try
 
     app.UseHttpsRedirection();
 
+    // Use Cors
+    app.UseCors("CorsPolicy");
+    
     app.UseAuthentication();
     app.UseAuthorization();
     

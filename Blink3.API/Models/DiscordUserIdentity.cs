@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+// ReSharper disable PropertyCanBeMadeInitOnly.Global
 
 namespace Blink3.API.Models;
 

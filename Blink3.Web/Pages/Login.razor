@@ -1,0 +1,10 @@
+@page "/Login"
+@using Blink3.Web.Interfaces
+@inject IAuthenticationService AuthService
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        await AuthService.LoginAsync();
+    }
+}
