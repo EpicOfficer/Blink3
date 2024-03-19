@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using Blink3.DataAccess.Entities;
 
 namespace Blink3.API.Models;
@@ -7,22 +8,27 @@ public class UserTodoDto
     /// <summary>
     /// Represents the ID of a user.
     /// </summary>
+    [Required]
     public ulong UserId { get; set; }
 
     /// <summary>
     /// Represents a label associated with a user's "to do".
     /// </summary>
+    [Required]
+    [MaxLength(25)]
     public required string Label { get; set; }
 
     /// <summary>
     /// Represents the description of the user "to do".
     /// </summary>
+    [MaxLength(50)]
     public string? Description { get; set; }
 
     /// <summary>
     /// Represents whether user "to do" is complete or not.
     /// </summary>
-    public bool Complete { get; set; }
+    // ReSharper disable once MemberCanBePrivate.Global
+    public bool Complete { get; set; } = false;
 
     /// <summary>
     /// Converts a UserTodoDto object to a UserTodo entity.

@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+// ReSharper disable PropertyCanBeMadeInitOnly.Global
 
 namespace Blink3.DataAccess.Entities;
 
@@ -16,6 +17,7 @@ public class UserTodo
     /// <summary>
     /// Represents the ID of a user.
     /// </summary>
+    [Required]
     public required ulong UserId { get; set; }
 
     /// <summary>
@@ -24,6 +26,7 @@ public class UserTodo
     /// <remarks>
     /// The maximum length of the label is 25 characters
     /// </remarks>
+    [Required]
     [MaxLength(25)]
     public required string Label { get; set; }
 

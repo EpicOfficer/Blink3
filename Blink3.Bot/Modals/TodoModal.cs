@@ -3,6 +3,7 @@ using Discord.Interactions;
 
 namespace Blink3.Bot.Modals;
 
+// ReSharper disable once ClassNeverInstantiated.Global
 public class TodoModal : IModal
 {
     public string Title => "Add todo list item";
