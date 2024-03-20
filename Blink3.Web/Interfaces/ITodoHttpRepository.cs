@@ -12,7 +12,7 @@ public interface ITodoHttpRepository
     /// Retrieves all the UserTodo entities.
     /// </summary>
     /// <returns>A task representing the asynchronous operation that returns a collection of UserTodo objects.</returns>
-    public Task<IReadOnlyCollection<UserTodo>> GetAsync();
+    public Task<IEnumerable<UserTodo>> GetAsync();
 
     /// <summary>
     /// Retrieves all UserTodo entities asynchronously.

@@ -10,8 +10,8 @@ public class TodoHttpRepository(HttpClient httpClient) : ITodoHttpRepository
 {
     private const string BasePath = "api/todo";
 
-    public async Task<IReadOnlyCollection<UserTodo>> GetAsync() =>
-        await httpClient.GetFromJsonAsync<IReadOnlyCollection<UserTodo>>($"{BasePath}") ?? [];
+    public async Task<IEnumerable<UserTodo>> GetAsync() =>
+        await httpClient.GetFromJsonAsync<IEnumerable<UserTodo>>($"{BasePath}") ?? [];
 
     public async Task<UserTodo?> GetAsync(int id) =>
         await httpClient.GetFromJsonAsync<UserTodo>($"{BasePath}/{id}");
@@ -19,7 +19,7 @@ public class TodoHttpRepository(HttpClient httpClient) : ITodoHttpRepository
     public async Task<UserTodo> AddAsync(UserTodoDto todoDto)
     {
         HttpResponseMessage resp = await httpClient.PostAsJsonAsync($"{BasePath}", todoDto);
-        if (resp.IsSuccessStatusCode)
+        if (!resp.IsSuccessStatusCode)
         {
             throw new ApplicationException("Error occured while adding todo item", new Exception(await resp.Content.ReadAsStringAsync()));
         }

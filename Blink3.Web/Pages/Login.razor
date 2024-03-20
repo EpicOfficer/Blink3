@@ -3,8 +3,9 @@
 @inject IAuthenticationService AuthService
 
 @code {
-    protected override async Task OnInitializedAsync()
+    protected override Task OnInitializedAsync()
     {
         AuthService.LogIn();
+        return Task.CompletedTask;
     }
 }

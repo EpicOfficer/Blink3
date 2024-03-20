@@ -1,4 +1,4 @@
-@page "/todo"
+@page "/Todo"
 @using Blink3.Web.Interfaces
 @using Blink3.DataAccess.Entities
 @using Blink3.DataAccess.Models
@@ -11,11 +11,11 @@
         <li class="list-group-item d-flex align-items-center px-0 py-1 rounded-0 border-0 bg-transparent">
             <div class="form-check">
                 <input
-                    class="form-check-input me-0"
                     type="checkbox"
+                    class="form-check-input me-0"
                     aria-label="@todo.Label"
-                    @onchange="async (args) => await UpdateTodoAsync(todo, !todo.Complete)"
                     checked="@todo.Complete"
+                    @onchange="async (args) => await UpdateTodoAsync(todo, !todo.Complete)"
                 />
             </div>
         </li>
@@ -35,8 +35,30 @@
     </ul>
 }
 
+<h2>Create Product Form</h2>
+<EditForm Model="_todo" OnSubmit="@CreateTodoAsync" class="card card-body bg-light mt-5">
+    <div class="form-group row">
+        <label for="name" class="col-md-2 col-form-label">Label:</label>
+        <div class="col-md-10">
+            <InputText id="name" class="form-control" @bind-Value="_todo.Label" />
+        </div>
+    </div>
+    <div class="form-group row">
+        <label for="supplier" class="col-md-2 col-form-label">Description:</label>
+        <div class="col-md-10">
+            <InputTextArea id="supplier" class="form-control" @bind-Value="_todo.Description" />
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12 text-right">
+            <Button Type="ButtonType.Submit" Color="ButtonColor.Primary">Create</Button>
+        </div>
+    </div>
+</EditForm>
+
 @code {
-    private IReadOnlyCollection<UserTodo> Todos { get; set; } = [];
+    private IEnumerable<UserTodo> Todos { get; set; } = [];
+    private UserTodoDto _todo = new() {Label = ""};
 
     [Inject] public ITodoHttpRepository TodoHttpRepository { get; set; } = null!;
 
@@ -44,6 +66,13 @@
 
     private async Task UpdateTodosAsync() => Todos = await TodoHttpRepository.GetAsync();
 
+    private async Task CreateTodoAsync()
+    {
+        UserTodo newTodo = await TodoHttpRepository.AddAsync(_todo);
+        Todos = Todos.Append(newTodo);
+        _todo = new UserTodoDto { Label = "" };
+    }
+    
     private async Task UpdateTodoAsync(UserTodo todo, bool complete)
     {
         todo.Complete = complete;
