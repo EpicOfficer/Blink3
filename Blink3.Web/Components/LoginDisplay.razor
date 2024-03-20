@@ -1,9 +1,22 @@
 @using Blink3.Common.Extensions
+@using Blink3.Web.Pages
+@inject NavigationManager Navigation
+
 <AuthorizeView>
     <Authorized>
-        <a>@(context.User.GetDisplayName())</a>
+        <Dropdown>
+            <DropdownToggleButton Color="ButtonColor.Secondary">@(context.User.GetDisplayName())</DropdownToggleButton>
+            <DropdownMenu>
+                <DropdownItem @onclick="Logout">Logout</DropdownItem>
+            </DropdownMenu>
+        </Dropdown>
     </Authorized>
     <NotAuthorized>
-        <a href="Login">Log in</a>
+        <Button Color="ButtonColor.Secondary" @onclick="Login">Login</Button>
     </NotAuthorized>
 </AuthorizeView>
+
+@code{
+    private void Login(EventArgs args) => Navigation.NavigateTo("/login");
+    private void Logout(EventArgs args) => Navigation.NavigateTo("/logout");
+}

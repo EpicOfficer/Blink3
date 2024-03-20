@@ -8,22 +8,18 @@ using Microsoft.AspNetCore.Components.Authorization;
 namespace Blink3.Web.Services;
 
 /// <inheritdoc />
-public class AuthenticationService(HttpClient httpClient, NavigationManager navigationManager) : IAuthenticationService
+public class AuthenticationService(HttpClient httpClient, NavigationManager navigationManager, AuthenticationStateProvider authenticationStateProvider) : IAuthenticationService
 {
     private const string BasePath = "api/auth";
     private string BaseUrl => $"{httpClient.BaseAddress?.ToString()}{BasePath}";
-    
-    public async Task LoginAsync()
-    {
-        navigationManager.NavigateTo($"{BaseUrl}/login?returnUrl={navigationManager.BaseUri}");
-    }
 
-    public async Task LogoutAsync()
+    public void LogIn() =>
+        navigationManager.NavigateTo($"{BaseUrl}/login?returnUrl={navigationManager.BaseUri}");
+
+    public async Task LogOutAsync()
     {
         await httpClient.GetAsync($"{BasePath}/logout");
-        
-        navigationManager.NavigateTo(navigationManager.BaseUri);
+        ((ApiAuthenticationStateProvider)authenticationStateProvider).NotifyLogout();
+        navigationManager.NavigateTo("/");
     }
-
-    public async Task<AuthStatus?> GetStatusAsync() => await httpClient.GetFromJsonAsync<AuthStatus>($"{BasePath}/status");
 }

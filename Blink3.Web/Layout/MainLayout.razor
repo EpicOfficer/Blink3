@@ -1,8 +1,9 @@
 ﻿@inherits LayoutComponentBase
 <div class="page">
-    <div class="sidebar">
-        <NavMenu/>
-    </div>
+    <Sidebar @ref="_sidebar"
+             IconName="IconName.BootstrapFill"
+             Title="Blink3"
+             DataProvider="SidebarDataProvider" />
 
     <main>
         <div class="top-row px-4">
@@ -14,3 +15,33 @@
         </article>
     </main>
 </div>
+
+@code {
+    Sidebar? _sidebar;
+    IEnumerable<NavItem>? _navItems;
+    
+    private async Task<SidebarDataProviderResult> SidebarDataProvider(SidebarDataProviderRequest request)
+    {
+        _navItems ??= GetNavItems();
+
+        return await Task.FromResult(request.ApplyTo(_navItems));
+    }
+    
+    private IEnumerable<NavItem> GetNavItems()
+    {
+        _navItems = new List<NavItem>
+        {
+            new NavItem
+            {
+                Id = "1",
+                Href = "/",
+                IconName = IconName.HouseDoorFill,
+                Text = "Home",
+                Match=NavLinkMatch.All,
+                Class = "py-2"
+            }
+        };
+
+        return _navItems;
+    }
+}

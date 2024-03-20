@@ -7,6 +7,8 @@ using Blink3.Web.Services;
 using Microsoft.AspNetCore.Components.Authorization;
 
 WebAssemblyHostBuilder builder = WebAssemblyHostBuilder.CreateDefault(args);
+builder.Services.AddBlazorBootstrap();
+
 builder.RootComponents.Add<App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
 
