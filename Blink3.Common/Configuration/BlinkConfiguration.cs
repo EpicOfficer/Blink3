@@ -25,6 +25,8 @@ public record DiscordConfig
     
     [Required]
     public string BotToken { get; init; } = null!;
+    
+    public ulong? DevGuildId { get; init; }
 }
 
 public record ConnectionStringsConfig

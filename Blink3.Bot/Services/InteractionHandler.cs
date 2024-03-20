@@ -1,6 +1,7 @@
 using System.Reflection;
 using Blink3.Bot.MessageStyles.Extensions;
 using Blink3.Bot.MessageStyles.Variations;
+using Blink3.Common.Configuration;
 using Discord;
 using Discord.Addons.Hosting;
 using Discord.Addons.Hosting.Util;
@@ -8,6 +9,7 @@ using Discord.Interactions;
 using Discord.WebSocket;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace Blink3.Bot.Services;
 
@@ -15,9 +17,13 @@ public class InteractionHandler(
     DiscordSocketClient client,
     ILogger<DiscordClientService> logger,
     InteractionService handler,
-    IServiceProvider provider)
+    IServiceProvider provider,
+    IOptions<BlinkConfiguration> config)
     : DiscordClientService(client, logger)
 {
+    private readonly ILogger<DiscordClientService> _logger = logger;
+    private BlinkConfiguration Config => config.Value;
+
     protected override async Task ExecuteAsync(CancellationToken cancellationToken)
     {
         // Add the public modules that inherit InteractionModuleBase<T> to the InteractionService
@@ -32,8 +38,17 @@ public class InteractionHandler(
 
         await Client.WaitForReadyAsync(cancellationToken);
 
-        // Register the commands globally.
-        await handler.RegisterCommandsToGuildAsync(787646005641216040);
+        // Register the commands.
+        if (Config.Discord.DevGuildId.HasValue)
+        {
+            _logger.LogInformation("Registering commands to guild {guildId}", Config.Discord.DevGuildId);
+            await handler.RegisterCommandsToGuildAsync(Config.Discord.DevGuildId.Value);
+        }
+        else
+        {
+            _logger.LogInformation("Registering commands globally");
+            await handler.RegisterCommandsGloballyAsync();
+        }
     }
     
     private async Task HandleInteraction(SocketInteraction interaction)
@@ -48,7 +63,7 @@ public class InteractionHandler(
         }
         catch (Exception e)
         {
-            logger.LogError(e, "Exception occurred whilst attempting to handle interaction.");
+            _logger.LogError(e, "Exception occurred whilst attempting to handle interaction.");
             
             // If Slash Command execution fails it is most likely that the original interaction acknowledgement will persist. It is a good idea to delete the original
             // response, or at least let the user know that something went wrong during the command execution.
@@ -61,11 +76,11 @@ public class InteractionHandler(
     {
         if (result?.IsSuccess is true)
         {
-            logger.LogInformation("Handled interaction {interaction} in module {module} for user {userId}", commandInfo.Name, commandInfo.Module.Name, context.User.Id);
+            _logger.LogInformation("Handled interaction {interaction} in module {module} for user {userId}", commandInfo.Name, commandInfo.Module.Name, context.User.Id);
             return;
         }
 
-        logger.LogWarning("Error handling interaction {interaction} in module {module} for user {userId}: {ErrorReason}", commandInfo?.Name, commandInfo?.Module?.Name, context?.User?.Id, result?.ErrorReason);
+        _logger.LogWarning("Error handling interaction {interaction} in module {module} for user {userId}: {ErrorReason}", commandInfo?.Name, commandInfo?.Module?.Name, context?.User?.Id, result?.ErrorReason);
 
         if (context?.Interaction is null) return;
         
