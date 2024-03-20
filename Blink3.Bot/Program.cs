@@ -41,7 +41,11 @@ try
             LogLevel = LogSeverity.Verbose,
             AlwaysDownloadUsers = true,
             MessageCacheSize = 200,
-            GatewayIntents = GatewayIntents.All
+            GatewayIntents = GatewayIntents.Guilds |
+                             GatewayIntents.GuildMembers |
+                             GatewayIntents.GuildMessages |
+                             GatewayIntents.MessageContent |
+                             GatewayIntents.DirectMessages
         };
     
         config.Token = appConfig.Discord.BotToken;
