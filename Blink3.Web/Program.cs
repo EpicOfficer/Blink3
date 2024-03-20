@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Blink3.Web;
 using Blink3.Web.Extensions;
 using Blink3.Web.Interfaces;
+using Blink3.Web.Repositories;
 using Blink3.Web.Services;
 using Microsoft.AspNetCore.Components.Authorization;
 
@@ -24,5 +25,7 @@ builder.Services.AddScoped(sp => sp
 builder.Services.AddAuthorizationCore();
 builder.Services.AddScoped<AuthenticationStateProvider, ApiAuthenticationStateProvider>();
 builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
+
+builder.Services.AddScoped<ITodoHttpRepository, TodoHttpRepository>();
 
 await builder.Build().RunAsync();

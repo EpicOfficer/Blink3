@@ -1,0 +1,23 @@
+@page "/todo"
+@using Blink3.Web.Interfaces
+@using Blink3.DataAccess.Entities
+
+<PageTitle>Todo list</PageTitle>
+<h1>Todo list</h1>
+<ul>
+    @foreach (UserTodo todo in Todos)
+    {
+        <li>@todo.Label</li>
+    }
+</ul>
+
+@code {
+    private IReadOnlyCollection<UserTodo> Todos { get; set; } = [];
+
+    [Inject] public ITodoHttpRepository TodoHttpRepository { get; set; } = null!;
+    
+    protected override async Task OnInitializedAsync()
+    {
+        Todos = await TodoHttpRepository.GetAsync();
+    }
+}
