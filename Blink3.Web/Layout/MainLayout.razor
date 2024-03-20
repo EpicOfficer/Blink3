@@ -17,7 +17,7 @@
 </div>
 
 @code {
-    Sidebar? _sidebar;
+    Sidebar _sidebar = default!;
     IEnumerable<NavItem>? _navItems;
     
     private async Task<SidebarDataProviderResult> SidebarDataProvider(SidebarDataProviderRequest request)
