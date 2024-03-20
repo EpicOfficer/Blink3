@@ -18,7 +18,7 @@ public interface ITodoHttpRepository
     /// Retrieves all UserTodo entities asynchronously.
     /// </summary>
     /// <returns>A task representing the asynchronous operation. The task result contains a read-only collection of UserTodo entities.</returns>
-    public Task<UserTodo> GetAsync(int id);
+    public Task<UserTodo?> GetAsync(int id);
 
     /// <summary>
     /// Adds a new UserTodo asynchronously.

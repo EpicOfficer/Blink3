@@ -13,23 +13,23 @@ public class TodoHttpRepository(HttpClient httpClient) : ITodoHttpRepository
     public async Task<IReadOnlyCollection<UserTodo>> GetAsync() =>
         await httpClient.GetFromJsonAsync<IReadOnlyCollection<UserTodo>>($"{BasePath}") ?? [];
 
-    public Task<UserTodo> GetAsync(int id)
+    public async Task<UserTodo?> GetAsync(int id) =>
+        await httpClient.GetFromJsonAsync<UserTodo>($"{BasePath}/{id}");
+
+    public async Task<UserTodo> AddAsync(UserTodoDto todoDto)
     {
-        throw new NotImplementedException(); 
+        HttpResponseMessage resp = await httpClient.PostAsJsonAsync($"{BasePath}", todoDto);
+        if (resp.IsSuccessStatusCode)
+        {
+            throw new ApplicationException("Error occured while adding todo item", new Exception(await resp.Content.ReadAsStringAsync()));
+        }
+
+        return await resp.Content.ReadFromJsonAsync<UserTodo>() ?? throw new InvalidOperationException("Unable to deserialize JSON response from API");
     }
 
-    public Task<UserTodo> AddAsync(UserTodoDto todoDto)
-    {
-        throw new NotImplementedException();
-    }
+    public async Task UpdateAsync(int id, UserTodoDto todoDto) =>
+        await httpClient.PutAsJsonAsync($"{BasePath}/{id}", todoDto);
 
-    public Task UpdateAsync(int id, UserTodoDto todoDto)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task DeleteAsync(int id)
-    {
-        throw new NotImplementedException();
-    }
+    public async Task DeleteAsync(int id) =>
+        await httpClient.DeleteAsync($"{BasePath}/{id}");
 }
