@@ -36,7 +36,7 @@
         </li>
         <li class="list-group-item px-0 py-1 rounded-0 border-0 bg-transparent">
             <div class="d-flex flex-row justify-content-end mb-1 h-100">
-                <a href="#" class="my-auto"><Icon Name="IconName.TrashFill" Color="IconColor.Danger" Size="IconSize.x4"></Icon></a>
+                <Button Color="ButtonColor.None" href="#" class="my-auto" @onclick="async (_) => await DeleteAsync(todo.Id)"><Icon Name="IconName.TrashFill" Color="IconColor.Danger" Size="IconSize.x4"></Icon></Button>
             </div>
         </li>
     </ul>
@@ -46,9 +46,14 @@
     private IReadOnlyCollection<UserTodo> Todos { get; set; } = [];
 
     [Inject] public ITodoHttpRepository TodoHttpRepository { get; set; } = null!;
+
+    protected override async Task OnInitializedAsync() => await UpdateTodosAsync();
+
+    private async Task UpdateTodosAsync() => Todos = await TodoHttpRepository.GetAsync();
     
-    protected override async Task OnInitializedAsync()
+    private async Task DeleteAsync(int id)
     {
-        Todos = await TodoHttpRepository.GetAsync();
+        await TodoHttpRepository.DeleteAsync(id);
+        await UpdateTodosAsync();
     }
 }
