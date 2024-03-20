@@ -1,9 +1,12 @@
-﻿@inherits LayoutComponentBase
+﻿@using System.Security.Claims
+@inherits LayoutComponentBase
+@inject NavigationManager Navigation;
+
 <div class="page">
     <Sidebar @ref="_sidebar"
              IconName="IconName.BootstrapFill"
              Title="Blink3"
-             DataProvider="SidebarDataProvider" />
+             DataProvider="SidebarDataProvider"/>
 
     <main>
         <div class="top-row px-4">
@@ -16,18 +19,33 @@
     </main>
 </div>
 
+@* ReSharper disable InconsistentNaming *@
 @code {
-    Sidebar _sidebar = default!;
-    IEnumerable<NavItem>? _navItems;
-    
+    Sidebar _sidebar = null!;
+    List<NavItem>? _navItems;
+
+    [CascadingParameter]
+    private Task<AuthenticationState> authenticationStateTask { get; set; } = null!;
+
+    protected override Task OnInitializedAsync()
+    {
+        Navigation.LocationChanged += async (_, _) =>
+        {
+            await GetNavItems();
+            await _sidebar.RefreshDataAsync();
+        };
+        
+        return Task.CompletedTask;
+    }
+
     private async Task<SidebarDataProviderResult> SidebarDataProvider(SidebarDataProviderRequest request)
     {
-        _navItems ??= GetNavItems();
+        _navItems ??= await GetNavItems();
 
         return await Task.FromResult(request.ApplyTo(_navItems));
     }
-    
-    private IEnumerable<NavItem> GetNavItems()
+
+    private async Task<List<NavItem>> GetNavItems()
     {
         _navItems = new List<NavItem>
         {
@@ -37,11 +55,25 @@
                 Href = "/",
                 IconName = IconName.HouseDoorFill,
                 Text = "Home",
-                Match=NavLinkMatch.All,
-                Class = "py-2"
+                Match=NavLinkMatch.All
             }
         };
+        
+        AuthenticationState authState = await authenticationStateTask;
+        ClaimsPrincipal user = authState.User;
+
+        if (user.Identity?.IsAuthenticated is true)
+        {
+            _navItems.Add(new NavItem()
+            {
+                Id = "2",
+                Href = "/todo",
+                IconName = IconName.Pencil,
+                Text = "Todo list"
+            });
+        }
 
         return _navItems;
     }
 }
+@* ReSharper restore InconsistentNaming *@
