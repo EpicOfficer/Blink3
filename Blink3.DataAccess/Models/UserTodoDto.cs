@@ -6,12 +6,6 @@ namespace Blink3.DataAccess.Models;
 public class UserTodoDto
 {
     /// <summary>
-    /// Represents the ID of a user.
-    /// </summary>
-    [Required]
-    public ulong UserId { get; set; }
-
-    /// <summary>
     /// Represents a label associated with a user's "to do".
     /// </summary>
     [Required]
@@ -33,13 +27,14 @@ public class UserTodoDto
     /// <summary>
     /// Converts a UserTodoDto object to a UserTodo entity.
     /// </summary>
+    /// <param name="userId">The logged in users' ID</param>
     /// <param name="id">The ID of the UserTodo entity. If specified, it will be assigned to the created entity.</param>
     /// <returns>The UserTodo entity created from the UserTodoDto object.</returns>
-    public UserTodo ToEntity(int? id = null)
+    public UserTodo ToEntity(ulong userId, int? id = null)
     {
         UserTodo userTodo = new()
         {
-            UserId = UserId,
+            UserId = userId,
             Label = Label,
             Description = Description,
             Complete = Complete

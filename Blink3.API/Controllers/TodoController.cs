@@ -63,9 +63,7 @@ namespace Blink3.API.Controllers
         [SwaggerResponse(201, "Created", typeof(UserTodo))]
         public async Task<ActionResult<UserTodo>> CreateTodo([FromBody] UserTodoDto userTodoDto)
         {
-            if (userTodoDto.UserId != UserId) return Unauthorized();
-        
-            UserTodo createdTodo = await todoRepository.AddAsync(userTodoDto.ToEntity());
+            UserTodo createdTodo = await todoRepository.AddAsync(userTodoDto.ToEntity(UserId));
         
             return CreatedAtAction(nameof(GetTodo), new { id = createdTodo.Id }, createdTodo);
         }
@@ -85,7 +83,7 @@ namespace Blink3.API.Controllers
             if (todo is null) return NotFound();
             if (todo.UserId != UserId) return Unauthorized();
 
-            await todoRepository.AddAsync(todoDto.ToEntity(id));
+            await todoRepository.UpdateAsync(todoDto.ToEntity(UserId, id));
         
             return NoContent();
         }
