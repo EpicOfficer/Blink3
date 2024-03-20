@@ -1,6 +1,7 @@
 @page "/todo"
 @using Blink3.Web.Interfaces
 @using Blink3.DataAccess.Entities
+@using Blink3.DataAccess.Models
 
 <PageTitle>Todo list</PageTitle>
 <h1 class="border-bottom">Todo list</h1>
@@ -9,21 +10,13 @@
     <ul class="list-group list-group-horizontal rounded-0 bg-transparent border-bottom">
         <li class="list-group-item d-flex align-items-center px-0 py-1 rounded-0 border-0 bg-transparent">
             <div class="form-check">
-                @if (todo.Complete)
-                {
-                    <input
-                        class="form-check-input me-0"
-                        type="checkbox"
-                        aria-label="@todo.Label"
-                        checked />
-                }
-                else
-                {
-                    <input
-                        class="form-check-input me-0"
-                        type="checkbox"
-                        aria-label="@todo.Label" />
-                }
+                <input
+                    class="form-check-input me-0"
+                    type="checkbox"
+                    aria-label="@todo.Label"
+                    @onchange="async (args) => await UpdateTodoAsync(todo, !todo.Complete)"
+                    checked="@todo.Complete"
+                />
             </div>
         </li>
         <li class="list-group-item px-3 py-1 d-flex align-items-center flex-grow-1 border-0 bg-transparent">
@@ -50,6 +43,18 @@
     protected override async Task OnInitializedAsync() => await UpdateTodosAsync();
 
     private async Task UpdateTodosAsync() => Todos = await TodoHttpRepository.GetAsync();
+
+    private async Task UpdateTodoAsync(UserTodo todo, bool complete)
+    {
+        todo.Complete = complete;
+        
+        await TodoHttpRepository.UpdateAsync(todo.Id, new UserTodoDto()
+        {
+            Label = todo.Label,
+            Description = todo.Description,
+            Complete = complete
+        });
+    }
     
     private async Task DeleteAsync(int id)
     {
