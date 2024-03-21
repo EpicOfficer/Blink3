@@ -8,14 +8,14 @@ public class UserTodoDto
     /// <summary>
     /// Represents a label associated with a user's "to do".
     /// </summary>
-    [Required]
-    [MaxLength(25)]
+    [Required(ErrorMessage = "Label is required")]
+    [MaxLength(25, ErrorMessage = "Label must not exceed 25 characters")]
     public required string Label { get; set; }
 
     /// <summary>
     /// Represents the description of the user "to do".
     /// </summary>
-    [MaxLength(50)]
+    [MaxLength(50, ErrorMessage = "Description must not exceed 50 characters")]
     public string? Description { get; set; }
 
     /// <summary>
