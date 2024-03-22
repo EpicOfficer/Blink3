@@ -35,47 +35,16 @@
     </ul>
 }
 
-<h2>Create Product Form</h2>
-<EditForm Model="_todo" OnValidSubmit="@CreateTodoAsync" class="card card-body bg-light mt-5">
-    <DataAnnotationsValidator />
-    <div class="form-group row">
-        <label for="name" class="col-md-2 col-form-label">Label:</label>
-        <div class="col-md-10">
-            <InputText class="form-control" @bind-Value="_todo.Label"/>
-            <ValidationMessage For="() => _todo.Label" />
-        </div>
-    </div>
-    <div class="form-group row">
-        <label for="supplier" class="col-md-2 col-form-label">Description:</label>
-        <div class="col-md-10">
-            <InputTextArea class="form-control" @bind-Value="_todo.Description"/>
-            <ValidationMessage For="() => _todo.Description" />
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-md-12 text-right">
-            <Button Type="ButtonType.Submit" Color="ButtonColor.Primary">Create</Button>
-        </div>
-    </div>
-</EditForm>
+<CreateTodoForm AddTodo="@(todo => { Todos = Todos.Append(todo); StateHasChanged(); })" />
 
 @code {
     private IEnumerable<UserTodo> Todos { get; set; } = [];
-    private UserTodoDto _todo = new() {Label = ""};
-
-    [Inject] public ITodoHttpRepository TodoHttpRepository { get; set; } = null!;
+    [Inject] private ITodoHttpRepository TodoHttpRepository { get; set; } = null!;
 
     protected override async Task OnInitializedAsync() => await UpdateTodosAsync();
 
     private async Task UpdateTodosAsync() => Todos = await TodoHttpRepository.GetAsync();
 
-    private async Task CreateTodoAsync()
-    {
-        UserTodo newTodo = await TodoHttpRepository.AddAsync(_todo);
-        Todos = Todos.Append(newTodo);
-        _todo = new UserTodoDto { Label = "" };
-    }
-    
     private async Task UpdateTodoAsync(UserTodo todo, bool complete)
     {
         todo.Complete = complete;

@@ -1,0 +1,32 @@
+@using Blink3.DataAccess.Models
+@using Blink3.Web.Interfaces
+@using Blink3.DataAccess.Entities
+
+<EditForm Model="_todo" OnValidSubmit="@(CreateTodoAsync)">
+    <AntiforgeryToken />
+    <DataAnnotationsValidator/>
+    <div class="mb-3">
+        <label for="@(nameof(_todo.Label))" class="form-label">Label:</label>
+        <InputText id="@(nameof(_todo.Label))" class="form-control" @bind-Value="_todo.Label"/>
+        <ValidationMessage For="@(() => _todo.Label)"/>
+    </div>
+    <div class="mb-3">
+        <label for="@(nameof(_todo.Description))" class="form-label">Description:</label>
+        <InputTextArea id="@(nameof(_todo.Description))" class="form-control" @bind-Value="_todo.Description"/>
+        <ValidationMessage For="@(() => _todo.Description)"/>
+    </div>
+    <Button Type="@(ButtonType.Submit)" Color="ButtonColor.Primary">Create</Button>
+</EditForm>
+
+@code {
+    [Inject] private ITodoHttpRepository TodoHttpRepository { get; set; } = null!;
+    [Parameter] public Action<UserTodo> AddTodo { get; set; } = null!;
+    private UserTodoDto _todo = new() {Label = ""};
+    
+    private async Task CreateTodoAsync()
+    {
+        UserTodo newTodo = await TodoHttpRepository.AddAsync(_todo);
+        AddTodo.Invoke(newTodo);
+        _todo = new UserTodoDto { Label = "" };
+    }
+}
