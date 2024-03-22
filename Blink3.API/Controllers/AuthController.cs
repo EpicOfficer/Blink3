@@ -35,7 +35,7 @@ namespace Blink3.API.Controllers
              OperationId = "Auth.Logout",
              Tags = new[] { "Auth" }
          )]
-         [SwaggerResponse(200, "Logged out", typeof(object))]
+         [SwaggerResponse(StatusCodes.Status204NoContent, "Logged out")]
          public async Task<IActionResult> LogOut()
          {
              await authenticationService.SignOutAsync(HttpContext,
@@ -45,7 +45,7 @@ namespace Blink3.API.Controllers
                     RedirectUri = "/"
                 });
 
-            return Ok(new { message = "Logged Out" });
+            return NoContent();
          }
 
          [HttpGet("status")]
@@ -55,7 +55,7 @@ namespace Blink3.API.Controllers
              OperationId = "Auth.Status",
              Tags = new[] { "Auth" }
          )]
-         [SwaggerResponse(200, "Returned user authentication status", typeof(AuthStatus))]
+         [SwaggerResponse(StatusCodes.Status200OK, "Returned user authentication status", typeof(AuthStatus))]
          public IActionResult Status()
          {
              return Ok(User.GetAuthStatusModel());

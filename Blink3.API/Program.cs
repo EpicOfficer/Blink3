@@ -21,6 +21,7 @@ try
     // Add services to the container.
     // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
     builder.Host.UseSerilog();
+    builder.Services.AddProblemDetails();
     builder.Services.AddControllers();
     builder.Services.AddEndpointsApiExplorer();
     builder.Services.AddSwaggerGen(c =>
