@@ -20,13 +20,12 @@
 
 @code {
     [Inject] private ITodoHttpRepository TodoHttpRepository { get; set; } = null!;
-    [Parameter] public Action<UserTodo> AddTodo { get; set; } = null!;
+    [Parameter] public Func<UserTodoDto, Task> AddTodo { get; set; } = null!;
     private UserTodoDto _todo = new() {Label = ""};
     
     private async Task CreateTodoAsync()
     {
-        UserTodo newTodo = await TodoHttpRepository.AddAsync(_todo);
-        AddTodo.Invoke(newTodo);
+        await AddTodo(_todo);
         _todo = new UserTodoDto { Label = "" };
     }
 }

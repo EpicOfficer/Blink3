@@ -1,0 +1,56 @@
+@using Blink3.DataAccess.Entities
+@using Blink3.DataAccess.Models
+@foreach (UserTodo todo in Todos)
+{
+    <ul class="list-group list-group-horizontal rounded-0 bg-transparent border-bottom">
+        <li class="list-group-item d-flex align-items-center px-0 py-1 rounded-0 border-0 bg-transparent">
+            <div class="form-check">
+                <input
+                    type="checkbox"
+                    class="form-check-input me-0"
+                    aria-label="@todo.Label"
+                    checked="@todo.Complete"
+                    @onchange="async (args) => await UpdateTodoAsync(todo, !todo.Complete)"
+                />
+            </div>
+        </li>
+        <li class="list-group-item px-3 py-1 d-flex align-items-center flex-grow-1 border-0 bg-transparent">
+            <p class="lead fw-semibold mb-0">@todo.Label
+                @if (todo.Description is not null)
+                {
+                    <br/><small class="fw-normal">@todo.Description</small>
+                }
+            </p>
+        </li>
+        <li class="list-group-item px-0 py-1 rounded-0 border-0 bg-transparent">
+            <div class="d-flex flex-row justify-content-end mb-1 h-100">
+                <Button Color="ButtonColor.None"
+                        href="#"
+                        class="my-auto"
+                        @onclick="async (_) => await DeleteTodo(todo.Id)">
+                    <Icon Name="IconName.TrashFill"
+                          Color="IconColor.Danger"
+                          Size="IconSize.x4">
+                    </Icon>
+                </Button>
+            </div>
+        </li>
+    </ul>
+}
+
+@code {
+    [Parameter] public IEnumerable<UserTodo> Todos { get; set; } = [];
+    [Parameter] public Func<int, UserTodoDto, Task> UpdateTodo { get; set; } = null!;
+    [Parameter] public Func<int, Task> DeleteTodo { get; set; } = null!;
+
+    private async Task UpdateTodoAsync(UserTodo todo, bool complete)
+    {
+        todo.Complete = complete;
+        await UpdateTodo(todo.Id, new UserTodoDto()
+        {
+            Label = todo.Label,
+            Description = todo.Description,
+            Complete = complete
+        });
+    }
+}
