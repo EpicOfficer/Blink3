@@ -2,6 +2,7 @@ using Microsoft.Extensions.Caching.Memory;
 
 namespace Blink3.Common.Caching.Memory;
 
+/// <inheritdoc />
 public class MemoryCachingService(IMemoryCache cache) : ICachingService
 {
     public async Task SetAsync(string key, object value, TimeSpan? absoluteExpireTime = null)

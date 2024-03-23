@@ -29,7 +29,8 @@ public class TodoModule(IUserTodoRepository todoRepository) : BlinkModuleBase<II
     [ModalInteraction("todo:add", true)]
     [SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
     public async Task Add(
-        [MaxLength(25)] [Description("A short label for your todo list item.  Max 25 characters")] string label,
+        [MaxLength(25)] [Description("A short label for your todo list item.  Max 25 characters")]
+        string label,
         [MaxLength(50)] [Description("A longer description for the todo list item.  Max 50 characters")]
         string? description = null)
     {
@@ -54,7 +55,8 @@ public class TodoModule(IUserTodoRepository todoRepository) : BlinkModuleBase<II
 
     [SlashCommand("view", "View your todo list")]
     public async Task View(
-        [Description("Whether to post the todo list so that it is visible to other users.")] bool postPublicly = false)
+        [Description("Whether to post the todo list so that it is visible to other users.")]
+        bool postPublicly = false)
     {
         ComponentBuilder builder = new ComponentBuilder()
             .WithButton("Add", "todo:addButton")

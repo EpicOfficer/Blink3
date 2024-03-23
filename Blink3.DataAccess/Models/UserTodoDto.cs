@@ -1,6 +1,8 @@
 using System.ComponentModel.DataAnnotations;
 using Blink3.DataAccess.Entities;
 
+// ReSharper disable PropertyCanBeMadeInitOnly.Global
+
 namespace Blink3.DataAccess.Models;
 
 public class UserTodoDto

@@ -13,6 +13,9 @@ using Microsoft.Extensions.Options;
 
 namespace Blink3.Bot.Services;
 
+/// <summary>
+///     Handles interactions and executes interaction commands.
+/// </summary>
 public class InteractionHandler(
     DiscordSocketClient client,
     ILogger<DiscordClientService> logger,
@@ -21,9 +24,21 @@ public class InteractionHandler(
     IOptions<BlinkConfiguration> config)
     : DiscordClientService(client, logger)
 {
+    /// <summary>
+    ///     This variable represents the logger used for logging messages and errors in the InteractionHandler class.
+    /// </summary>
     private readonly ILogger<DiscordClientService> _logger = logger;
+
+    /// <summary>
+    ///     Represents the configuration settings for the application.
+    /// </summary>
     private BlinkConfiguration Config => config.Value;
 
+    /// <summary>
+    ///     Executes the asynchronous operation for interaction handling.
+    /// </summary>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A task representing the asynchronous operation.</returns>
     protected override async Task ExecuteAsync(CancellationToken cancellationToken)
     {
         // Add the public modules that inherit InteractionModuleBase<T> to the InteractionService
@@ -51,6 +66,11 @@ public class InteractionHandler(
         }
     }
 
+    /// <summary>
+    ///     Handles the interactions received from Discord.
+    /// </summary>
+    /// <param name="interaction">The SocketInteraction object representing the received interaction.</param>
+    /// <returns>A Task representing the asynchronous operation.</returns>
     private async Task HandleInteraction(SocketInteraction interaction)
     {
         try
@@ -72,6 +92,13 @@ public class InteractionHandler(
         }
     }
 
+    /// <summary>
+    ///     Executes the handler for an interaction.
+    /// </summary>
+    /// <param name="commandInfo">The information about the executed command.</param>
+    /// <param name="context">The interaction context containing the details of the interaction.</param>
+    /// <param name="result">The result of executing the interaction command.</param>
+    /// <returns>A task representing the asynchronous operation.</returns>
     private async Task HandleInteractionExecute(ICommandInfo commandInfo, IInteractionContext context, IResult result)
     {
         if (result?.IsSuccess is true)

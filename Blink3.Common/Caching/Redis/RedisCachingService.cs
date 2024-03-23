@@ -3,6 +3,7 @@ using Microsoft.Extensions.Caching.Distributed;
 
 namespace Blink3.Common.Caching.Redis;
 
+/// <inheritdoc />
 public class RedisCachingService(IDistributedCache cache) : ICachingService
 {
     public async Task SetAsync(string key, object value, TimeSpan? absoluteExpireTime = null)

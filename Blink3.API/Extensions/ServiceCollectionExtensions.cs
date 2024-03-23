@@ -10,8 +10,18 @@ using Serilog;
 
 namespace Blink3.API.Extensions;
 
+/// <summary>
+///     Contains extension methods for the <see cref="IServiceCollection" /> interface to configure authentication with
+///     Discord.
+/// </summary>
 public static class ServiceCollectionExtensions
 {
+    /// <summary>
+    ///     Adds Discord authentication to the service collection.
+    /// </summary>
+    /// <param name="services">The service collection.</param>
+    /// <param name="appConfig">The application configuration.</param>
+    /// <returns>The modified service collection.</returns>
     public static IServiceCollection AddDiscordAuth(this IServiceCollection services, BlinkConfiguration appConfig)
     {
         services.AddAuthentication(options =>
@@ -27,6 +37,11 @@ public static class ServiceCollectionExtensions
         return services;
     }
 
+    /// <summary>
+    ///     Configures the OAuth authentication options for Discord.
+    /// </summary>
+    /// <param name="options">The <see cref="OAuthOptions" /> to configure.</param>
+    /// <param name="appConfig">The <see cref="BlinkConfiguration" /> instance that contains the Discord configuration.</param>
     private static void ConfigureOAuthOptions(OAuthOptions options, BlinkConfiguration appConfig)
     {
         options.ClientId = appConfig.Discord.ClientId;
@@ -47,6 +62,11 @@ public static class ServiceCollectionExtensions
         options.SaveTokens = true;
     }
 
+    /// <summary>
+    ///     Fetches Discord user information and creates claims for authentication ticket.
+    /// </summary>
+    /// <param name="context">The OAuthCreatingTicketContext object.</param>
+    /// <param name="options">The OAuthOptions object.</param>
     private static async Task FetchDiscordUserInfoAndCreateClaims(OAuthCreatingTicketContext context,
         OAuthOptions options)
     {
