@@ -1,7 +1,8 @@
-namespace Blink3.Common.Caching.Redis;
-using Microsoft.Extensions.Caching.Distributed;
 using System.Text.Json;
-   
+using Microsoft.Extensions.Caching.Distributed;
+
+namespace Blink3.Common.Caching.Redis;
+
 public class RedisCachingService(IDistributedCache cache) : ICachingService
 {
     public async Task SetAsync(string key, object value, TimeSpan? absoluteExpireTime = null)
@@ -10,7 +11,7 @@ public class RedisCachingService(IDistributedCache cache) : ICachingService
         {
             AbsoluteExpirationRelativeToNow = absoluteExpireTime ?? TimeSpan.FromHours(1)
         };
-        
+
         string jsonData = JsonSerializer.Serialize(value);
 
         await cache.SetStringAsync(key, jsonData, options);

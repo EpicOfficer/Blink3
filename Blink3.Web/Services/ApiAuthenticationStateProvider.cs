@@ -1,8 +1,6 @@
 using System.Net.Http.Json;
 using System.Security.Claims;
-using Blazored.LocalStorage;
 using Blink3.Common.Models;
-using Blink3.Web.Interfaces;
 using Microsoft.AspNetCore.Components.Authorization;
 
 namespace Blink3.Web.Services;
@@ -17,24 +15,26 @@ public class ApiAuthenticationStateProvider(HttpClient httpClient) : Authenticat
     {
         IEnumerable<Claim> claims = status.ToClaims();
         ClaimsIdentity identity = new(claims, LoginAuthType);
-        return new ClaimsPrincipal(identity); 
+        return new ClaimsPrincipal(identity);
     }
 
     private static AuthenticationState CreateAuthenticationState(AuthStatus status)
-        => new AuthenticationState(CreateClaimsPrincipal(status));
-    
+    {
+        return new AuthenticationState(CreateClaimsPrincipal(status));
+    }
+
     public override async Task<AuthenticationState> GetAuthenticationStateAsync()
     {
         AuthStatus? authStatus = await httpClient.GetFromJsonAsync<AuthStatus>($"{BasePath}/status");
 
-        return authStatus is null or {Authenticated: false} ?
-            new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity())) :
-            CreateAuthenticationState(authStatus);
+        return authStatus is null or { Authenticated: false }
+            ? new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity()))
+            : CreateAuthenticationState(authStatus);
     }
 
     public void NotifyLogout()
     {
-        ClaimsPrincipal anonymousUser = new ClaimsPrincipal(new ClaimsIdentity());
+        ClaimsPrincipal anonymousUser = new(new ClaimsIdentity());
         Task<AuthenticationState> authState = Task.FromResult(new AuthenticationState(anonymousUser));
         NotifyAuthenticationStateChanged(authState);
     }

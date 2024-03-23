@@ -14,23 +14,21 @@ using Serilog;
 using Serilog.Events;
 
 if (!EF.IsDesignTime)
-{
     Log.Logger = new LoggerConfiguration()
-       .MinimumLevel.Information()
-       .MinimumLevel.Override("Microsoft", LogEventLevel.Error)
-       .WriteTo.Console()
-       .CreateLogger(); 
-}
+        .MinimumLevel.Information()
+        .MinimumLevel.Override("Microsoft", LogEventLevel.Error)
+        .WriteTo.Console()
+        .CreateLogger();
 
 try
 {
     HostApplicationBuilder builder = Host.CreateApplicationBuilder(args);
 
     builder.Services.AddSerilog();
-    
+
     builder.Services.AddAppConfiguration(builder.Configuration);
     BlinkConfiguration appConfig = builder.Services.GetAppConfiguration();
-    
+
     builder.Services.AddDataAccess(appConfig);
     builder.Services.AddCaching(appConfig);
 
@@ -47,7 +45,7 @@ try
                              GatewayIntents.MessageContent |
                              GatewayIntents.DirectMessages
         };
-    
+
         config.Token = appConfig.Discord.BotToken;
     });
 

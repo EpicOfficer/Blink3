@@ -1,7 +1,7 @@
 namespace Blink3.Bot.MessageStyles.Variations;
 
 /// <summary>
-/// The <see cref="ErrorStyle"/> class represents a message style for failed operations.
+///     The <see cref="ErrorStyle" /> class represents a message style for failed operations.
 /// </summary>
 public class ErrorStyle : EmbedStyle
 {

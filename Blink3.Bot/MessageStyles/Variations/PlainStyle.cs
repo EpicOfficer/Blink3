@@ -1,7 +1,7 @@
 namespace Blink3.Bot.MessageStyles.Variations;
 
 /// <summary>
-/// The <see cref="PlainStyle"/> class represents a message style for informational operations with no icon.
+///     The <see cref="PlainStyle" /> class represents a message style for informational operations with no icon.
 /// </summary>
 public class PlainStyle : EmbedStyle
 {

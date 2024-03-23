@@ -1,5 +1,4 @@
 @using Blink3.Common.Extensions
-@using Blink3.Web.Pages
 @inject NavigationManager Navigation
 
 <AuthorizeView>
@@ -17,6 +16,15 @@
 </AuthorizeView>
 
 @code{
-    private void Login(EventArgs args) => Navigation.NavigateTo("/login");
-    private void Logout(EventArgs args) => Navigation.NavigateTo("/logout");
+
+    private void Login(EventArgs args)
+    {
+        Navigation.NavigateTo("/login");
+    }
+
+    private void Logout(EventArgs args)
+    {
+        Navigation.NavigateTo("/logout");
+    }
+
 }

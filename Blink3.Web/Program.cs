@@ -1,11 +1,11 @@
-using Microsoft.AspNetCore.Components.Web;
-using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Blink3.Web;
 using Blink3.Web.Extensions;
 using Blink3.Web.Interfaces;
 using Blink3.Web.Repositories;
 using Blink3.Web.Services;
 using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.AspNetCore.Components.Web;
+using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 
 WebAssemblyHostBuilder builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.Services.AddBlazorBootstrap();

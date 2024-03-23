@@ -50,7 +50,7 @@ public class InteractionHandler(
             await handler.RegisterCommandsGloballyAsync();
         }
     }
-    
+
     private async Task HandleInteraction(SocketInteraction interaction)
     {
         try
@@ -64,26 +64,29 @@ public class InteractionHandler(
         catch (Exception e)
         {
             _logger.LogError(e, "Exception occurred whilst attempting to handle interaction.");
-            
+
             // If Slash Command execution fails it is most likely that the original interaction acknowledgement will persist. It is a good idea to delete the original
             // response, or at least let the user know that something went wrong during the command execution.
             if (interaction.Type is InteractionType.ApplicationCommand)
-                await interaction.GetOriginalResponseAsync().ContinueWith(async (msg) => await msg.Result.DeleteAsync());
+                await interaction.GetOriginalResponseAsync().ContinueWith(async msg => await msg.Result.DeleteAsync());
         }
     }
-    
+
     private async Task HandleInteractionExecute(ICommandInfo commandInfo, IInteractionContext context, IResult result)
     {
         if (result?.IsSuccess is true)
         {
-            _logger.LogInformation("Handled interaction {interaction} in module {module} for user {userId}", commandInfo.Name, commandInfo.Module.Name, context.User.Id);
+            _logger.LogInformation("Handled interaction {interaction} in module {module} for user {userId}",
+                commandInfo.Name, commandInfo.Module.Name, context.User.Id);
             return;
         }
 
-        _logger.LogWarning("Error handling interaction {interaction} in module {module} for user {userId}: {ErrorReason}", commandInfo?.Name, commandInfo?.Module?.Name, context?.User?.Id, result?.ErrorReason);
+        _logger.LogWarning(
+            "Error handling interaction {interaction} in module {module} for user {userId}: {ErrorReason}",
+            commandInfo?.Name, commandInfo?.Module?.Name, context?.User?.Id, result?.ErrorReason);
 
         if (context?.Interaction is null) return;
-        
+
         Embed embed = new EmbedBuilder()
             .WithStyle(new ErrorStyle())
             .WithDescription(result?.ErrorReason)

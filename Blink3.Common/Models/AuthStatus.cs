@@ -17,15 +17,15 @@ public class AuthStatus
         List<Claim> claims = [];
 
         if (!Authenticated) return claims;
-        
+
         claims.Add(new Claim(ClaimTypes.NameIdentifier,
             Id ?? throw new InvalidOperationException()));
         claims.Add(new Claim(ClaimTypes.Name,
             Username ?? throw new InvalidOperationException()));
-            
+
         if (!string.IsNullOrWhiteSpace(GlobalName))
             claims.Add(new Claim(ClaimTypes.GivenName, GlobalName));
-            
+
         if (!string.IsNullOrWhiteSpace(Locale))
             claims.Add(new Claim(ClaimTypes.Locality, Locale));
 

@@ -24,17 +24,14 @@ try
     builder.Services.AddProblemDetails();
     builder.Services.AddControllers();
     builder.Services.AddEndpointsApiExplorer();
-    builder.Services.AddSwaggerGen(c =>
-    {
-        c.EnableAnnotations();
-    });
-    
+    builder.Services.AddSwaggerGen(c => { c.EnableAnnotations(); });
+
     // Configure Cors
     builder.Services.AddCors(options =>
     {
         options.AddPolicy("CorsPolicy",
             corsPolicyBuilder => corsPolicyBuilder
-                .WithOrigins("https://localhost:7041")  // adjust with your client url
+                .WithOrigins("https://localhost:7041") // adjust with your client url
                 .AllowAnyMethod()
                 .AllowAnyHeader()
                 .AllowCredentials());
@@ -68,13 +65,13 @@ try
 
     // Use Cors
     app.UseCors("CorsPolicy");
-    
+
     app.UseAuthentication();
     app.UseAuthorization();
-    
+
     app.MapControllers();
 
-    app.Run(); 
+    app.Run();
 }
 catch (Exception e)
 {

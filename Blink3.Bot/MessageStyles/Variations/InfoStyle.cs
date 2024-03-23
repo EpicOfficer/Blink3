@@ -1,7 +1,7 @@
 namespace Blink3.Bot.MessageStyles.Variations;
 
 /// <summary>
-/// The <see cref="InfoStyle"/> class represents a message style for informational operations.
+///     The <see cref="InfoStyle" /> class represents a message style for informational operations.
 /// </summary>
 public class InfoStyle : EmbedStyle
 {

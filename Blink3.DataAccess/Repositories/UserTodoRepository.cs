@@ -1,11 +1,10 @@
-using Blink3.Common.Caching;
 using Blink3.DataAccess.Entities;
 using Blink3.DataAccess.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace Blink3.DataAccess.Repositories;
 
-/// <inheritdoc cref="IUserTodoRepository"/>
+/// <inheritdoc cref="IUserTodoRepository" />
 public class UserTodoRepository(BlinkDbContext dbContext) :
     GenericRepository<UserTodo>(dbContext), IUserTodoRepository
 {
@@ -36,7 +35,7 @@ public class UserTodoRepository(BlinkDbContext dbContext) :
 
         _dbContext.UserTodos.Attach(todo);
         _dbContext.Entry(todo).Property(u => u.Complete).IsModified = true;
-        
+
         await dbContext.SaveChangesAsync();
     }
 }

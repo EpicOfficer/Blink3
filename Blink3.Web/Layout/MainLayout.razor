@@ -10,7 +10,7 @@
 
     <main>
         <div class="top-row px-4">
-            <LoginDisplay />
+            <LoginDisplay/>
         </div>
 
         <article class="content px-4">
@@ -20,12 +20,12 @@
 </div>
 
 @* ReSharper disable InconsistentNaming *@
+
 @code {
     Sidebar _sidebar = null!;
     List<NavItem>? _navItems;
 
-    [CascadingParameter]
-    private Task<AuthenticationState> authenticationStateTask { get; set; } = null!;
+    [CascadingParameter] private Task<AuthenticationState> authenticationStateTask { get; set; } = null!;
 
     protected override Task OnInitializedAsync()
     {
@@ -34,7 +34,7 @@
             await GetNavItems();
             await _sidebar.RefreshDataAsync();
         };
-        
+
         return Task.CompletedTask;
     }
 
@@ -49,22 +49,22 @@
     {
         _navItems = new List<NavItem>
         {
-            new NavItem
+            new()
             {
                 Id = "1",
                 Href = "/",
                 IconName = IconName.HouseDoorFill,
                 Text = "Home",
-                Match=NavLinkMatch.All
+                Match = NavLinkMatch.All
             }
         };
-        
+
         AuthenticationState authState = await authenticationStateTask;
         ClaimsPrincipal user = authState.User;
 
         if (user.Identity?.IsAuthenticated is true)
         {
-            _navItems.Add(new NavItem()
+            _navItems.Add(new NavItem
             {
                 Id = "2",
                 Href = "/todo",
@@ -75,5 +75,7 @@
 
         return _navItems;
     }
+
 }
+
 @* ReSharper restore InconsistentNaming *@

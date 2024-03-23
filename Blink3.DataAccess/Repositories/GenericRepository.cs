@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace Blink3.DataAccess.Repositories;
 
-/// <inheritdoc cref="IGenericRepository{T}"/>
+/// <inheritdoc cref="IGenericRepository{T}" />
 public class GenericRepository<T>(BlinkDbContext dbContext) : IGenericRepository<T> where T : class
 {
     public virtual async Task<T?> GetByIdAsync(params object[] keyValues)
@@ -49,15 +49,11 @@ public class GenericRepository<T>(BlinkDbContext dbContext) : IGenericRepository
         IKey? key = entityType?.FindPrimaryKey();
 
         if (key?.Properties.Count != keyValues.Length)
-        {
             throw new Exception("Number of key values do not match number of key properties");
-        }
 
         EntityEntry<T> entry = dbContext.Entry(Activator.CreateInstance<T>());
         for (int i = 0; i < key.Properties.Count; i++)
-        {
             entry.Property(key.Properties[i].Name).CurrentValue = keyValues[i];
-        }
 
         dbContext.Set<T>().Attach(entry.Entity);
         dbContext.Set<T>().Remove(entry.Entity);

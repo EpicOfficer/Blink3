@@ -1,20 +1,23 @@
 @page "/Todo"
-@using Blink3.Web.Interfaces
 @using Blink3.DataAccess.Entities
 @using Blink3.DataAccess.Models
+@using Blink3.Web.Interfaces
 
 <PageTitle>Todo list</PageTitle>
 <h1 class="border-bottom">Todo list</h1>
 
-<TodoList Todos="Todos" DeleteTodo="DeleteAsync" UpdateTodo="UpdateTodoAsync" />
+<TodoList Todos="Todos" DeleteTodo="DeleteAsync" UpdateTodo="UpdateTodoAsync"/>
 
-<CreateTodoForm AddTodo="@(CreateTodoAsync)" />
+<CreateTodoForm AddTodo="@(CreateTodoAsync)"/>
 
 @code {
     private IEnumerable<UserTodo> Todos { get; set; } = [];
     [Inject] private ITodoHttpRepository TodoHttpRepository { get; set; } = null!;
 
-    protected override async Task OnInitializedAsync() => await UpdateTodosAsync();
+    protected override async Task OnInitializedAsync()
+    {
+        await UpdateTodosAsync();
+    }
 
     private async Task CreateTodoAsync(UserTodoDto userTodoDto)
     {
@@ -22,17 +25,22 @@
         Todos = Todos.Append(newTodo);
         StateHasChanged();
     }
-    
+
     private async Task DeleteAsync(int id)
     {
         await TodoHttpRepository.DeleteAsync(id);
         Todos = Todos.Where(t => t.Id != id);
         StateHasChanged();
     }
-    
+
     private async Task UpdateTodosAsync()
-        => Todos = await TodoHttpRepository.GetAsync();
+    {
+        Todos = await TodoHttpRepository.GetAsync();
+    }
 
     private async Task UpdateTodoAsync(int id, UserTodoDto todo)
-        => await TodoHttpRepository.UpdateAsync(id, todo);
+    {
+        await TodoHttpRepository.UpdateAsync(id, todo);
+    }
+
 }

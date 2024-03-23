@@ -18,10 +18,7 @@ public class MemoryCachingService(IMemoryCache cache) : ICachingService
 
     public async Task<T?> GetAsync<T>(string key)
     {
-        if (cache.TryGetValue(key, out T? value))
-        {
-            return await Task.FromResult(value);
-        }
+        if (cache.TryGetValue(key, out T? value)) return await Task.FromResult(value);
 
         return default;
     }

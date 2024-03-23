@@ -4,37 +4,38 @@ using Blink3.Common.Caching.Interfaces;
 namespace Blink3.DataAccess.Repositories;
 
 /// <summary>
-/// The GenericRepositoryWithCaching class provides a generic repository implementation with caching capability.
+///     The GenericRepositoryWithCaching class provides a generic repository implementation with caching capability.
 /// </summary>
 /// <typeparam name="T">The entity type.</typeparam>
-public class GenericRepositoryWithCaching<T>(BlinkDbContext dbContext, ICachingService cache) : GenericRepository<T>(dbContext) where T : class, ICacheKeyIdentifiable
+public class GenericRepositoryWithCaching<T>(BlinkDbContext dbContext, ICachingService cache)
+    : GenericRepository<T>(dbContext) where T : class, ICacheKeyIdentifiable
 {
     /// <summary>
-    /// Generates a cache key for the specified entity.
+    ///     Generates a cache key for the specified entity.
     /// </summary>
     /// <param name="keyValues">The key values used to uniquely identify the entity.</param>
     /// <returns>The cache key as a string.</returns>
     private static string GetCacheKey(object[] keyValues)
     {
-        if (keyValues.Length == 0)
-        {
-            throw new ArgumentException("No valid key provided", nameof(keyValues));
-        }
+        if (keyValues.Length == 0) throw new ArgumentException("No valid key provided", nameof(keyValues));
 
         string key = string.Join(":", keyValues.Select(k => k.ToString()));
         return $"{nameof(T)}:{key}";
     }
 
     /// <summary>
-    /// Gets the cache key for the specified entity.
+    ///     Gets the cache key for the specified entity.
     /// </summary>
     /// <typeparam name="T">The entity type.</typeparam>
     /// <param name="entity">The entity.</param>
     /// <returns>The cache key for the entity.</returns>
-    private static string GetCacheKeyFromEntity(T entity) => $"{nameof(T)}:{entity.GetCacheKey()}";
+    private static string GetCacheKeyFromEntity(T entity)
+    {
+        return $"{nameof(T)}:{entity.GetCacheKey()}";
+    }
 
     /// <summary>
-    /// Sets the specified entity in the cache.
+    ///     Sets the specified entity in the cache.
     /// </summary>
     /// <typeparam name="T">The entity type.</typeparam>
     /// <param name="entity">The entity to be set in the cache.</param>
@@ -46,7 +47,7 @@ public class GenericRepositoryWithCaching<T>(BlinkDbContext dbContext, ICachingS
     }
 
     /// <summary>
-    /// Removes the specified entity from the cache.
+    ///     Removes the specified entity from the cache.
     /// </summary>
     /// <typeparam name="T">The entity type.</typeparam>
     /// <param name="entity">The entity to remove from the cache.</param>
@@ -60,18 +61,15 @@ public class GenericRepositoryWithCaching<T>(BlinkDbContext dbContext, ICachingS
     public override async Task<T?> GetByIdAsync(params object[] keyValues)
     {
         string cacheKey = GetCacheKey(keyValues);
-        
+
         T? entity = await cache.GetAsync<T>(cacheKey);
         if (entity != null) return entity;
-        
+
         entity = await base.GetByIdAsync(keyValues);
-        
+
         // Update cache
-        if (entity != null)
-        {
-            await SetEntityInCache(entity);
-        }
-        
+        if (entity != null) await SetEntityInCache(entity);
+
         return entity;
     }
 
@@ -94,7 +92,7 @@ public class GenericRepositoryWithCaching<T>(BlinkDbContext dbContext, ICachingS
         await base.DeleteAsync(entity);
         await RemoveEntityFromCache(entity);
     }
-    
+
     public override async Task DeleteByIdAsync(params object[] keyValues)
     {
         string cacheKey = GetCacheKey(keyValues);

@@ -7,10 +7,13 @@ using Microsoft.Extensions.Options;
 namespace Blink3.API.Services;
 
 [SuppressMessage("ReSharper", "SuggestBaseTypeForParameterInConstructor")]
-public class DiscordStartupService(DiscordRestClient client, IOptions<BlinkConfiguration> config, ILogger<DiscordStartupService> logger) : IHostedService
+public class DiscordStartupService(
+    DiscordRestClient client,
+    IOptions<BlinkConfiguration> config,
+    ILogger<DiscordStartupService> logger) : IHostedService
 {
     private BlinkConfiguration Config => config.Value;
-    
+
     public async Task StartAsync(CancellationToken cancellationToken)
     {
         await client.LoginAsync(TokenType.Bot, Config.Discord.BotToken);

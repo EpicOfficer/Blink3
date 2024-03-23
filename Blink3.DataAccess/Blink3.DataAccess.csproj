@@ -7,15 +7,15 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="8.0.2" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="8.0.2"/>
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Blink3.Common\Blink3.Common.csproj" />
+        <ProjectReference Include="..\Blink3.Common\Blink3.Common.csproj"/>
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Migrations\" />
+        <Folder Include="Migrations\"/>
     </ItemGroup>
 
 </Project>
