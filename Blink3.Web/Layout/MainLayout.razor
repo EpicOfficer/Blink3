@@ -3,7 +3,7 @@
 @inject NavigationManager Navigation;
 
 <div class="page">
-    <Sidebar @ref="_sidebar"
+    <Sidebar2 @ref="_sidebar"
              IconName="IconName.BootstrapFill"
              Title="Blink3"
              DataProvider="SidebarDataProvider"/>
@@ -22,7 +22,7 @@
 @* ReSharper disable InconsistentNaming *@
 
 @code {
-    Sidebar _sidebar = null!;
+    Sidebar2 _sidebar = null!;
     List<NavItem>? _navItems;
 
     [CascadingParameter] private Task<AuthenticationState> authenticationStateTask { get; set; } = null!;
@@ -38,7 +38,7 @@
         return Task.CompletedTask;
     }
 
-    private async Task<SidebarDataProviderResult> SidebarDataProvider(SidebarDataProviderRequest request)
+    private async Task<Sidebar2DataProviderResult> SidebarDataProvider(Sidebar2DataProviderRequest request)
     {
         _navItems ??= await GetNavItems();
 
@@ -68,7 +68,7 @@
             {
                 Id = "2",
                 Href = "/todo",
-                IconName = IconName.Pencil,
+                IconName = IconName.PencilFill,
                 Text = "Todo list"
             });
         }
