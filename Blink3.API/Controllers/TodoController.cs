@@ -1,78 +1,17 @@
-using Blink3.Common.Extensions;
 using Blink3.DataAccess.Entities;
 using Blink3.DataAccess.Interfaces;
 using Blink3.DataAccess.Models;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 
 namespace Blink3.API.Controllers;
 
-[Produces("application/json")]
-[Consumes("application/json")]
-[SwaggerResponse(StatusCodes.Status401Unauthorized, "Unauthorized")]
-[Route("api/[controller]")]
-[ApiController]
-[Authorize]
+/// <summary>
+///     Controller for performing CRUD operations on userTodo items.
+/// </summary>
 [SwaggerTag("All CRUD operations for todo items")]
-public class TodoController(IUserTodoRepository todoRepository) : ControllerBase
+public class TodoController(IUserTodoRepository todoRepository) : ApiControllerBase
 {
-    /// <summary>
-    ///     Represents the message displayed when a user is not authorized to view a specific userTodo item.
-    /// </summary>
-    private const string UnauthorizedAccessMessage = "You are not authorised to view this todo.";
-
-    /// <summary>
-    ///     Represents the message that is displayed when a userTodo item is not found.
-    /// </summary>
-    private const string NotFoundAccessMessage = "Could not find todo with that ID";
-
-    /// <summary>
-    ///     Represents the unique identifier of a user.
-    /// </summary>
-    private ulong UserId => User.GetUserId();
-
-    /// <summary>
-    ///     Returns a problem result for a missing userTodo.
-    /// </summary>
-    /// <returns>
-    ///     A problem result with a status code of 404 (Not Found) and a detail message indicating that the userTodo could
-    ///     not be found.
-    /// </returns>
-    private ObjectResult ProblemForMissingTodo()
-    {
-        return Problem(
-            statusCode: StatusCodes.Status404NotFound,
-            detail: NotFoundAccessMessage
-        );
-    }
-
-    /// <summary>
-    ///     Method to return an unauthorized access error response.
-    /// </summary>
-    /// <returns>An <see cref="ObjectResult" /> representing the unauthorized access error response.</returns>
-    private ObjectResult ProblemForUnauthorizedAccess()
-    {
-        return Problem(
-            statusCode: StatusCodes.Status401Unauthorized,
-            detail: UnauthorizedAccessMessage
-        );
-    }
-
-    /// <summary>
-    ///     Checks if the current user has access to a particular userTodo item.
-    /// </summary>
-    /// <param name="userTodo">The userTodo item to check access for.</param>
-    /// <returns>
-    ///     An <see cref="ObjectResult" /> representing an error response if access is denied,
-    ///     or <c>null</c> if the user has access.
-    /// </returns>
-    private ObjectResult? CheckTodoAccess(UserTodo? userTodo)
-    {
-        if (userTodo is null) return ProblemForMissingTodo();
-        return userTodo.UserId != UserId ? ProblemForUnauthorizedAccess() : null;
-    }
-
     /// <summary>
     ///     Retrieves all userTodo items for the current user.
     /// </summary>
@@ -84,6 +23,7 @@ public class TodoController(IUserTodoRepository todoRepository) : ControllerBase
         OperationId = "Todo.GetAll",
         Tags = ["Todo"]
     )]
+    [SwaggerResponse(StatusCodes.Status200OK, "Success", typeof(IEnumerable<UserTodo>))]
     public async Task<ActionResult<IEnumerable<UserTodo>>> GetAllTodos()
     {
         IReadOnlyCollection<UserTodo> todos = await todoRepository.GetByUserIdAsync(UserId);
@@ -103,11 +43,11 @@ public class TodoController(IUserTodoRepository todoRepository) : ControllerBase
         Tags = ["Todo"]
     )]
     [SwaggerResponse(StatusCodes.Status200OK, "Success", typeof(UserTodo))]
-    [SwaggerResponse(StatusCodes.Status404NotFound, "Todo not found")]
+    [SwaggerResponse(StatusCodes.Status404NotFound, "Todo not found", typeof(ProblemDetails))]
     public async Task<ActionResult<UserTodo>> GetTodo(int id)
     {
         UserTodo? todo = await todoRepository.GetByIdAsync(id);
-        ObjectResult? accessCheckResult = CheckTodoAccess(todo);
+        ObjectResult? accessCheckResult = CheckAccess(todo?.UserId);
         return accessCheckResult ?? Ok(todo);
     }
 
@@ -150,7 +90,7 @@ public class TodoController(IUserTodoRepository todoRepository) : ControllerBase
     public async Task<ActionResult> UpdateTodo(int id, [FromBody] UserTodoDto todoDto)
     {
         UserTodo? todo = await todoRepository.GetByIdAsync(id);
-        ObjectResult? accessCheckResult = CheckTodoAccess(todo);
+        ObjectResult? accessCheckResult = CheckAccess(todo?.UserId);
         if (accessCheckResult is not null) return accessCheckResult;
 
         await todoRepository.UpdateAsync(todoDto.ToEntity(UserId, id));
@@ -171,11 +111,11 @@ public class TodoController(IUserTodoRepository todoRepository) : ControllerBase
         Tags = ["Todo"]
     )]
     [SwaggerResponse(StatusCodes.Status204NoContent, "No content")]
-    [SwaggerResponse(StatusCodes.Status404NotFound, "Todo not found")]
+    [SwaggerResponse(StatusCodes.Status404NotFound, "Todo not found", typeof(ProblemDetails))]
     public async Task<ActionResult> DeleteTodo(int id)
     {
         UserTodo? todo = await todoRepository.GetByIdAsync(id);
-        ObjectResult? accessCheckResult = CheckTodoAccess(todo);
+        ObjectResult? accessCheckResult = CheckAccess(todo?.UserId);
         if (accessCheckResult is not null) return accessCheckResult;
 
         await todoRepository.DeleteAsync(todo!);

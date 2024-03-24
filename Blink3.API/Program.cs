@@ -40,7 +40,7 @@ try
                 .AllowAnyHeader()
                 .AllowCredentials());
     });
-    
+
     // Add Data Access layer and cache provider
     builder.Services.AddDataAccess(appConfig);
     builder.Services.AddCaching(appConfig);

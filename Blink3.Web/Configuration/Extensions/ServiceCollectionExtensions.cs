@@ -3,12 +3,12 @@ using Microsoft.Extensions.Options;
 namespace Blink3.Web.Configuration.Extensions;
 
 /// <summary>
-/// Provides extension methods for the <see cref="IServiceCollection"/> interface.
+///     Provides extension methods for the <see cref="IServiceCollection" /> interface.
 /// </summary>
 public static class ServiceCollectionExtensions
 {
     /// <summary>
-    /// Adds the application configuration to the service collection.
+    ///     Adds the application configuration to the service collection.
     /// </summary>
     /// <param name="services">The service collection to add the configuration to.</param>
     /// <param name="configuration">The configuration object.</param>
@@ -21,7 +21,7 @@ public static class ServiceCollectionExtensions
     }
 
     /// <summary>
-    /// Retrieves the application configuration options.
+    ///     Retrieves the application configuration options.
     /// </summary>
     /// <param name="services">The IServiceCollection object.</param>
     /// <returns>The AppOptions object representing the application configuration options.</returns>
