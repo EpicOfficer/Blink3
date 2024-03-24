@@ -25,6 +25,11 @@ public record BlinkConfiguration
     ///     Represents the Redis configuration.
     /// </summary>
     public RedisConfig? Redis { get; init; }
+
+    /// <summary>
+    ///     Represents the allowed origins for the API.
+    /// </summary>
+    public List<string> ApiAllowedOrigins { get; set; } = [];
 }
 
 /// <summary>

@@ -26,21 +26,21 @@ try
     builder.Services.AddEndpointsApiExplorer();
     builder.Services.AddSwaggerGen(c => { c.EnableAnnotations(); });
 
+    // Add Application configurations
+    builder.Services.AddAppConfiguration(builder.Configuration);
+    BlinkConfiguration appConfig = builder.Services.GetAppConfiguration();
+
     // Configure Cors
     builder.Services.AddCors(options =>
     {
         options.AddPolicy("CorsPolicy",
             corsPolicyBuilder => corsPolicyBuilder
-                .WithOrigins("https://localhost:7041") // adjust with your client url
+                .WithOrigins(appConfig.ApiAllowedOrigins.ToArray())
                 .AllowAnyMethod()
                 .AllowAnyHeader()
                 .AllowCredentials());
     });
-
-    // Add Application configurations
-    builder.Services.AddAppConfiguration(builder.Configuration);
-    BlinkConfiguration appConfig = builder.Services.GetAppConfiguration();
-
+    
     // Add Data Access layer and cache provider
     builder.Services.AddDataAccess(appConfig);
     builder.Services.AddCaching(appConfig);
