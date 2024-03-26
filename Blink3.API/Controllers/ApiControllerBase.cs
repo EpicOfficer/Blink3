@@ -71,14 +71,12 @@ public abstract class ApiControllerBase : ControllerBase
     /// </summary>
     /// <param name="userId">The user ID to check access against.</param>
     /// <returns>
-    ///     An <see cref="ObjectResult" /> representing a problem response if any
-    /// </returns>
-    /// <remarks>
+    ///     An <see cref="ObjectResult" /> representing a problem response if any.
     ///     Returns <c>null</c> if there are no errors.
-    /// </remarks>
+    /// </returns>
     protected ObjectResult? CheckAccess(ulong? userId)
     {
         if (userId is null) return ProblemForMissingItem();
-        return userId == UserId ? ProblemForUnauthorizedAccess() : null;
+        return userId != UserId ? ProblemForUnauthorizedAccess() : null;
     }
 }

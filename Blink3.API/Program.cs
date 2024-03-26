@@ -20,13 +20,13 @@ try
 
     // Logging
     builder.Host.UseSerilog();
-    
+
     // Problem details
     builder.Services.AddProblemDetails();
-    
+
     // Controllers
     builder.Services.AddControllers();
-    
+
     // Swagger docs
     builder.Services.AddEndpointsApiExplorer();
     builder.Services.AddSwaggerGen(c => { c.EnableAnnotations(); });
@@ -62,7 +62,7 @@ try
     // Document API
     app.UseSwagger();
     app.UseSwaggerUI();
-    
+
     // Force HTTPS
     app.UseHttpsRedirection();
 
@@ -75,7 +75,7 @@ try
 
     // Map controller endpoints
     app.MapControllers();
-    
+
     app.Run();
 }
 catch (Exception e)

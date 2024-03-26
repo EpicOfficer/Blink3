@@ -1,29 +1,54 @@
 @using Blink3.Web.Interfaces
 @using Blink3.DataAccess.Models
 <EditForm Model="_todo" OnValidSubmit="@(CreateTodoAsync)">
-    <AntiforgeryToken/>
-    <DataAnnotationsValidator/>
-    <div class="mb-3">
-        <label for="@(nameof(_todo.Label))" class="form-label">Label:</label>
-        <InputText id="@(nameof(_todo.Label))" class="form-control" @bind-Value="_todo.Label"/>
-        <ValidationMessage For="@(() => _todo.Label)"/>
-    </div>
-    <div class="mb-3">
-        <label for="@(nameof(_todo.Description))" class="form-label">Description:</label>
-        <InputTextArea id="@(nameof(_todo.Description))" class="form-control" @bind-Value="_todo.Description"/>
-        <ValidationMessage For="@(() => _todo.Description)"/>
-    </div>
-    <Button Type="@(ButtonType.Submit)" Color="ButtonColor.Primary">Create</Button>
+    <Modal @ref="_modal" OnHiding="OnModalHiding" Title="Create Todo">
+        <BodyTemplate>
+            <AntiforgeryToken/>
+            <DataAnnotationsValidator/>
+            <div class="mb-3">
+                <label for="@(nameof(_todo.Label))" class="form-label">Label:</label>
+                <InputText id="@(nameof(_todo.Label))" class="form-control" @bind-Value="_todo.Label"/>
+                <ValidationMessage For="@(() => _todo.Label)"/>
+            </div>
+            <div class="mb-3">
+                <label for="@(nameof(_todo.Description))" class="form-label">Description:</label>
+                <InputTextArea id="@(nameof(_todo.Description))" class="form-control" @bind-Value="_todo.Description"/>
+                <ValidationMessage For="@(() => _todo.Description)"/>
+            </div>
+        </BodyTemplate>
+        <FooterTemplate>
+            <Button Color="ButtonColor.Secondary" @onclick="OnHideModalClick">Close</Button>
+            <Button Type="@(ButtonType.Submit)" Color="ButtonColor.Primary">Create</Button>
+        </FooterTemplate>
+    </Modal>
 </EditForm>
 
+<Button Color="ButtonColor.Primary" @onclick="OnShowModalClick" class="mt-3">Create Todo</Button>
+
 @code {
-    [Inject] private ITodoHttpRepository TodoHttpRepository { get; set; } = null!;
-    [Parameter] public Func<UserTodoDto, Task> AddTodo { get; set; } = null!;
+    [Inject] private ITodoHttpRepository TodoHttpRepository { get; set; } = default!;
+    [Parameter] public Func<UserTodoDto, Task> AddTodo { get; set; } = default!;
     private UserTodoDto _todo = new() { Label = "" };
+    private Modal _modal = default!;
 
     private async Task CreateTodoAsync()
     {
         await AddTodo(_todo);
+        await _modal.HideAsync();
+    }
+
+    private async Task OnShowModalClick()
+    {
+        await _modal.ShowAsync();
+    }
+
+    private async Task OnHideModalClick()
+    {
+        await _modal.HideAsync();
+    }
+
+    private void OnModalHiding()
+    {
         _todo = new UserTodoDto { Label = "" };
     }
 
