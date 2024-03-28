@@ -11,5 +11,5 @@ public class AppOptions
     /// <summary>
     ///     Represents the address of the API.
     /// </summary>
-    public string ApiAddress { get; set; }
+    public string ApiAddress { get; set; } = default!;
 }
