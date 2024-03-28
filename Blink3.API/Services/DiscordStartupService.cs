@@ -29,6 +29,7 @@ public class DiscordStartupService(
     public async Task StartAsync(CancellationToken cancellationToken)
     {
         await client.LoginAsync(TokenType.Bot, Config.Discord.BotToken);
+        logger.LogInformation("Logged in as {botUser}#{botDiscriminator}.", client.CurrentUser.Username, client.CurrentUser.Discriminator);
     }
 
     /// <summary>
