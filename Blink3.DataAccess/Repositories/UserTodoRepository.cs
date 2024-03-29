@@ -36,6 +36,6 @@ public class UserTodoRepository(BlinkDbContext dbContext) :
         _dbContext.UserTodos.Attach(todo);
         _dbContext.Entry(todo).Property(u => u.Complete).IsModified = true;
 
-        await dbContext.SaveChangesAsync();
+        await _dbContext.SaveChangesAsync();
     }
 }
