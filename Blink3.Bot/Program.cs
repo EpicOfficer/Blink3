@@ -24,6 +24,8 @@ try
 {
     HostApplicationBuilder builder = Host.CreateApplicationBuilder(args);
 
+    builder.Services.AddHttpClient();
+
     builder.Services.AddSerilog();
 
     builder.Services.AddAppConfiguration(builder.Configuration);

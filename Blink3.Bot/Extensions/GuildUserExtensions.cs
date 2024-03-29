@@ -9,14 +9,17 @@ namespace Blink3.Bot.Extensions;
 public static class GuildUserExtensions
 {
     /// <summary>
-    ///     Returns the friendly name of a guild user.
+    ///     Returns the friendly name of a discord user.
     /// </summary>
-    /// <param name="user">The guild user.</param>
-    /// <returns>The friendly name of the guild user.</returns>
+    /// <param name="user">The user.</param>
+    /// <returns>The friendly name of the discord user.</returns>
     [SuppressMessage("ReSharper", "ConvertIfStatementToReturnStatement")]
-    public static string GetFriendlyName(this IGuildUser user)
+    public static string GetFriendlyName(this IUser user)
     {
-        if (!string.IsNullOrWhiteSpace(user.Nickname)) return user.Nickname;
+        if (user is IGuildUser guildUser &&
+            string.IsNullOrWhiteSpace(guildUser.Nickname))
+            return guildUser.Nickname;
+
         if (!string.IsNullOrWhiteSpace(user.GlobalName)) return user.GlobalName;
         return user.Username;
     }
