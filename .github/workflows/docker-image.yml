@@ -1,7 +1,7 @@
-name: Build & publish drill4net images
+name: Build & publish Blink images
 on:
-  release:
-    types: [published]
+  push:
+    branches: [ main ]
 
 env:
   REGISTRY: ghcr.io
