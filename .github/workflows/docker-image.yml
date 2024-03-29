@@ -41,5 +41,5 @@ jobs:
         file: ${{ matrix.dockerfile }}/Dockerfile
         push: true
         tags: |
-          ghcr.io/${{ env.GITHUB_ACTOR }}/${{ env.DOCKERFILE_NAME }}:${{ steps.sha.outputs.sha }}
-          ghcr.io/${{ env.GITHUB_ACTOR }}/${{ env.DOCKERFILE_NAME }}:latest
+          ghcr.io/${{ env.GITHUB_ACTOR }}/blink3/${{ env.DOCKERFILE_NAME }}:${{ steps.sha.outputs.sha }}
+          ghcr.io/${{ env.GITHUB_ACTOR }}/blink3/${{ env.DOCKERFILE_NAME }}:latest
