@@ -36,5 +36,5 @@ jobs:
         file: ${{ matrix.dockerfile }}/Dockerfile
         push: true
         tags: |
-          ghcr.io/${{ github.actor }}/${{ matrix.dockerfile | lower }}:${{ steps.sha.outputs.sha }}
-          ghcr.io/${{ github.actor }}/${{ matrix.dockerfile | lower }}:latest
+          ghcr.io/${{ github.actor }}/${{ toLower(matrix.dockerfile) }}:${{ steps.sha.outputs.sha }}
+          ghcr.io/${{ github.actor }}/${{ toLower(matrix.dockerfile) }}:latest
