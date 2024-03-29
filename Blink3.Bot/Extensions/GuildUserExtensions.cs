@@ -17,7 +17,7 @@ public static class GuildUserExtensions
     public static string GetFriendlyName(this IUser user)
     {
         if (user is IGuildUser guildUser &&
-            string.IsNullOrWhiteSpace(guildUser.Nickname))
+            !string.IsNullOrWhiteSpace(guildUser.Nickname))
             return guildUser.Nickname;
 
         if (!string.IsNullOrWhiteSpace(user.GlobalName)) return user.GlobalName;

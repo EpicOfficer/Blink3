@@ -47,6 +47,7 @@ public class MoveMessageModule(IHttpClientFactory httpClientFactory) : BlinkModu
         if (message is null) return;
 
         await MoveMessage(message, sourceChannel, targetChannel);
+        await message.DeleteAsync();
     }
 
     /// <summary>
