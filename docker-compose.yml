@@ -1,0 +1,79 @@
+version: '3.8'
+
+services:
+  blink3.cache:
+    container_name: blink3_cache
+    image: redis:7.2-alpine
+    restart: always
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    environment:
+      - REDIS_NAME=${REDIS_NAME}
+        
+  blink3.db:
+    container_name: blink3_db
+    image: postgres:16.2-alpine
+    restart: always
+    environment:
+      - PGDATA=/var/lib/postgresql/data/pgdata
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    volumes:
+      - ./data:/var/lib/postgresql/data
+    depends_on:
+      blink3.cache:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER}" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      
+  blink3.bot:
+    container_name: blink3_bot
+    image: ghcr.io/epicofficer/blink3.bot:latest
+    restart: always
+    environment:
+      - Discord__DevGuildId=${DISCORD_DEV_GUILD}
+      - Discord__BotToken=${DISCORD_BOT_TOKEN}
+      - ConnectionStrings__DefaultConnection=Server=blink3.db;Port=5432;Database=${POSTGRES_USER};Userid=${POSTGRES_USER};Password=${POSTGRES_PASSWORD};SslMode=Prefer;TrustServerCertificate=true
+      - Redis__ConnectionString=blink3.cache,ssl=false,name=${REDIS_NAME}
+      - BLINK_RUN_MIGRATIONS=${BLINK_RUN_MIGRATIONS}
+    volumes:
+      - ./logs:/app/logs
+    depends_on:
+      blink3.db:
+        condition: service_healthy
+
+  blink3.api:
+    container_name: blink3_api
+    image: ghcr.io/epicofficer/blink3.api:latest
+    restart: always
+    environment:
+      - Discord__ClientId=${DISCORD_CLIENT_ID}
+      - Discord__ClientSecret=${DISCORD_CLIENT_SECRET}
+      - Discord__BotToken=${DISCORD_BOT_TOKEN}
+      - ConnectionStrings__DefaultConnection=Server=blink3.db;Port=5432;Database=${POSTGRES_USER};Userid=${POSTGRES_USER};Password=${POSTGRES_PASSWORD};SslMode=Prefer;TrustServerCertificate=true
+      - Redis__ConnectionString=blink3.cache,ssl=false,name=${REDIS_NAME}
+      - ApiAllowedOrigins__0=${API_ALLOWED_ORIGIN}
+    ports:
+      - "5288:8080"
+    volumes:
+      - ./logs:/app/logs
+    depends_on:
+      blink3.db:
+        condition: service_healthy
+        
+  blink3.web:
+    container_name: blink3_web
+    image: ghcr.io/epicofficer/blink3.web:latest
+    restart: always
+    ports:
+      - "5280:80"
+    volumes:
+      - ./appsettings.json:/usr/share/nginx/html/appsettings.json
+    depends_on:
+      - blink3.api

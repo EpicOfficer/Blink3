@@ -5,6 +5,7 @@ using Blink3.Common.Configuration;
 using Blink3.Common.Configuration.Extensions;
 using Blink3.DataAccess.Extensions;
 using Discord.Rest;
+using Microsoft.AspNetCore.HttpOverrides;
 using Serilog;
 using Serilog.Events;
 
@@ -35,6 +36,14 @@ try
     builder.Services.AddAppConfiguration(builder.Configuration);
     BlinkConfiguration appConfig = builder.Services.GetAppConfiguration();
 
+    // Add forwarded headers
+    builder.Services.Configure<ForwardedHeadersOptions>(options =>
+    {
+        options.ForwardLimit = 3;
+        options.ForwardedHeaders =
+            ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+    });
+    
     // Configure Cors
     builder.Services.AddCors(options =>
     {
@@ -59,6 +68,12 @@ try
 
     WebApplication app = builder.Build();
 
+    if (!app.Environment.IsDevelopment())
+    {
+        app.UseForwardedHeaders();
+        app.UseHsts();
+    }
+    
     // Document API
     app.UseSwagger();
     app.UseSwaggerUI();
