@@ -1,4 +1,5 @@
 ﻿FROM mcr.microsoft.com/dotnet/runtime:8.0-alpine AS base
+RUN apk add --no-cache curl icu-libs
 USER $APP_UID
 WORKDIR /app
 

@@ -43,7 +43,7 @@ jobs:
           tags: |
             type=ref,event=branch
             type=raw,pattern=latest,value=latest
-            type=sha,prefix=commit,
+            type=sha,prefix=commit_,
 
       - name: Build and push Docker image Drill4Net.Agent.Service
         uses: docker/build-push-action@v5
