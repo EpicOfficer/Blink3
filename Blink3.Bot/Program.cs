@@ -3,6 +3,7 @@ using Blink3.Common.Caching.Extensions;
 using Blink3.Common.Configuration;
 using Blink3.Common.Configuration.Extensions;
 using Blink3.DataAccess.Extensions;
+using Blink3.DataAccess.Services;
 using Discord;
 using Discord.Addons.Hosting;
 using Discord.Interactions;
@@ -34,6 +35,8 @@ try
     builder.Services.AddDataAccess(appConfig);
     builder.Services.AddCaching(appConfig);
 
+    builder.Services.AddHostedService<MigrationService>();
+    
     builder.Services.AddDiscordHost((config, _) =>
     {
         config.SocketConfig = new DiscordSocketConfig

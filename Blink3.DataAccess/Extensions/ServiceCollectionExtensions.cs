@@ -21,7 +21,7 @@ public static class ServiceCollectionExtensions
     {
         if (!string.IsNullOrWhiteSpace(configuration.ConnectionStrings.DefaultConnection))
             services.AddDbContext<BlinkDbContext>(options =>
-                options.UseSqlite(configuration.ConnectionStrings.DefaultConnection));
+                options.UseNpgsql(configuration.ConnectionStrings.DefaultConnection));
 
         services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
         services.AddScoped<IBlinkGuildRepository, BlinkGuildRepository>();

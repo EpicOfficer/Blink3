@@ -1,0 +1,41 @@
+# This is a generated file. Not intended for manual editing.
+version: "3.8"
+services:
+  blink3.api:
+    build:
+      context: "/Users/joshua/RiderProjects/Blink3"
+      dockerfile: "Blink3.API/Dockerfile"
+      target: "base"
+    command: []
+    entrypoint:
+    - "dotnet"
+    - "/app/bin/Debug/net8.0/Blink3.API.dll"
+    environment:
+      DOTNET_USE_POLLING_FILE_WATCHER: "true"
+    image: "blink3.api:dev"
+    ports: []
+    volumes:
+    - "/Users/joshua/.microsoft/usersecrets:/home/app/.microsoft/usersecrets"
+    - "/Users/joshua/.nuget/packages:/home/app/.nuget/packages"
+    - "/Users/joshua/RiderProjects/Blink3/Blink3.API:/app:rw"
+    - "/Users/joshua/RiderProjects/Blink3:/src:rw"
+    working_dir: "/app"
+  blink3.bot:
+    build:
+      context: "/Users/joshua/RiderProjects/Blink3"
+      dockerfile: "Blink3.Bot/Dockerfile"
+      target: "base"
+    command: []
+    entrypoint:
+    - "dotnet"
+    - "/app/bin/Debug/net8.0/Blink3.Bot.dll"
+    environment:
+      DOTNET_USE_POLLING_FILE_WATCHER: "true"
+    image: "blink3.bot:dev"
+    ports: []
+    volumes:
+    - "/Users/joshua/.microsoft/usersecrets:/home/app/.microsoft/usersecrets"
+    - "/Users/joshua/.nuget/packages:/home/app/.nuget/packages"
+    - "/Users/joshua/RiderProjects/Blink3/Blink3.Bot:/app:rw"
+    - "/Users/joshua/RiderProjects/Blink3:/src:rw"
+    working_dir: "/app"

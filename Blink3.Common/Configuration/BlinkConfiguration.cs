@@ -30,6 +30,11 @@ public record BlinkConfiguration
     ///     Represents the allowed origins for the API.
     /// </summary>
     public List<string> ApiAllowedOrigins { get; set; } = [];
+
+    /// <summary>
+    ///     Whether to apply pending EF Migrations to the database on startup
+    /// </summary>
+    public bool RunMigrations { get; set; } = false;
 }
 
 /// <summary>

@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+  blink3.bot:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+    build:
+      context: .
+      dockerfile: Blink3.Bot/Dockerfile
+
+  blink3.api:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+    build:
+      context: .
+      dockerfile: Blink3.API/Dockerfile
+  
+  blink3.web:
+    build:
+      context: .
+      dockerfile: Blink3.Web/Dockerfile
+    volumes:
+      - ./Blink3.Web/wwwroot/appsettings.json:/usr/share/nginx/html/appsettings.json

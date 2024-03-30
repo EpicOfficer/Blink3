@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  blink3.bot:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+    image: ghcr.io/epicofficer/blink3.bot:latest
+
+  blink3.api:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+    image: ghcr.io/epicofficer/blink3.api:latest
+  
+  blink3.web:
+    image: ghcr.io/epicofficer/blink3.web:latest
+    volumes:
+      - ./appsettings.json:/usr/share/nginx/html/appsettings.json

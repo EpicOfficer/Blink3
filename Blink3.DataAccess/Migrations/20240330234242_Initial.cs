@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore.Migrations;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
@@ -14,8 +15,7 @@ namespace Blink3.DataAccess.Migrations
                 name: "BlinkGuilds",
                 columns: table => new
                 {
-                    Id = table.Column<ulong>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true)
+                    Id = table.Column<decimal>(type: "numeric(20,0)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -26,12 +26,12 @@ namespace Blink3.DataAccess.Migrations
                 name: "UserTodos",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    UserId = table.Column<ulong>(type: "INTEGER", nullable: false),
-                    Label = table.Column<string>(type: "TEXT", maxLength: 25, nullable: false),
-                    Description = table.Column<string>(type: "TEXT", maxLength: 50, nullable: true),
-                    Complete = table.Column<bool>(type: "INTEGER", nullable: false)
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    UserId = table.Column<decimal>(type: "numeric(20,0)", nullable: false),
+                    Label = table.Column<string>(type: "character varying(25)", maxLength: 25, nullable: false),
+                    Description = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: true),
+                    Complete = table.Column<bool>(type: "boolean", nullable: false)
                 },
                 constraints: table =>
                 {
