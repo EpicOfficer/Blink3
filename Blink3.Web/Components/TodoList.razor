@@ -1,5 +1,8 @@
 @using Blink3.DataAccess.Entities
 @using Blink3.DataAccess.Models
+
+<ConfirmDialog @ref="dialog" />
+
 @foreach (UserTodo todo in Todos)
 {
     <ul class="list-group list-group-horizontal rounded-0 bg-transparent border-bottom">
@@ -28,7 +31,7 @@
                 <Button Color="ButtonColor.None"
                         href="#"
                         class="my-auto"
-                        @onclick="async _ => await DeleteTodo(todo.Id)">
+                        @onclick="async _ => await DeleteAsync(todo.Id)">
                     <Icon Name="IconName.TrashFill"
                           Color="IconColor.Danger"
                           Size="IconSize.x4">
@@ -43,7 +46,20 @@
     [Parameter] public IEnumerable<UserTodo> Todos { get; set; } = [];
     [Parameter] public Func<int, UserTodoDto, Task> UpdateTodo { get; set; } = null!;
     [Parameter] public Func<int, Task> DeleteTodo { get; set; } = null!;
+    private ConfirmDialog dialog = default!;
 
+    private async Task DeleteAsync(int id)
+    {
+        bool confirmation = await dialog.ShowAsync(
+            title: "Are you sure you want to delete this?",
+            message1: "This will delete the todo item. Once deleted can not be rolled back.");
+
+        if (confirmation)
+        {
+            await DeleteTodo(id);
+        }
+    }
+    
     private async Task UpdateTodoAsync(UserTodo todo, bool complete)
     {
         todo.Complete = complete;
