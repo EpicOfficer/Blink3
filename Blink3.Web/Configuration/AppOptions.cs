@@ -12,4 +12,9 @@ public class AppOptions
     ///     Represents the address of the API.
     /// </summary>
     public string ApiAddress { get; set; } = default!;
+
+    /// <summary>
+    ///     Represents the Discord Client ID for the application.
+    /// </summary>
+    public string ClientID { get; set; } = default!;
 }

@@ -1,7 +1,21 @@
 ﻿@page "/"
+@using Microsoft.Extensions.Options
+@using Blink3.Web.Configuration
 
 <PageTitle>Home</PageTitle>
 
-<h1>Hello, world!</h1>
+<h1>Blink3</h1>
 
-Welcome to your new app.
+Very early preview of Blink3
+
+<Button Type="ButtonType.Link"
+        Color="ButtonColor.Primary"
+        class="d-block mt-3"
+        To="@InstallUrl">
+    Install
+</Button>
+
+@code {
+    [Inject] private IOptions<AppOptions> Config { get; set; } = default!;
+    private string InstallUrl => $"https://discord.com/oauth2/authorize?client_id={Config.Value.ClientID}";
+}
