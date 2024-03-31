@@ -10,6 +10,8 @@ using Discord.Interactions;
 
 namespace Blink3.Bot.Modules;
 
+[CommandContextType(InteractionContextType.Guild, InteractionContextType.BotDm, InteractionContextType.PrivateChannel)]
+[IntegrationType(ApplicationIntegrationType.GuildInstall, ApplicationIntegrationType.UserInstall)]
 [Group("todo", "Simple todo list")]
 public class TodoModule(IUserTodoRepository todoRepository) : BlinkModuleBase<IInteractionContext>
 {
