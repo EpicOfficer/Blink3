@@ -6,13 +6,13 @@ services:
     image: redis:7.2-alpine
     restart: always
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: [ "CMD", "redis-cli", "ping" ]
       interval: 5s
       timeout: 5s
       retries: 5
     environment:
       - REDIS_NAME=${REDIS_NAME}
-        
+  
   blink3.db:
     container_name: blink3_db
     image: postgres:16.2-alpine
@@ -31,7 +31,7 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
-      
+  
   blink3.bot:
     container_name: blink3_bot
     restart: always
@@ -60,7 +60,7 @@ services:
     depends_on:
       blink3.db:
         condition: service_healthy
-        
+  
   blink3.web:
     container_name: blink3_web
     restart: always

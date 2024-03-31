@@ -36,7 +36,7 @@ try
     builder.Services.AddCaching(appConfig);
 
     builder.Services.AddHostedService<MigrationService>();
-    
+
     builder.Services.AddDiscordHost((config, _) =>
     {
         config.SocketConfig = new DiscordSocketConfig

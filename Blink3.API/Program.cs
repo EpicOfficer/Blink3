@@ -43,7 +43,7 @@ try
         options.ForwardedHeaders =
             ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
     });
-    
+
     // Configure Cors
     builder.Services.AddCors(options =>
     {
@@ -73,7 +73,7 @@ try
         app.UseForwardedHeaders();
         app.UseHsts();
     }
-    
+
     // Document API
     app.UseSwagger();
     app.UseSwaggerUI();
