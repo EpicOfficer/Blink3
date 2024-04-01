@@ -1,4 +1,4 @@
-using Blink3.Common.Caching;
+using Blink3.Core.Caching;
 using Blink3.DataAccess.Entities;
 using Blink3.DataAccess.Interfaces;
 

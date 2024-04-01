@@ -1,6 +1,6 @@
 using Microsoft.Extensions.Caching.Memory;
 
-namespace Blink3.Common.Caching.Memory;
+namespace Blink3.Core.Caching.Memory;
 
 /// <inheritdoc />
 public class MemoryCachingService(IMemoryCache cache) : ICachingService

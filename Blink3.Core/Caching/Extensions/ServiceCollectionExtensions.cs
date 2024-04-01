@@ -1,9 +1,9 @@
-using Blink3.Common.Caching.Memory;
-using Blink3.Common.Caching.Redis;
-using Blink3.Common.Configuration;
+using Blink3.Core.Caching.Memory;
+using Blink3.Core.Caching.Redis;
+using Blink3.Core.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Blink3.Common.Caching.Extensions;
+namespace Blink3.Core.Caching.Extensions;
 
 /// <summary>
 ///     Contains extension methods for configuring caching services.

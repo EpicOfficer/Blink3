@@ -1,7 +1,7 @@
 using System.Reflection;
 using Blink3.Bot.MessageStyles.Extensions;
 using Blink3.Bot.MessageStyles.Variations;
-using Blink3.Common.Configuration;
+using Blink3.Core.Configuration;
 using Discord;
 using Discord.Addons.Hosting;
 using Discord.Addons.Hosting.Util;

@@ -2,7 +2,7 @@
 
 using System.Security.Claims;
 
-namespace Blink3.Common.Models;
+namespace Blink3.Core.DiscordAuth;
 
 /// <summary>
 ///     Represents the authentication status of a user.

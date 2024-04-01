@@ -7,7 +7,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Blink3.Common\Blink3.Common.csproj"/>
+        <ProjectReference Include="..\Blink3.Core\Blink3.Core.csproj"/>
     </ItemGroup>
 
     <ItemGroup>

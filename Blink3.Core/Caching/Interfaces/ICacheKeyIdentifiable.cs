@@ -1,4 +1,4 @@
-namespace Blink3.Common.Caching.Interfaces;
+namespace Blink3.Core.Caching.Interfaces;
 
 /// <summary>
 ///     Represents an object that can be used as a cache key identifier.

@@ -1,4 +1,4 @@
-using Blink3.Common.Configuration;
+using Blink3.Core.Configuration;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;

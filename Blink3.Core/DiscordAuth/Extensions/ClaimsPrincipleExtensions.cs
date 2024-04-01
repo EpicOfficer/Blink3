@@ -1,7 +1,6 @@
 using System.Security.Claims;
-using Blink3.Common.Models;
 
-namespace Blink3.Common.Extensions;
+namespace Blink3.Core.DiscordAuth.Extensions;
 
 /// <summary>
 ///     Contains extension methods for ClaimsPrincipal class.

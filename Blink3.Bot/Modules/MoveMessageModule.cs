@@ -1,6 +1,6 @@
 using System.Diagnostics;
 using Blink3.Bot.Extensions;
-using Blink3.Common.Extensions;
+using Blink3.Core.Extensions;
 using Discord;
 using Discord.Interactions;
 using Discord.Webhook;

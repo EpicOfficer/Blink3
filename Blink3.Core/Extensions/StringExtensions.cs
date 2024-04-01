@@ -1,4 +1,4 @@
-namespace Blink3.Common.Extensions;
+namespace Blink3.Core.Extensions;
 
 public static class StringExtensions
 {

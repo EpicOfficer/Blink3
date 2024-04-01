@@ -1,6 +1,6 @@
 using System.Net.Http.Json;
 using System.Security.Claims;
-using Blink3.Common.Models;
+using Blink3.Core.DiscordAuth;
 using Microsoft.AspNetCore.Components.Authorization;
 
 namespace Blink3.Web.Services;

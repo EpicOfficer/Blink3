@@ -1,8 +1,8 @@
 using Blink3.API.Extensions;
 using Blink3.API.Services;
-using Blink3.Common.Caching.Extensions;
-using Blink3.Common.Configuration;
-using Blink3.Common.Configuration.Extensions;
+using Blink3.Core.Caching.Extensions;
+using Blink3.Core.Configuration;
+using Blink3.Core.Configuration.Extensions;
 using Blink3.DataAccess.Extensions;
 using Discord.Rest;
 using Microsoft.AspNetCore.HttpOverrides;

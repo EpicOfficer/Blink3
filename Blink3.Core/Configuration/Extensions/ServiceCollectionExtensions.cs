@@ -2,7 +2,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
-namespace Blink3.Common.Configuration.Extensions;
+namespace Blink3.Core.Configuration.Extensions;
 
 /// <summary>
 ///     Extension methods for IServiceCollection to add application configuration.

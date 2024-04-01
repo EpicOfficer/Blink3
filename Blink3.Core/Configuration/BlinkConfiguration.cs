@@ -2,7 +2,7 @@
 
 using System.ComponentModel.DataAnnotations;
 
-namespace Blink3.Common.Configuration;
+namespace Blink3.Core.Configuration;
 
 /// <summary>
 ///     Represents the configuration options for the Blink application.

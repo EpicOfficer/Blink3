@@ -1,4 +1,4 @@
-namespace Blink3.Common.Caching;
+namespace Blink3.Core.Caching;
 
 /// <summary>
 ///     Represents a caching service that provides methods to interact with a cache.

@@ -2,7 +2,7 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Blink3.Bot", "Blink3.Bot\Blink3.Bot.csproj", "{949868F1-3B85-4A10-BF11-9E4EBAAAC725}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Blink3.Common", "Blink3.Common\Blink3.Common.csproj", "{A377B2D4-5F96-4A5E-A8E6-8062415F9477}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Blink3.Core", "Blink3.Core\Blink3.Core.csproj", "{A377B2D4-5F96-4A5E-A8E6-8062415F9477}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Blink3.DataAccess", "Blink3.DataAccess\Blink3.DataAccess.csproj", "{CA278D5B-D775-4142-91E5-7B017200063D}"
 EndProject

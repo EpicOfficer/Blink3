@@ -1,7 +1,7 @@
 using System.Text.Json;
 using Microsoft.Extensions.Caching.Distributed;
 
-namespace Blink3.Common.Caching.Redis;
+namespace Blink3.Core.Caching.Redis;
 
 /// <inheritdoc />
 public class RedisCachingService(IDistributedCache cache) : ICachingService

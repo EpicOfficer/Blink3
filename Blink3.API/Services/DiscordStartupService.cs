@@ -1,5 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
-using Blink3.Common.Configuration;
+using Blink3.Core.Configuration;
 using Discord;
 using Discord.Rest;
 using Microsoft.Extensions.Options;

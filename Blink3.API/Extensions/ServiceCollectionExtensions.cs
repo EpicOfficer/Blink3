@@ -3,7 +3,7 @@ using System.Security.Claims;
 using System.Text.Json;
 using AspNet.Security.OAuth.Discord;
 using Blink3.API.Models;
-using Blink3.Common.Configuration;
+using Blink3.Core.Configuration;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OAuth;
 using Serilog;

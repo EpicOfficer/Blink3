@@ -1,5 +1,5 @@
-using Blink3.Common.Caching;
-using Blink3.Common.Caching.Interfaces;
+using Blink3.Core.Caching;
+using Blink3.Core.Caching.Interfaces;
 
 namespace Blink3.DataAccess.Repositories;
 
