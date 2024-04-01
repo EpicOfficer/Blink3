@@ -19,6 +19,13 @@ public class BlinkDbContext : DbContext
         ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
     }
 
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<Wordle>()
+            .OwnsOne(wordle => wordle.CurrentGuess)
+            .OwnsMany(guess => guess.Letters);
+    }
+
     /// <summary>
     ///     Represents a collection of BlinkGuild entities in the BlinkDbContext.
     /// </summary>
@@ -28,4 +35,9 @@ public class BlinkDbContext : DbContext
     ///     Represents a user's "to do" items.
     /// </summary>
     public DbSet<UserTodo> UserTodos => Set<UserTodo>();
+
+    /// <summary>
+    ///     Represents a Wordle game entity.
+    /// </summary>
+    public DbSet<Wordle> Wordles => Set<Wordle>();
 }
