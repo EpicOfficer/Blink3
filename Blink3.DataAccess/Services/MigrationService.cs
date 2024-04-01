@@ -11,7 +11,7 @@ namespace Blink3.DataAccess.Services;
 ///     MigrationService is a class responsible for running database migrations.
 /// </summary>
 public class MigrationService(
-    IServiceProvider services,
+    IServiceScopeFactory scopeFactory,
     IOptions<BlinkConfiguration> config,
     ILogger<MigrationService> logger) : IHostedService
 {
@@ -29,8 +29,8 @@ public class MigrationService(
     {
         if (Config.RunMigrations)
         {
-            IServiceScope scope = services.CreateScope();
-            BlinkDbContext blinkDbContext = scope.ServiceProvider.GetRequiredService<BlinkDbContext>();
+            using IServiceScope scope = scopeFactory.CreateScope();
+            BlinkDbContext blinkDbContext = GetDbContextFromScope(scope);
 
             logger.LogInformation("Running database migrations...");
             await blinkDbContext.Database.MigrateAsync(cancellationToken);
@@ -45,5 +45,15 @@ public class MigrationService(
     public Task StopAsync(CancellationToken cancellationToken)
     {
         return Task.CompletedTask;
+    }
+
+    /// <summary>
+    ///     Retrieves the instance of BlinkDbContext from the given IServiceScope.
+    /// </summary>
+    /// <param name="scope">The IServiceScope from which to retrieve the instance of BlinkDbContext.</param>
+    /// <returns>The instance of BlinkDbContext.</returns>
+    private static BlinkDbContext GetDbContextFromScope(IServiceScope scope)
+    {
+        return scope.ServiceProvider.GetRequiredService<BlinkDbContext>();
     }
 }
