@@ -1,4 +1,4 @@
-namespace Blink3.DataAccess.Interfaces;
+namespace Blink3.Core.Repositories.Interfaces;
 
 /// <summary>
 ///     Represents a generic repository for accessing and manipulating data.

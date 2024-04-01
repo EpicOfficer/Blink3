@@ -1,5 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
-using Blink3.DataAccess.Entities;
+using Blink3.Core.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace Blink3.DataAccess;

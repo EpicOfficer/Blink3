@@ -3,7 +3,7 @@ using Blink3.Core.Caching.Interfaces;
 
 // ReSharper disable PropertyCanBeMadeInitOnly.Global
 
-namespace Blink3.DataAccess.Entities;
+namespace Blink3.Core.Entities;
 
 /// <summary>
 ///     Represents a guild in the Blink3 application.

@@ -3,8 +3,8 @@ using System.Diagnostics.CodeAnalysis;
 using Blink3.Bot.Extensions;
 using Blink3.Bot.MessageStyles;
 using Blink3.Bot.Modals;
-using Blink3.DataAccess.Entities;
-using Blink3.DataAccess.Interfaces;
+using Blink3.Core.Entities;
+using Blink3.Core.Repositories.Interfaces;
 using Discord;
 using Discord.Interactions;
 

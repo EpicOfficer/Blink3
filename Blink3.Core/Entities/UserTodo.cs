@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 // ReSharper disable PropertyCanBeMadeInitOnly.Global
 
-namespace Blink3.DataAccess.Entities;
+namespace Blink3.Core.Entities;
 
 /// <summary>
 ///     Represents a UserTodo entity.

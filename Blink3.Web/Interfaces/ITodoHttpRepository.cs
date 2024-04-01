@@ -1,5 +1,5 @@
-using Blink3.DataAccess.Entities;
-using Blink3.DataAccess.Models;
+using Blink3.Core.DTOs;
+using Blink3.Core.Entities;
 
 namespace Blink3.Web.Interfaces;
 
