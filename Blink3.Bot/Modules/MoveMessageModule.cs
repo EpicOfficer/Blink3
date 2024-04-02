@@ -6,6 +6,9 @@ using Discord.Interactions;
 using Discord.Webhook;
 using Discord.WebSocket;
 
+// ReSharper disable UnusedType.Global
+// ReSharper disable UnusedMember.Global
+
 namespace Blink3.Bot.Modules;
 
 [RequireContext(ContextType.Guild)]
@@ -28,7 +31,7 @@ public class MoveMessageModule(IHttpClientFactory httpClientFactory) : BlinkModu
     }
 
     [ComponentInteraction("blink-move-message_*_*")]
-    public async Task MoveMessageTo(string channelIdStr, string messageIdStr, SocketChannel[] channels)
+    public async Task MoveMessageTo(string channelIdStr, string messageIdStr, IEnumerable<SocketChannel> channels)
     {
         await DeferAsync(true);
 
@@ -37,7 +40,7 @@ public class MoveMessageModule(IHttpClientFactory httpClientFactory) : BlinkModu
                 out SocketTextChannel? targetChannel,
                 out string? errorMessage))
         {
-            await RespondErrorAsync(message: errorMessage);
+            await RespondErrorAsync(message: errorMessage ?? "An unknown error occured moving the message");
             return;
         }
 
@@ -46,8 +49,7 @@ public class MoveMessageModule(IHttpClientFactory httpClientFactory) : BlinkModu
         IMessage? message = await GetMessageToMove(sourceChannel, messageIdStr.ToUlong());
         if (message is null) return;
 
-        await MoveMessage(message, sourceChannel, targetChannel);
-        await message.DeleteAsync();
+        await MoveMessage(message, targetChannel);
     }
 
     /// <summary>
@@ -57,9 +59,10 @@ public class MoveMessageModule(IHttpClientFactory httpClientFactory) : BlinkModu
     /// <param name="channels">The array of target channels.</param>
     /// <param name="sourceChannel">When this method returns, contains the source channel if found; otherwise, null.</param>
     /// <param name="targetChannel">When this method returns, contains the target channel if found; otherwise, null.</param>
+    /// <param name="errorMessage">Error message, when appropriate</param>
     /// <returns>true if the source and target channels were successfully obtained; otherwise, false.</returns>
     private bool TryGetSourceAndTargetChannels(string channelIdStr,
-        SocketChannel[] channels,
+        IEnumerable<SocketChannel> channels,
         out SocketTextChannel? sourceChannel,
         out SocketTextChannel? targetChannel,
         out string? errorMessage)
@@ -111,10 +114,9 @@ public class MoveMessageModule(IHttpClientFactory httpClientFactory) : BlinkModu
     ///     Moves a message from the source channel to the target channel.
     /// </summary>
     /// <param name="message">The message to be moved.</param>
-    /// <param name="sourceChannel">The source channel from which the message should be moved.</param>
     /// <param name="targetChannel">The target channel to which the message should be moved.</param>
     /// <returns>A task representing the asynchronous operation.</returns>
-    private async Task MoveMessage(IMessage message, SocketTextChannel sourceChannel, SocketTextChannel targetChannel)
+    private async Task MoveMessage(IMessage message, SocketTextChannel targetChannel)
     {
         IWebhook webhook = await GetOrCreateWebhook(targetChannel);
         using DiscordWebhookClient client = new(webhook);
@@ -123,6 +125,8 @@ public class MoveMessageModule(IHttpClientFactory httpClientFactory) : BlinkModu
             await SendMessageWithAttachments(client, message);
         else
             await SendMessageWithoutAttachments(client, message);
+
+        await message.DeleteAsync();
 
         await RespondSuccessAsync("Message moved", $"Successfully moved message to {targetChannel.Name}");
     }

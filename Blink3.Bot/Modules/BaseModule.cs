@@ -14,7 +14,7 @@ public class BlinkModuleBase<T> : InteractionModuleBase<T> where T : class, IInt
     /// <param name="ephemeral">Whether the response should be ephemeral</param>
     /// <param name="components">Optional message components to include</param>
     /// <returns>A task representing the asynchronous operation</returns>
-    protected virtual Task RespondOrFollowUpAsync(Embed embed, bool ephemeral, MessageComponent? components)
+    private Task RespondOrFollowUpAsync(Embed embed, bool ephemeral, MessageComponent? components)
     {
         return Context.Interaction.HasResponded
             ? FollowupAsync("", embed: embed, ephemeral: ephemeral, components: components)
@@ -29,7 +29,7 @@ public class BlinkModuleBase<T> : InteractionModuleBase<T> where T : class, IInt
     /// <param name="ephemeral">Whether the message should be ephemeral, defaults to true.</param>
     /// <param name="components">Optional message components to include</param>
     /// <param name="embedFields">Optional fields to include in the embed</param>
-    protected virtual async Task RespondPlainAsync(string? name = null, string message = "", bool ephemeral = true,
+    protected async Task RespondPlainAsync(string? name = null, string message = "", bool ephemeral = true,
         MessageComponent? components = null, EmbedFieldBuilder[]? embedFields = null)
     {
         await RespondOrFollowUpAsync(EmbedHelpers.CreatePlain(name, message, embedFields), ephemeral, components);
@@ -43,7 +43,7 @@ public class BlinkModuleBase<T> : InteractionModuleBase<T> where T : class, IInt
     /// <param name="ephemeral">Whether the message should be ephemeral, defaults to true.</param>
     /// <param name="components">Optional message components to include</param>
     /// <param name="embedFields">Optional fields to include in the embed</param>
-    protected virtual async Task RespondSuccessAsync(string? name = null, string message = "", bool ephemeral = true,
+    protected async Task RespondSuccessAsync(string? name = null, string message = "", bool ephemeral = true,
         MessageComponent? components = null, EmbedFieldBuilder[]? embedFields = null)
     {
         await RespondOrFollowUpAsync(EmbedHelpers.CreateSuccess(name, message, embedFields), ephemeral, components);
@@ -57,7 +57,7 @@ public class BlinkModuleBase<T> : InteractionModuleBase<T> where T : class, IInt
     /// <param name="ephemeral">Whether the message should be ephemeral, defaults to true.</param>
     /// <param name="components">Optional message components to include</param>
     /// <param name="embedFields">Optional fields to include in the embed</param>
-    protected virtual async Task RespondInfoAsync(string? name = null, string message = "", bool ephemeral = true,
+    protected async Task RespondInfoAsync(string? name = null, string message = "", bool ephemeral = true,
         MessageComponent? components = null, EmbedFieldBuilder[]? embedFields = null)
     {
         await RespondOrFollowUpAsync(EmbedHelpers.CreateInfo(name, message, embedFields), ephemeral, components);
@@ -71,7 +71,7 @@ public class BlinkModuleBase<T> : InteractionModuleBase<T> where T : class, IInt
     /// <param name="ephemeral">Whether the message should be ephemeral, defaults to true.</param>
     /// <param name="components">Optional message components to include</param>
     /// <param name="embedFields">Optional fields to include in the embed</param>
-    protected virtual async Task RespondErrorAsync(string? name = null, string message = "", bool ephemeral = true,
+    protected async Task RespondErrorAsync(string? name = null, string message = "", bool ephemeral = true,
         MessageComponent? components = null, EmbedFieldBuilder[]? embedFields = null)
     {
         await RespondOrFollowUpAsync(EmbedHelpers.CreateError(name, message, embedFields), ephemeral, components);

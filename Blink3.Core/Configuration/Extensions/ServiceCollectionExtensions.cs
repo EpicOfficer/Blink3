@@ -14,14 +14,12 @@ public static class ServiceCollectionExtensions
     /// </summary>
     /// <param name="services">The <see cref="IServiceCollection" /> to add the configuration to.</param>
     /// <param name="configuration">The <see cref="IConfiguration" /> instance.</param>
-    /// <returns>The updated <see cref="IServiceCollection" />.</returns>
-    public static IServiceCollection AddAppConfiguration(this IServiceCollection services, IConfiguration configuration)
+    public static void AddAppConfiguration(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddOptions<BlinkConfiguration>()
             .Bind(configuration)
             .ValidateDataAnnotations()
             .ValidateOnStart();
-        return services;
     }
 
     /// <summary>
@@ -32,7 +30,6 @@ public static class ServiceCollectionExtensions
     public static BlinkConfiguration GetAppConfiguration(this IServiceCollection services)
     {
         ServiceProvider provider = services.BuildServiceProvider();
-        return provider.GetRequiredService<IOptions<BlinkConfiguration>>()?.Value ??
-               throw new InvalidOperationException();
+        return provider.GetRequiredService<IOptions<BlinkConfiguration>>().Value;
     }
 }

@@ -17,5 +17,5 @@ Very early preview of Blink3
 
 @code {
     [Inject] private IOptions<AppOptions> Config { get; set; } = default!;
-    private string InstallUrl => $"https://discord.com/oauth2/authorize?client_id={Config.Value.ClientID}";
+    private string InstallUrl => $"https://discord.com/oauth2/authorize?client_id={Config.Value.ClientId}";
 }

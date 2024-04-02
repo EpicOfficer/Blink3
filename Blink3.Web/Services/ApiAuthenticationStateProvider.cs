@@ -10,7 +10,6 @@ namespace Blink3.Web.Services;
 /// </summary>
 public class ApiAuthenticationStateProvider(HttpClient httpClient) : AuthenticationStateProvider
 {
-    private const string LoginStateKey = "Blink3_LoginState";
     private const string LoginAuthType = "ApiAuth";
     private const string BasePath = "api/auth";
 

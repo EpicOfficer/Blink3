@@ -1,3 +1,5 @@
+// ReSharper disable AutoPropertyCanBeMadeGetOnly.Global
+
 namespace Blink3.Web.Configuration;
 
 /// <summary>
@@ -16,5 +18,5 @@ public class AppOptions
     /// <summary>
     ///     Represents the Discord Client ID for the application.
     /// </summary>
-    public string ClientID { get; set; } = default!;
+    public string ClientId { get; set; } = default!;
 }

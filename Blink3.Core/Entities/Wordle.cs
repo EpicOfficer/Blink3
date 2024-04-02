@@ -1,7 +1,6 @@
 namespace Blink3.Core.Entities;
 
 // ReSharper disable PropertyCanBeMadeInitOnly.Global
-
 /// <summary>
 ///     Represents a Wordle game.
 /// </summary>

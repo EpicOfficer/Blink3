@@ -20,12 +20,12 @@ services:
       - ./appsettings.json:/usr/share/nginx/html/appsettings.json
     networks:
       - blink3_public
-        
+  
   blink3.activity:
     image: ghcr.io/epicofficer/blink3.activity:latest
     networks:
       - blink3_public
-    
+
 networks:
   blink3_public:
     external: true
