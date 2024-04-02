@@ -2,13 +2,23 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Blink3.Bot", "Blink3.Bot\Blink3.Bot.csproj", "{949868F1-3B85-4A10-BF11-9E4EBAAAC725}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Blink3.Common", "Blink3.Common\Blink3.Common.csproj", "{A377B2D4-5F96-4A5E-A8E6-8062415F9477}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Blink3.Core", "Blink3.Core\Blink3.Core.csproj", "{A377B2D4-5F96-4A5E-A8E6-8062415F9477}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Blink3.DataAccess", "Blink3.DataAccess\Blink3.DataAccess.csproj", "{CA278D5B-D775-4142-91E5-7B017200063D}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Blink3.API", "Blink3.API\Blink3.API.csproj", "{B72051D1-5839-4021-BCA6-29C33E44AD45}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Blink3.Web", "Blink3.Web\Blink3.Web.csproj", "{712FC7ED-10A5-4EBD-9A48-E67CBB8E46B2}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Files", "Solution Files", "{DC0DA219-4EFC-4B51-9E12-A28199354461}"
+	ProjectSection(SolutionItems) = preProject
+		docker-compose.development.yml = docker-compose.development.yml
+		docker-compose.production.yml = docker-compose.production.yml
+		docker-compose.yml = docker-compose.yml
+		Configuration\appsettings.json = Configuration\appsettings.json
+		Configuration\appsettings.Development.json = Configuration\appsettings.Development.json
+		.github\workflows\docker-image.yml = .github\workflows\docker-image.yml
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

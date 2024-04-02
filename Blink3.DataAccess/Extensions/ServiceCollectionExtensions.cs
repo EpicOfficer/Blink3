@@ -1,5 +1,5 @@
-using Blink3.Common.Configuration;
-using Blink3.DataAccess.Interfaces;
+using Blink3.Core.Configuration;
+using Blink3.Core.Repositories.Interfaces;
 using Blink3.DataAccess.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;

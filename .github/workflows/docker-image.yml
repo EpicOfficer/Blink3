@@ -1,4 +1,4 @@
-name: Build & publish Blink images
+name: Build & publish Blink Docker images
 on:
   push:
     branches: [ main ]
@@ -20,6 +20,9 @@ jobs:
             image: ghcr.io/epicofficer/blink3.bot
           - dockerfile: ./Blink3.Web/Dockerfile
             image: ghcr.io/epicofficer/blink3.web
+          - dockerfile: ./Blink3.Activity/Dockerfile
+            image: ghcr.io/epicofficer/blink3.activity
+              
     permissions:
       contents: read
       packages: write
@@ -45,7 +48,7 @@ jobs:
             type=raw,pattern=latest,value=latest
             type=sha,prefix=commit_,
 
-      - name: Build and push Docker image Drill4Net.Agent.Service
+      - name: Build and push Docker images
         uses: docker/build-push-action@v5
         with:
           context: .

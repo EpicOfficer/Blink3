@@ -1,6 +1,6 @@
 using System.Net.Http.Json;
-using Blink3.DataAccess.Entities;
-using Blink3.DataAccess.Models;
+using Blink3.Core.DTOs;
+using Blink3.Core.Entities;
 using Blink3.Web.Interfaces;
 
 namespace Blink3.Web.Repositories;

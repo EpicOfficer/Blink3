@@ -1,7 +1,6 @@
-@using Blink3.DataAccess.Entities
-@using Blink3.DataAccess.Models
-
-<ConfirmDialog @ref="dialog" />
+@using Blink3.Core.Entities
+@using Blink3.Core.DTOs
+<ConfirmDialog @ref="dialog"/>
 
 @foreach (UserTodo todo in Todos)
 {
@@ -51,15 +50,15 @@
     private async Task DeleteAsync(int id)
     {
         bool confirmation = await dialog.ShowAsync(
-            title: "Are you sure you want to delete this?",
-            message1: "This will delete the todo item. Once deleted can not be rolled back.");
+            "Are you sure you want to delete this?",
+            "This will delete the todo item. Once deleted can not be rolled back.");
 
         if (confirmation)
         {
             await DeleteTodo(id);
         }
     }
-    
+
     private async Task UpdateTodoAsync(UserTodo todo, bool complete)
     {
         todo.Complete = complete;

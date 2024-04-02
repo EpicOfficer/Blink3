@@ -1,6 +1,6 @@
-using Blink3.DataAccess.Entities;
-using Blink3.DataAccess.Interfaces;
-using Blink3.DataAccess.Models;
+using Blink3.Core.DTOs;
+using Blink3.Core.Entities;
+using Blink3.Core.Repositories.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 

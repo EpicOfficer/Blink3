@@ -1,7 +1,9 @@
-using Blink3.DataAccess.Interfaces;
+using Blink3.Core.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Metadata;
+
+// ReSharper disable SuggestBaseTypeForParameterInConstructor
 
 namespace Blink3.DataAccess.Repositories;
 

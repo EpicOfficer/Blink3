@@ -1,6 +1,6 @@
 using AspNet.Security.OAuth.Discord;
-using Blink3.Common.Extensions;
-using Blink3.Common.Models;
+using Blink3.Core.DiscordAuth;
+using Blink3.Core.DiscordAuth.Extensions;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
