@@ -1,4 +1,5 @@
 using Blink3.Core.Enums;
+
 // ReSharper disable ClassNeverInstantiated.Global
 // ReSharper disable PropertyCanBeMadeInitOnly.Global
 
@@ -13,7 +14,7 @@ public class WordleLetter
     ///     The position of this letter in the wordle.
     /// </summary>
     public int Position { get; set; }
-    
+
     /// <summary>
     ///     Represents a letter used in the Wordle Game.
     /// </summary>

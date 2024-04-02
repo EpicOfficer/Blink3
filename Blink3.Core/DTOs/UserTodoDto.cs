@@ -24,7 +24,7 @@ public class UserTodoDto
     ///     Represents whether user "to do" is complete or not.
     /// </summary>
     // ReSharper disable once MemberCanBePrivate.Global
-    public bool Complete { get; set; } = false;
+    public bool Complete { get; set; }
 
     /// <summary>
     ///     Converts a UserTodoDto object to a UserTodo entity.

@@ -2,6 +2,10 @@
 
 using System.ComponentModel.DataAnnotations;
 
+// ReSharper disable AutoPropertyCanBeMadeGetOnly.Global
+// ReSharper disable CollectionNeverUpdated.Global
+// ReSharper disable UnusedAutoPropertyAccessor.Global
+
 namespace Blink3.Core.Configuration;
 
 /// <summary>
@@ -13,13 +17,13 @@ public record BlinkConfiguration
     ///     Represents the Discord configuration.
     /// </summary>
     [Required]
-    public DiscordConfig Discord { get; init; } = null!;
+    public DiscordConfig Discord { get; init; } = new();
 
     /// <summary>
     ///     Represents the connection strings configuration for the Blink application.
     /// </summary>
     [Required]
-    public ConnectionStringsConfig ConnectionStrings { get; init; } = null!;
+    public ConnectionStringsConfig ConnectionStrings { get; init; } = new();
 
     /// <summary>
     ///     Represents the Redis configuration.
@@ -46,17 +50,17 @@ public record DiscordConfig
     ///     Gets or sets the client ID used for Discord authentication.
     /// </summary>
     [Required]
-    public string ClientId { get; init; } = null!;
+    public string ClientId { get; init; } = string.Empty;
 
     /// *Description:**
     [Required]
-    public string ClientSecret { get; init; } = null!;
+    public string ClientSecret { get; init; } = string.Empty;
 
     /// <summary>
     ///     Represents the bot token used to authenticate the Discord bot.
     /// </summary>
     [Required]
-    public string BotToken { get; init; } = null!;
+    public string BotToken { get; init; } = string.Empty;
 
     /// <summary>
     ///     The identifier of the development guild.
@@ -66,10 +70,10 @@ public record DiscordConfig
     ///     It is a nullable unsigned 64-bit integer (ulong?) and can be obtained from the <see cref="BlinkConfiguration" />
     ///     instance
     ///     using the <see cref="DiscordConfig.DevGuildId" /> property.
-    ///     The development guild is the guild where the bot's commands will be registered.
+    ///     The development guild is the guild where the bots commands will be registered.
     ///     If the dev guild id is set, the bot will register its commands to that specific guild.
     ///     If the dev guild id is not set, the bot will register its commands globally.
-    ///     This property is used in the <see cref="InteractionHandler" /> class to determine whether to register commands to
+    ///     This property is used to determine whether to register commands to
     ///     the
     ///     development guild or globally, and also to log the guild id during the registration process.
     /// </remarks>
@@ -85,7 +89,7 @@ public record ConnectionStringsConfig
     ///     Represents the default connection string used in the Blink3 application.
     /// </summary>
     [Required]
-    public string DefaultConnection { get; init; } = null!;
+    public string DefaultConnection { get; init; } = string.Empty;
 }
 
 /// <summary>

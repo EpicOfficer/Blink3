@@ -1,6 +1,8 @@
 using Discord;
 using Discord.Interactions;
 
+// ReSharper disable UnusedAutoPropertyAccessor.Global
+
 namespace Blink3.Bot.Modals;
 
 // ReSharper disable once ClassNeverInstantiated.Global

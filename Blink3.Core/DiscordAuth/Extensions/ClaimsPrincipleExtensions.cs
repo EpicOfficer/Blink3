@@ -46,10 +46,10 @@ public static class ClaimsPrincipleExtensions
 
         return new AuthStatus
         {
-            Id = user.Claims.First(c => c.Type == ClaimTypes.NameIdentifier)?.Value ?? string.Empty,
-            Username = user.Claims.First(c => c.Type == ClaimTypes.Name)?.Value ?? string.Empty,
-            GlobalName = user.Claims.First(c => c.Type == ClaimTypes.GivenName)?.Value,
-            Locale = user.Claims.First(c => c.Type == ClaimTypes.Locality)?.Value,
+            Id = user.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value ?? string.Empty,
+            Username = user.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Name)?.Value ?? string.Empty,
+            GlobalName = user.Claims.FirstOrDefault(c => c.Type == ClaimTypes.GivenName)?.Value,
+            Locale = user.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Locality)?.Value,
             Authenticated = user.Identity?.IsAuthenticated ?? false
         };
     }

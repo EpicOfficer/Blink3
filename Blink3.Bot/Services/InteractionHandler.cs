@@ -101,7 +101,7 @@ public class InteractionHandler(
     /// <returns>A task representing the asynchronous operation.</returns>
     private async Task HandleInteractionExecute(ICommandInfo commandInfo, IInteractionContext context, IResult result)
     {
-        if (result?.IsSuccess is true)
+        if (result.IsSuccess)
         {
             _logger.LogInformation("Handled interaction {interaction} in module {module} for user {userId}",
                 commandInfo.Name, commandInfo.Module.Name, context.User.Id);
@@ -110,13 +110,13 @@ public class InteractionHandler(
 
         _logger.LogWarning(
             "Error handling interaction {interaction} in module {module} for user {userId}: {ErrorReason}",
-            commandInfo?.Name, commandInfo?.Module?.Name, context?.User?.Id, result?.ErrorReason);
+            commandInfo.Name, commandInfo.Module.Name, context.User.Id, result.ErrorReason);
 
-        if (context?.Interaction is null) return;
+        if (context.Interaction is null) return;
 
         Embed embed = new EmbedBuilder()
             .WithStyle(new ErrorStyle())
-            .WithDescription(result?.ErrorReason)
+            .WithDescription(result.ErrorReason)
             .Build();
 
         if (context.Interaction.HasResponded)

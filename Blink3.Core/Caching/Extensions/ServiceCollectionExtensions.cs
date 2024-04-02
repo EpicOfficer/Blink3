@@ -18,20 +18,15 @@ public static class ServiceCollectionExtensions
     /// </summary>
     /// <param name="services">The <see cref="IServiceCollection" /> to add the caching services to.</param>
     /// <param name="config">The <see cref="BlinkConfiguration" /> object that contains the Redis connection string.</param>
-    /// <returns>The <see cref="IServiceCollection" /> with the caching services added.</returns>
-    public static IServiceCollection AddCaching(this IServiceCollection services, BlinkConfiguration config)
+    public static void AddCaching(this IServiceCollection services, BlinkConfiguration config)
     {
         if (!string.IsNullOrWhiteSpace(config.Redis?.ConnectionString))
         {
             services.AddStackExchangeRedisCache(options => { options.Configuration = config.Redis.ConnectionString; });
             services.AddSingleton<ICachingService, RedisCachingService>();
-
-            return services;
         }
 
         services.AddMemoryCache();
         services.AddSingleton<ICachingService, MemoryCachingService>();
-
-        return services;
     }
 }

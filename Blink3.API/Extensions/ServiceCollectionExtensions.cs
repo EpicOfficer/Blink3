@@ -21,8 +21,7 @@ public static class ServiceCollectionExtensions
     /// </summary>
     /// <param name="services">The service collection.</param>
     /// <param name="appConfig">The application configuration.</param>
-    /// <returns>The modified service collection.</returns>
-    public static IServiceCollection AddDiscordAuth(this IServiceCollection services, BlinkConfiguration appConfig)
+    public static void AddDiscordAuth(this IServiceCollection services, BlinkConfiguration appConfig)
     {
         services.AddAuthentication(options =>
             {
@@ -33,8 +32,6 @@ public static class ServiceCollectionExtensions
             .AddCookie()
             .AddOAuth(DiscordAuthenticationDefaults.AuthenticationScheme,
                 options => ConfigureOAuthOptions(options, appConfig));
-
-        return services;
     }
 
     /// <summary>

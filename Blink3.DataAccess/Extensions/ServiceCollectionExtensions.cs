@@ -16,8 +16,7 @@ public static class ServiceCollectionExtensions
     /// </summary>
     /// <param name="services">The service collection.</param>
     /// <param name="configuration">The configuration.</param>
-    /// <returns>The modified service collection.</returns>
-    public static IServiceCollection AddDataAccess(this IServiceCollection services, BlinkConfiguration configuration)
+    public static void AddDataAccess(this IServiceCollection services, BlinkConfiguration configuration)
     {
         if (!string.IsNullOrWhiteSpace(configuration.ConnectionStrings.DefaultConnection))
             services.AddDbContext<BlinkDbContext>(options =>
@@ -26,7 +25,5 @@ public static class ServiceCollectionExtensions
         services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
         services.AddScoped<IBlinkGuildRepository, BlinkGuildRepository>();
         services.AddScoped<IUserTodoRepository, UserTodoRepository>();
-
-        return services;
     }
 }

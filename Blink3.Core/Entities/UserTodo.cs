@@ -43,5 +43,5 @@ public class UserTodo
     /// <summary>
     ///     Gets or sets a value indicating whether the user "to do" is complete.
     /// </summary>
-    public required bool Complete { get; set; } = false;
+    public required bool Complete { get; set; }
 }

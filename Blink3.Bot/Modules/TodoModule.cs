@@ -8,6 +8,9 @@ using Blink3.Core.Repositories.Interfaces;
 using Discord;
 using Discord.Interactions;
 
+// ReSharper disable UnusedType.Global
+// ReSharper disable UnusedMember.Global
+
 namespace Blink3.Bot.Modules;
 
 [CommandContextType(InteractionContextType.Guild, InteractionContextType.BotDm, InteractionContextType.PrivateChannel)]

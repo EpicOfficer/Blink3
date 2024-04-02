@@ -1,3 +1,5 @@
+// ReSharper disable UnusedMember.Global
+
 namespace Blink3.Core.Repositories.Interfaces;
 
 /// <summary>

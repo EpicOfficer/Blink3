@@ -1,5 +1,7 @@
 // ReSharper disable CollectionNeverUpdated.Global
 // ReSharper disable PropertyCanBeMadeInitOnly.Global
+// ReSharper disable AutoPropertyCanBeMadeGetOnly.Global
+
 namespace Blink3.Core.Entities;
 
 /// <summary>

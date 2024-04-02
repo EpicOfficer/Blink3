@@ -12,12 +12,10 @@ public static class ServiceCollectionExtensions
     /// </summary>
     /// <param name="services">The service collection to add the configuration to.</param>
     /// <param name="configuration">The configuration object.</param>
-    /// <returns>The modified service collection.</returns>
-    public static IServiceCollection AddAppConfiguration(this IServiceCollection services, IConfiguration configuration)
+    public static void AddAppConfiguration(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddOptions<AppOptions>()
             .Bind(configuration);
-        return services;
     }
 
     /// <summary>
@@ -29,7 +27,6 @@ public static class ServiceCollectionExtensions
     public static AppOptions GetAppConfiguration(this IServiceCollection services)
     {
         ServiceProvider provider = services.BuildServiceProvider();
-        return provider.GetRequiredService<IOptions<AppOptions>>()?.Value ??
-               throw new InvalidOperationException();
+        return provider.GetRequiredService<IOptions<AppOptions>>().Value;
     }
 }

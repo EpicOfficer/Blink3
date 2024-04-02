@@ -1,5 +1,7 @@
 using Discord;
 
+// ReSharper disable UnusedMember.Global
+
 namespace Blink3.Bot.MessageStyles;
 
 /// <summary>
