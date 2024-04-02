@@ -2,6 +2,8 @@ FROM nginx:alpine AS base
 EXPOSE 80
 
 FROM node:21-alpine AS build
+ARG VITE_CLIENT_ID
+ENV VITE_CLIENT_ID=$VITE_CLIENT_ID
 WORKDIR /app
 COPY ["Blink3.Activity/package.json", "."]
 RUN npm install

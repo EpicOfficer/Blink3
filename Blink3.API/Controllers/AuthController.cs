@@ -1,9 +1,14 @@
+using System.Net.Http.Headers;
+using System.Text.Json;
 using AspNet.Security.OAuth.Discord;
+using Blink3.API.Models;
+using Blink3.Core.Configuration;
 using Blink3.Core.DiscordAuth;
 using Blink3.Core.DiscordAuth.Extensions;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.Annotations;
 
 namespace Blink3.API.Controllers;
@@ -11,8 +16,15 @@ namespace Blink3.API.Controllers;
 [Route("api/[controller]")]
 [ApiController]
 [SwaggerTag("Authentication related actions")]
-public class AuthController(IAuthenticationService authenticationService) : ControllerBase
+public class AuthController(IAuthenticationService authenticationService,
+    IHttpClientFactory httpClientFactory,
+    IOptions<BlinkConfiguration> config) : ControllerBase
 {
+    /// <summary>
+    ///     Represents the configuration settings for the application.
+    /// </summary>
+    private BlinkConfiguration Config => config.Value;
+    
     [HttpGet("login")]
     [SwaggerOperation(
         Summary = "Initiates login via Discord",
@@ -59,5 +71,45 @@ public class AuthController(IAuthenticationService authenticationService) : Cont
     public IActionResult Status()
     {
         return Ok(User.GetAuthStatusModel());
+    }
+
+    [HttpPost("token")]
+    public async Task<IActionResult> Token([FromBody] DiscordTokenRequest tokenRequest)
+    {
+        string clientId = Config.Discord.ClientId;
+        string clientSecret = Config.Discord.ClientSecret;
+        
+        using HttpClient httpClient = httpClientFactory.CreateClient();
+        FormUrlEncodedContent requestBody = new(new[]
+        {
+            new KeyValuePair<string, string>("client_id", clientId),
+            new KeyValuePair<string, string>("client_secret", clientSecret),
+            new KeyValuePair<string, string>("grant_type", "authorization_code"),
+            new KeyValuePair<string, string>("code", tokenRequest.Code)
+        });
+        
+        httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+        HttpResponseMessage response;
+
+        try
+        {
+            response = await httpClient.PostAsync(DiscordAuthenticationDefaults.TokenEndpoint, requestBody);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest("Request failed - " + ex.Message);
+        }
+
+        if (!response.IsSuccessStatusCode) return BadRequest();
+        
+        string jsonResponse = await response.Content.ReadAsStringAsync();
+        Dictionary<string, string>? token = JsonSerializer.Deserialize<Dictionary<string, string>>(jsonResponse);
+        if (token is null || !token.TryGetValue("access_token", out string? value))
+        {
+            return BadRequest("Could not obtain access token");
+        }
+        
+        return Ok(new { access_token = value });
     }
 }
