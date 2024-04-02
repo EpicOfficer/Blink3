@@ -10,6 +10,15 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Blink3.API", "Blink3.API\Bl
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Blink3.Web", "Blink3.Web\Blink3.Web.csproj", "{712FC7ED-10A5-4EBD-9A48-E67CBB8E46B2}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Files", "Solution Files", "{DC0DA219-4EFC-4B51-9E12-A28199354461}"
+	ProjectSection(SolutionItems) = preProject
+		docker-compose.development.yml = docker-compose.development.yml
+		docker-compose.production.yml = docker-compose.production.yml
+		docker-compose.yml = docker-compose.yml
+		Configuration\appsettings.json = Configuration\appsettings.json
+		Configuration\appsettings.Development.json = Configuration\appsettings.Development.json
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
