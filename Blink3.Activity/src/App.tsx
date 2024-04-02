@@ -31,7 +31,7 @@ function App() {
             });
 
             // Retrieve an access_token from your activity's server
-            const response = await fetch('/api/token', {
+            const response = await fetch('/api/auth/token', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -66,6 +66,7 @@ function App() {
                 </a>
             </div>
             <h1>Vite + React</h1>
+            <p>User: auth?.user.username</p>
             <div className="card">
                 <button onClick={() => setCount((count) => count + 1)}>
                     count is {count}
