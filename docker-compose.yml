@@ -12,7 +12,7 @@ services:
       retries: 5
     environment:
       - REDIS_NAME=${REDIS_NAME}
-  
+
   blink3.db:
     container_name: blink3_db
     image: postgres:16.2-alpine
@@ -31,7 +31,7 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
-  
+
   blink3.bot:
     container_name: blink3_bot
     restart: always
@@ -55,16 +55,16 @@ services:
       - ConnectionStrings__DefaultConnection=Server=blink3.db;Port=5432;Database=${POSTGRES_USER};Userid=${POSTGRES_USER};Password=${POSTGRES_PASSWORD};SslMode=Prefer;TrustServerCertificate=true
       - Redis__ConnectionString=blink3.cache,ssl=false,name=${REDIS_NAME}
       - ApiAllowedOrigins__0=${API_ALLOWED_ORIGIN}
-    ports:
-      - "8288:8080"
     depends_on:
       blink3.db:
         condition: service_healthy
-  
+
   blink3.web:
     container_name: blink3_web
     restart: always
-    ports:
-      - "8280:80"
     depends_on:
       - blink3.api
+
+  blink3.activity:
+    container_name: blink3_activity
+    restart: always

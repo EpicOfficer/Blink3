@@ -10,8 +10,22 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
     image: ghcr.io/epicofficer/blink3.api:latest
+    networks:
+      - default
+      - blink3_public
   
   blink3.web:
     image: ghcr.io/epicofficer/blink3.web:latest
     volumes:
       - ./appsettings.json:/usr/share/nginx/html/appsettings.json
+    networks:
+      - blink3_public
+        
+  blink3.activity:
+    image: ghcr.io/epicofficer/blink3.activity:latest
+    networks:
+      - blink3_public
+    
+networks:
+  blink3_public:
+    external: true
