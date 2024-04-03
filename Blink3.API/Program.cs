@@ -63,6 +63,8 @@ try
     builder.Services.AddSingleton<DiscordRestClient>();
     builder.Services.AddHostedService<DiscordStartupService>();
 
+    builder.Services.AddHttpClient();
+    
     // Configure Authentication and Discord OAuth
     builder.Services.AddDiscordAuth(appConfig);
 

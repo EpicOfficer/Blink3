@@ -31,7 +31,7 @@ public class MoveMessageModule(IHttpClientFactory httpClientFactory) : BlinkModu
     }
 
     [ComponentInteraction("blink-move-message_*_*")]
-    public async Task MoveMessageTo(string channelIdStr, string messageIdStr, IEnumerable<SocketChannel> channels)
+    public async Task MoveMessageTo(string channelIdStr, string messageIdStr, SocketChannel[] channels)
     {
         await DeferAsync(true);
 
