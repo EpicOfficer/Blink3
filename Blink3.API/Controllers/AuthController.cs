@@ -1,3 +1,4 @@
+using System.Net.Mime;
 using AspNet.Security.OAuth.Discord;
 using Blink3.API.Interfaces;
 using Blink3.API.Models;
@@ -13,6 +14,8 @@ namespace Blink3.API.Controllers;
 [Route("api/[controller]")]
 [ApiController]
 [SwaggerTag("Authentication related actions")]
+[ProducesErrorResponseType(typeof(ProblemDetails))]
+[Consumes(MediaTypeNames.Application.Json)]
 public class AuthController(IAuthenticationService authenticationService,
     IDiscordTokenService discordTokenService) : ControllerBase
 {
@@ -72,7 +75,6 @@ public class AuthController(IAuthenticationService authenticationService,
         Tags = ["Auth"]
     )]
     [SwaggerResponse(StatusCodes.Status200OK, "Returned access token", typeof(DiscordTokenResponse))]
-    [SwaggerResponse(StatusCodes.Status400BadRequest, "Failed to get an access token", typeof(ProblemDetails))]
     public async Task<IActionResult> Token([FromBody] string code)
     {
         return Ok(await discordTokenService.GetTokenAsync(code));
