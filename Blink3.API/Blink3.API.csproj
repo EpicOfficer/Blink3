@@ -40,8 +40,4 @@
         <ProjectReference Include="..\Blink3.DataAccess\Blink3.DataAccess.csproj"/>
     </ItemGroup>
 
-    <ItemGroup>
-        <Folder Include="Interfaces\"/>
-    </ItemGroup>
-
 </Project>
