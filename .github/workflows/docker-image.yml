@@ -8,7 +8,7 @@ env:
   IMAGE_NAME: ${{ github.repository }}
 
 jobs:
-  build-and-push-image:
+  publish:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -28,17 +28,17 @@ jobs:
       packages: write
 
     steps:
-      - name: Checkout repository
+      - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Log in to the Container registry
+      - name: Login
         uses: docker/login-action@v3
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Extract metadata (tags, labels) for Docker
+      - name: Extract metadata
         id: meta
         uses: docker/metadata-action@v5
         with:
@@ -48,7 +48,7 @@ jobs:
             type=raw,pattern=latest,value=latest
             type=sha,prefix=commit_,
 
-      - name: Build and push Docker images
+      - name: Build images
         uses: docker/build-push-action@v5
         with:
           context: .
