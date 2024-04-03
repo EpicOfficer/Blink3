@@ -44,12 +44,15 @@ try
             ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
     });
 
+    List<string> origins = appConfig.ApiAllowedOrigins;
+    origins.Add("https://*.discordsays.com");
     // Configure Cors
     builder.Services.AddCors(options =>
     {
         options.AddPolicy("CorsPolicy",
             corsPolicyBuilder => corsPolicyBuilder
-                .WithOrigins(appConfig.ApiAllowedOrigins.ToArray())
+                .WithOrigins(origins.ToArray())
+                .SetIsOriginAllowedToAllowWildcardSubdomains()
                 .AllowAnyMethod()
                 .AllowAnyHeader()
                 .AllowCredentials());
