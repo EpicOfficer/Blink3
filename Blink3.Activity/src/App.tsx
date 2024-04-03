@@ -1,22 +1,17 @@
-// noinspection JSIgnoredPromiseFromCall
+import {useEffect} from 'react'
 
-import {useEffect, useState} from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
-import {discordSdk} from './discordSdk';
-import type {AsyncReturnType} from 'type-fest';
-
-type Auth = AsyncReturnType<typeof discordSdk.commands.authenticate>;
+import {DiscordSDK} from '@discord/embedded-app-sdk';
+const discordSdk = new DiscordSDK(import.meta.env.VITE_CLIENT_ID, {disableConsoleLogOverride: true });
 
 function App() {
-    const [count, setCount] = useState(0)
-    const [auth, setAuth] = useState<Auth>();
-    
     useEffect(() => {
         const setupDiscordSdk = async () => {
+            console.info("Setup SDK", import.meta.env.VITE_CLIENT_ID);
+            
             await discordSdk.ready();
 
+            console.info("SDK READY")
+            
             // Authorize with Discord Client
             const {code} = await discordSdk.commands.authorize({
                 client_id: import.meta.env.VITE_CLIENT_ID,
@@ -42,43 +37,21 @@ function App() {
             });
             const {access_token} = await response.json();
 
+            console.info("Got access token from API");
+            
             // Authenticate with Discord client (using the access_token)
-            setAuth(await discordSdk.commands.authenticate({
+            let auth = await discordSdk.commands.authenticate({
                 access_token,
-            }));
-
-            if (auth == null) {
-                throw new Error('Authenticate command failed');
-            }
+            });
+            
+            console.info("Authenticated", auth.user.username);
         }
         
         setupDiscordSdk();
-    }, [auth, setAuth]);
+    }, []);
 
     return (
-        <>
-            <div>
-                <a href="https://vitejs.dev" target="_blank">
-                    <img src={viteLogo} className="logo" alt="Vite logo"/>
-                </a>
-                <a href="https://react.dev" target="_blank">
-                    <img src={reactLogo} className="logo react" alt="React logo"/>
-                </a>
-            </div>
-            <h1>Vite + React</h1>
-            <p>User: {auth?.user.username}</p>
-            <div className="card">
-                <button onClick={() => setCount((count) => count + 1)}>
-                    count is {count}
-                </button>
-                <p>
-                    Edit <code>src/App.tsx</code> and save to test HMR
-                </p>
-            </div>
-            <p className="read-the-docs">
-                Click on the Vite and React logos to learn more
-            </p>
-        </>
+        <div></div>
     )
 }
 
