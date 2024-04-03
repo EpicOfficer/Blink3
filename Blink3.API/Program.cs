@@ -1,4 +1,5 @@
 using Blink3.API.Extensions;
+using Blink3.API.Interfaces;
 using Blink3.API.Services;
 using Blink3.Core.Caching.Extensions;
 using Blink3.Core.Configuration;
@@ -66,7 +67,9 @@ try
     builder.Services.AddSingleton<DiscordRestClient>();
     builder.Services.AddHostedService<DiscordStartupService>();
 
+    // For getting discord tokens
     builder.Services.AddHttpClient();
+    builder.Services.AddSingleton<IDiscordTokenService, DiscordTokenService>();
     
     // Configure Authentication and Discord OAuth
     builder.Services.AddDiscordAuth(appConfig);
