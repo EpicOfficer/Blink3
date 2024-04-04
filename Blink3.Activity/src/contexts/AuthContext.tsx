@@ -1,3 +1,5 @@
+// noinspection JSIgnoredPromiseFromCall
+
 import * as React from 'react';
 import {discordSdk} from '../discordSdk';
 
@@ -54,7 +56,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({children}) => {
         };
 
         setUpDiscordSdk();
-    }, [auth, setAuth()]);
+    }, [auth, setAuth]);
 
     return (
         <AuthContext.Provider value={{ auth, authenticated: !!auth }}>

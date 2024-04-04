@@ -1,9 +1,7 @@
 // noinspection JSIgnoredPromiseFromCall
 
-function App() {
+export default function App() {
     return (
-        <p>Hello</p>
+        <p>Hello world</p>
     )
 }
-
-export default App
