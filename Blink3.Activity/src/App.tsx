@@ -14,6 +14,9 @@ export default function App() {
     }
     
     return (
-        <p>Hello world</p>
+        <>
+            <p>Hello world</p>
+            <p>Logged in as {authContext?.auth?.user.username}</p>
+        </>
     )
 }
