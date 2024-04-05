@@ -5,6 +5,7 @@ import {discordSdk} from '../discordSdk';
 
 import type {TAuthenticationResponse} from '../types';
 import {createContext, ReactNode, useEffect, useState} from "react";
+import Loading from "../components/Loading.tsx";
 
 interface ContextType {
     auth?: TAuthenticationResponse | null;
@@ -58,6 +59,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({children}) => {
         setUpDiscordSdk();
     }, [auth, setAuth]);
 
+    if (auth == null) {
+        return (
+            <Loading message="Logging in"></Loading>
+        );
+    }
+    
     return (
         <AuthContext.Provider value={{ auth, authenticated: !!auth }}>
             {children}
