@@ -1,3 +1,5 @@
+using System;
+using System.Linq;
 using System.Security.Claims;
 
 namespace Blink3.Core.DiscordAuth.Extensions;

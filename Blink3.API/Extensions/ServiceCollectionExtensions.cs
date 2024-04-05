@@ -1,11 +1,16 @@
+using System;
+using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Security.Claims;
 using System.Text.Json;
+using System.Threading.Tasks;
 using AspNet.Security.OAuth.Discord;
 using Blink3.API.Models;
 using Blink3.Core.Configuration;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OAuth;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.DependencyInjection;
 using Serilog;
 
 namespace Blink3.API.Extensions;

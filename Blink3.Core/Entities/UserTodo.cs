@@ -13,13 +13,14 @@ public class UserTodo
     ///     Gets or sets the Id of the UserTodo.
     /// </summary>
     [Key]
+    [Required]
     public int Id { get; set; }
 
     /// <summary>
     ///     Represents the ID of a user.
     /// </summary>
     [Required]
-    public required ulong UserId { get; set; }
+    public ulong UserId { get; set; }
 
     /// <summary>
     ///     Represents a label associated with a user's "to do".
@@ -29,7 +30,7 @@ public class UserTodo
     /// </remarks>
     [Required]
     [MaxLength(25)]
-    public required string Label { get; set; }
+    public string Label { get; set; } = string.Empty;
 
     /// <summary>
     ///     Gets or sets the description of the user "to do".
@@ -43,5 +44,6 @@ public class UserTodo
     /// <summary>
     ///     Gets or sets a value indicating whether the user "to do" is complete.
     /// </summary>
-    public required bool Complete { get; set; }
+    [Required]
+    public bool Complete { get; set; }
 }

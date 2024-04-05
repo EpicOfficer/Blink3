@@ -1,3 +1,6 @@
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using Blink3.Core.Entities;
 using Blink3.Core.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
@@ -14,12 +17,12 @@ public class UserTodoRepository(BlinkDbContext dbContext) :
     {
         return await _dbContext.UserTodos
             .Where(u => u.UserId.Equals(userId))
-            .ToListAsync();
+            .ToListAsync().ConfigureAwait(false);
     }
 
     public async Task<int> GetCountByUserIdAsync(ulong userId)
     {
-        return await _dbContext.UserTodos.CountAsync(c => c.UserId.Equals(userId));
+        return await _dbContext.UserTodos.CountAsync(c => c.UserId.Equals(userId)).ConfigureAwait(false);
     }
 
     public async Task CompleteByIdAsync(int id)
@@ -27,15 +30,12 @@ public class UserTodoRepository(BlinkDbContext dbContext) :
         UserTodo todo = new()
         {
             Id = id,
-            UserId = 0,
-            Label = "",
-            Description = "",
             Complete = true
         };
 
         _dbContext.UserTodos.Attach(todo);
         _dbContext.Entry(todo).Property(u => u.Complete).IsModified = true;
 
-        await _dbContext.SaveChangesAsync();
+        await _dbContext.SaveChangesAsync().ConfigureAwait(false);
     }
 }

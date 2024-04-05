@@ -1,3 +1,5 @@
+using System.Threading.Tasks;
+
 namespace Blink3.Web.Interfaces;
 
 /// <summary>

@@ -34,10 +34,19 @@ public class BlinkDbContext : DbContext
     /// </summary>
     public DbSet<Wordle> Wordles => Set<Wordle>();
 
+    /// <summary>
+    ///     Represents a word guess entered by a player in the Wordle game.
+    /// </summary>
+    public DbSet<WordleGuess> WordleGuesses => Set<WordleGuess>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Wordle>()
-            .OwnsOne(wordle => wordle.CurrentGuess)
+            .HasMany(w => w.Guesses)
+            .WithOne(g => g.Wordle)
+            .OnDelete(DeleteBehavior.Cascade);
+        
+        modelBuilder.Entity<WordleGuess>()
             .OwnsMany(guess => guess.Letters);
     }
 }

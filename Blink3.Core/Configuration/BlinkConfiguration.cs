@@ -1,5 +1,6 @@
 // ReSharper disable ClassNeverInstantiated.Global
 
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 // ReSharper disable AutoPropertyCanBeMadeGetOnly.Global

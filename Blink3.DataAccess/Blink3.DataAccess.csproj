@@ -7,10 +7,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Blink3.Core\Blink3.Core.csproj"/>
-    </ItemGroup>
-
-    <ItemGroup>
         <Folder Include="Migrations\"/>
     </ItemGroup>
 
@@ -18,6 +14,10 @@
         <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="8.0.0"/>
         <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.2"/>
         <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL.Design" Version="1.1.0"/>
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Blink3.Core\Blink3.Core.csproj" />
     </ItemGroup>
 
 </Project>

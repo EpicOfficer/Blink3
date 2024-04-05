@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using Blink3.Core.Entities;
 
 namespace Blink3.Core.Repositories.Interfaces;

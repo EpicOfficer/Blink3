@@ -1,3 +1,5 @@
+using System.Threading;
+using System.Threading.Tasks;
 using Blink3.Core.Configuration;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -33,7 +35,7 @@ public class MigrationService(
             BlinkDbContext blinkDbContext = GetDbContextFromScope(scope);
 
             logger.LogInformation("Running database migrations...");
-            await blinkDbContext.Database.MigrateAsync(cancellationToken);
+            await blinkDbContext.Database.MigrateAsync(cancellationToken).ConfigureAwait(false);
         }
     }
 

@@ -1,3 +1,6 @@
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using Blink3.Core.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
@@ -15,18 +18,18 @@ public class GenericRepository<T>(BlinkDbContext dbContext) : IGenericRepository
         if (keyValues.Length == 0)
             return default;
 
-        return await dbContext.Set<T>().FindAsync(keyValues);
+        return await dbContext.Set<T>().FindAsync(keyValues).ConfigureAwait(false);
     }
 
     public virtual async Task<IReadOnlyCollection<T>> GetAllAsync()
     {
-        return await dbContext.Set<T>().ToListAsync();
+        return await dbContext.Set<T>().ToListAsync().ConfigureAwait(false);
     }
 
     public virtual async Task<T> AddAsync(T entity)
     {
-        await dbContext.Set<T>().AddAsync(entity);
-        await dbContext.SaveChangesAsync();
+        await dbContext.Set<T>().AddAsync(entity).ConfigureAwait(false);
+        await dbContext.SaveChangesAsync().ConfigureAwait(false);
 
         return entity;
     }
@@ -34,7 +37,7 @@ public class GenericRepository<T>(BlinkDbContext dbContext) : IGenericRepository
     public virtual async Task<T> UpdateAsync(T entity)
     {
         dbContext.Entry(entity).State = EntityState.Modified;
-        await dbContext.SaveChangesAsync();
+        await dbContext.SaveChangesAsync().ConfigureAwait(false);
 
         return entity;
     }
@@ -42,7 +45,7 @@ public class GenericRepository<T>(BlinkDbContext dbContext) : IGenericRepository
     public virtual async Task DeleteAsync(T entity)
     {
         dbContext.Entry(entity).State = EntityState.Deleted;
-        await dbContext.SaveChangesAsync();
+        await dbContext.SaveChangesAsync().ConfigureAwait(false);
     }
 
     public virtual async Task DeleteByIdAsync(params object[] keyValues)
@@ -60,6 +63,6 @@ public class GenericRepository<T>(BlinkDbContext dbContext) : IGenericRepository
         dbContext.Set<T>().Attach(entry.Entity);
         dbContext.Set<T>().Remove(entry.Entity);
 
-        await dbContext.SaveChangesAsync();
+        await dbContext.SaveChangesAsync().ConfigureAwait(false);
     }
 }

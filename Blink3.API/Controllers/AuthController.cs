@@ -1,4 +1,5 @@
 using System.Net.Mime;
+using System.Threading.Tasks;
 using AspNet.Security.OAuth.Discord;
 using Blink3.API.Interfaces;
 using Blink3.API.Models;
@@ -6,6 +7,7 @@ using Blink3.Core.DiscordAuth;
 using Blink3.Core.DiscordAuth.Extensions;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 
