@@ -17,18 +17,18 @@ public class RedisCachingService(IDistributedCache cache) : ICachingService
 
         string jsonData = JsonSerializer.Serialize(value);
 
-        await cache.SetStringAsync(key, jsonData, options);
+        await cache.SetStringAsync(key, jsonData, options).ConfigureAwait(false);
     }
 
     public async Task<T?> GetAsync<T>(string key)
     {
-        string? jsonData = await cache.GetStringAsync(key);
+        string? jsonData = await cache.GetStringAsync(key).ConfigureAwait(false);
 
         return jsonData is null ? default : JsonSerializer.Deserialize<T>(jsonData);
     }
 
     public async Task RemoveAsync(string key)
     {
-        await cache.RemoveAsync(key);
+        await cache.RemoveAsync(key).ConfigureAwait(false);
     }
 }
