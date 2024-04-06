@@ -7,5 +7,4 @@ namespace Blink3.Core.Repositories.Interfaces;
 /// </summary>
 public interface IWordleGuessRepository : IGenericRepository<WordleGuess>
 {
-
 }

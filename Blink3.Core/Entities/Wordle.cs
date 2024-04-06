@@ -2,7 +2,6 @@
 // ReSharper disable CollectionNeverUpdated.Global
 // ReSharper disable PropertyCanBeMadeInitOnly.Global
 
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace Blink3.Core.Entities;

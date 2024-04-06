@@ -50,7 +50,7 @@ public class BlinkDbContext : DbContext
             .HasMany(w => w.Guesses)
             .WithOne(g => g.Wordle)
             .OnDelete(DeleteBehavior.Cascade);
-        
+
         modelBuilder.Entity<WordleGuess>()
             .OwnsMany(guess => guess.Letters);
 

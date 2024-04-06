@@ -1,11 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
-using System.Threading;
-using System.Threading.Tasks;
 using Blink3.Core.Configuration;
 using Discord;
 using Discord.Rest;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace Blink3.API.Services;

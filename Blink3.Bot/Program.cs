@@ -36,6 +36,7 @@ try
     builder.Services.AddCaching(appConfig);
 
     builder.Services.AddHostedService<MigrationService>();
+    builder.Services.AddHostedService<WordSeedService>();
 
     builder.Services.AddDiscordHost((config, _) =>
     {

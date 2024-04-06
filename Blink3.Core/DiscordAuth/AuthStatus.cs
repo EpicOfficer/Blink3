@@ -1,7 +1,5 @@
 // ReSharper disable PropertyCanBeMadeInitOnly.Global
 
-using System;
-using System.Collections.Generic;
 using System.Security.Claims;
 
 namespace Blink3.Core.DiscordAuth;

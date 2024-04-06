@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable PropertyCanBeMadeInitOnly.Global
 
@@ -10,7 +11,7 @@ namespace Blink3.Core.Entities;
 public class Word
 {
     private string _text = string.Empty;
-    
+
     /// <summary>
     ///     Gets or sets the Id of the Word.
     /// </summary>

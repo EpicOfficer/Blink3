@@ -1,6 +1,4 @@
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
 using Blink3.Core.Enums;
 
 // ReSharper disable CollectionNeverUpdated.Global
@@ -22,7 +20,7 @@ public class WordleGuess
     [Key]
     [Required]
     public int Id { get; set; }
-    
+
     /// <summary>
     ///     Represents the ID of the player who made the guess in the Wordle game.
     /// </summary>
@@ -51,13 +49,13 @@ public class WordleGuess
     ///     If all letters are in the correct state, this property returns true; otherwise, it returns false.
     /// </remarks>
     public bool IsCorrect => Letters.All(l => l.State is WordleLetterStateEnum.Correct);
-    
+
     /// <summary>
     ///     Represents the unique identifier for a Wordle game.
     /// </summary>
     [Required]
     public int WordleId { get; set; }
-    
+
     /// <summary>
     ///     The wordle this guess relates to
     /// </summary>

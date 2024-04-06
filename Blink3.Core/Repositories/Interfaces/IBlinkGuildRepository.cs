@@ -1,4 +1,3 @@
-using System.Threading.Tasks;
 using Blink3.Core.Entities;
 
 // ReSharper disable UnusedMember.Global

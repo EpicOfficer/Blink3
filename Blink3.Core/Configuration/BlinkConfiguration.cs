@@ -1,6 +1,5 @@
 // ReSharper disable ClassNeverInstantiated.Global
 
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 // ReSharper disable AutoPropertyCanBeMadeGetOnly.Global
@@ -35,6 +34,11 @@ public record BlinkConfiguration
     ///     Represents the allowed origins for the API.
     /// </summary>
     public List<string> ApiAllowedOrigins { get; set; } = [];
+
+    /// <summary>
+    ///     Word lists to use for seeding database words table for the wordle game.
+    /// </summary>
+    public Dictionary<string, WordListConfig> WordLists { get; set; } = new();
 
     /// <summary>
     ///     Whether to apply pending EF Migrations to the database on startup
@@ -102,4 +106,26 @@ public record RedisConfig
     ///     Represents a configuration for the connection strings.
     /// </summary>
     public string? ConnectionString { get; init; }
+}
+
+/// <summary>
+///     Represents the configuration for a word language used in the Blink application.
+/// </summary>
+public record WordListConfig
+{
+    /// <summary>
+    ///     Words to use as solution words
+    /// </summary>
+    /// <remarks>
+    ///     Must be a .txt file with one word per line.
+    /// </remarks>
+    public string SolutionWordsFile { get; init; } = string.Empty;
+
+    /// <summary>
+    ///     Words to use as guessable words
+    /// </summary>
+    /// <remarks>
+    ///     Must be a .txt file with one word per line.
+    /// </remarks>
+    public string GuessWordsFile { get; init; } = string.Empty;
 }

@@ -1,5 +1,4 @@
 using System.Net.Mime;
-using System.Threading.Tasks;
 using AspNet.Security.OAuth.Discord;
 using Blink3.API.Interfaces;
 using Blink3.API.Models;
@@ -7,7 +6,6 @@ using Blink3.Core.DiscordAuth;
 using Blink3.Core.DiscordAuth.Extensions;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 
@@ -18,7 +16,8 @@ namespace Blink3.API.Controllers;
 [SwaggerTag("Authentication related actions")]
 [ProducesErrorResponseType(typeof(ProblemDetails))]
 [Consumes(MediaTypeNames.Application.Json)]
-public class AuthController(IAuthenticationService authenticationService,
+public class AuthController(
+    IAuthenticationService authenticationService,
     IDiscordTokenService discordTokenService) : ControllerBase
 {
     [HttpGet("login")]
