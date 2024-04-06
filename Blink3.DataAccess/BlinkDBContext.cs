@@ -39,6 +39,11 @@ public class BlinkDbContext : DbContext
     /// </summary>
     public DbSet<WordleGuess> WordleGuesses => Set<WordleGuess>();
 
+    /// <summary>
+    ///     List of words used in the wordle game.
+    /// </summary>
+    public DbSet<Word> Words => Set<Word>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Wordle>()
@@ -48,5 +53,13 @@ public class BlinkDbContext : DbContext
         
         modelBuilder.Entity<WordleGuess>()
             .OwnsMany(guess => guess.Letters);
+
+        // Composite index on Language, IsSolution and Length
+        modelBuilder.Entity<Word>()
+            .HasIndex(w => new { w.Language, w.IsSolution, w.Length });
+
+        // Composite index on Text and Language 
+        modelBuilder.Entity<Word>()
+            .HasIndex(w => new { w.Text, w.Language });
     }
 }
