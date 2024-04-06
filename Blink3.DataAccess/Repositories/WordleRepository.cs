@@ -11,14 +11,14 @@ public class WordleRepository(BlinkDbContext dbContext) :
 
     public override async Task<Wordle?> GetByIdAsync(params object[] keyValues)
     {
-        if (keyValues[0] is not int id) return default;
+        if (keyValues[0] is not ulong id) return default;
 
         return await _dbContext.Wordles
             .Include(w => w.Guesses)
             .FirstOrDefaultAsync(w => w.Id == id).ConfigureAwait(false);
     }
 
-    public async Task<bool> ExistsByIdAsync(int id)
+    public async Task<bool> ExistsByIdAsync(ulong id)
     {
         return await _dbContext.Wordles.AnyAsync(w => w.Id == id).ConfigureAwait(false);
     }

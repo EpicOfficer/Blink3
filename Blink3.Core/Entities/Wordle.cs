@@ -14,9 +14,13 @@ public class Wordle
     /// <summary>
     ///     Gets or sets the ID of the Wordle Game.
     /// </summary>
+    /// <remarks>
+    ///     If used in a guild, this will be the channel ID
+    ///     In case it is used in DM or through the API, will be the user ID
+    /// </remarks>
     [Key]
     [Required]
-    public int Id { get; set; }
+    public ulong Id { get; set; }
 
     /// <summary>
     ///     Represents the word to guess in the Wordle game.
