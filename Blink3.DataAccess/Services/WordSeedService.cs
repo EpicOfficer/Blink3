@@ -50,6 +50,9 @@ public class WordSeedService(
             logger.LogInformation("Got {count} solution words for language {lang}",
                 solutionWords.Count,
                 language);
+            
+            logger.LogInformation("Reading guess words for language {lang} from file '{file}'...",
+                language, guessWordsFile);
 
             List<Word> guessWords = await GetWordsFromFile(
                 files.GuessWordsFile,
@@ -58,7 +61,7 @@ public class WordSeedService(
                 cancellationToken).ConfigureAwait(false);
 
             logger.LogInformation("Got {count} guess words for language {lang}",
-                solutionWords.Count,
+                guessWords.Count,
                 language);
 
             foreach (Word newWord in solutionWords.Concat(guessWords))
@@ -79,7 +82,7 @@ public class WordSeedService(
 
         logger.LogInformation("Adding {count} new words to database...", newWords.Count);
         await words.BulkAddAsync(newWords, cancellationToken).ConfigureAwait(false);
-        logger.LogInformation("Updating {count} existing words in database...", existingWords.Count);
+        logger.LogInformation("Updating {count} existing words in database...", wordsToUpdate.Count);
         await words.BulkUpdateAsync(wordsToUpdate, cancellationToken).ConfigureAwait(false);
 
         logger.LogInformation("Word seed service complete!");

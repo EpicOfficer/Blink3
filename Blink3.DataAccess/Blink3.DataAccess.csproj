@@ -21,4 +21,15 @@
         <ProjectReference Include="..\Blink3.Core\Blink3.Core.csproj"/>
     </ItemGroup>
 
+    <ItemGroup>
+      <None Remove="Words\en-guess.txt" />
+      <Content Include="Words\en-guess.txt">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Content>
+      <None Remove="Words\en-solution.txt" />
+      <Content Include="Words\en-solution.txt">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Content>
+    </ItemGroup>
+
 </Project>

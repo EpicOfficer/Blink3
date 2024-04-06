@@ -18,6 +18,7 @@
         </Content>
         <Content Include="..\Configuration\appsettings.Development.json">
             <Link>appsettings.Development.json</Link>
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </Content>
         <Content Include="..\Configuration\appsettings.json">
             <Link>appsettings.json</Link>
