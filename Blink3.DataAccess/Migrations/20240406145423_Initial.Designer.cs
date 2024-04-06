@@ -11,8 +11,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Blink3.DataAccess.Migrations
 {
     [DbContext(typeof(BlinkDbContext))]
-    [Migration("20240406143230_UseUlongWordle")]
-    partial class UseUlongWordle
+    [Migration("20240406145423_Initial")]
+    partial class Initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -98,8 +98,13 @@ namespace Blink3.DataAccess.Migrations
 
             modelBuilder.Entity("Blink3.Core.Entities.Wordle", b =>
                 {
-                    b.Property<decimal>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<decimal>("ChannelId")
                         .HasColumnType("numeric(20,0)");
 
                     b.Property<string>("WordToGuess")
@@ -126,12 +131,9 @@ namespace Blink3.DataAccess.Migrations
                     b.Property<int>("WordleId")
                         .HasColumnType("integer");
 
-                    b.Property<decimal>("WordleId1")
-                        .HasColumnType("numeric(20,0)");
-
                     b.HasKey("Id");
 
-                    b.HasIndex("WordleId1");
+                    b.HasIndex("WordleId");
 
                     b.ToTable("WordleGuesses");
                 });
@@ -140,7 +142,7 @@ namespace Blink3.DataAccess.Migrations
                 {
                     b.HasOne("Blink3.Core.Entities.Wordle", "Wordle")
                         .WithMany("Guesses")
-                        .HasForeignKey("WordleId1")
+                        .HasForeignKey("WordleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 

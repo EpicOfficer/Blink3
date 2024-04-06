@@ -4,6 +4,7 @@ using Blink3.Core.Models;
 using Blink3.Core.Repositories.Interfaces;
 using EFCore.BulkExtensions;
 using Microsoft.EntityFrameworkCore;
+// ReSharper disable SpecifyStringComparison
 
 namespace Blink3.DataAccess.Repositories;
 
@@ -15,7 +16,9 @@ public class WordRepository(BlinkDbContext dbContext, ICachingService cache) : I
     public async Task<bool> IsGuessableAsync(string word, string lang = "en",
         CancellationToken cancellationToken = new())
     {
-        return await dbContext.Words.AnyAsync(w => w.Text.Equals(word, StringComparison.CurrentCultureIgnoreCase) &&
+#pragma warning disable CA1862
+        return await dbContext.Words.AnyAsync(w => w.Text.ToLower() == word.ToLower() &&
+#pragma warning restore CA1862
                                                    w.Language == lang, cancellationToken).ConfigureAwait(false);
     }
 
