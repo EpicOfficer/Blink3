@@ -32,35 +32,30 @@ public class WordSeedService(
         List<Word> wordsToUpdate = [];
 
         Dictionary<string, WordListConfig> wordLists = Config.WordLists;
-
         foreach ((string language, WordListConfig files) in wordLists)
         {
             string solutionWordsFile = files.SolutionWordsFile;
             string guessWordsFile = files.GuessWordsFile;
 
-            logger.LogInformation("Reading solution words for language {lang} from file '{file}'...",
+            logger.LogInformation("Reading solution words for language '{lang}' from file '{file}'...",
                 language, solutionWordsFile);
-
             List<Word> solutionWords = await GetWordsFromFile(
                 files.SolutionWordsFile,
                 true,
                 language,
                 cancellationToken).ConfigureAwait(false);
-
-            logger.LogInformation("Got {count} solution words for language {lang}",
+            logger.LogInformation("Got {count} solution words for language '{lang}'",
                 solutionWords.Count,
                 language);
             
-            logger.LogInformation("Reading guess words for language {lang} from file '{file}'...",
+            logger.LogInformation("Reading guess words for language '{lang}' from file '{file}'...",
                 language, guessWordsFile);
-
             List<Word> guessWords = await GetWordsFromFile(
                 files.GuessWordsFile,
                 false,
                 language,
                 cancellationToken).ConfigureAwait(false);
-
-            logger.LogInformation("Got {count} guess words for language {lang}",
+            logger.LogInformation("Got {count} guess words for language '{lang}'",
                 guessWords.Count,
                 language);
 
@@ -82,6 +77,7 @@ public class WordSeedService(
 
         logger.LogInformation("Adding {count} new words to database...", newWords.Count);
         await words.BulkAddAsync(newWords, cancellationToken).ConfigureAwait(false);
+        
         logger.LogInformation("Updating {count} existing words in database...", wordsToUpdate.Count);
         await words.BulkUpdateAsync(wordsToUpdate, cancellationToken).ConfigureAwait(false);
 

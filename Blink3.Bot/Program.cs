@@ -2,6 +2,8 @@
 using Blink3.Core.Caching.Extensions;
 using Blink3.Core.Configuration;
 using Blink3.Core.Configuration.Extensions;
+using Blink3.Core.Interfaces;
+using Blink3.Core.Services;
 using Blink3.DataAccess.Extensions;
 using Blink3.DataAccess.Services;
 using Discord;
@@ -37,6 +39,8 @@ try
 
     builder.Services.AddHostedService<MigrationService>();
     builder.Services.AddHostedService<WordSeedService>();
+
+    builder.Services.AddScoped<IWordleGameService, WordleGameService>();
 
     builder.Services.AddDiscordHost((config, _) =>
     {
