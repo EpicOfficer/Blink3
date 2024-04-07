@@ -14,12 +14,12 @@ public class MemoryCachingService(IMemoryCache cache) : ICachingService
 
         cache.Set(key, value, cacheEntryOptions);
 
-        await Task.CompletedTask;
+        await Task.CompletedTask.ConfigureAwait(false);
     }
 
     public async Task<T?> GetAsync<T>(string key)
     {
-        if (cache.TryGetValue(key, out T? value)) return await Task.FromResult(value);
+        if (cache.TryGetValue(key, out T? value)) return await Task.FromResult(value).ConfigureAwait(false);
 
         return default;
     }
@@ -27,6 +27,6 @@ public class MemoryCachingService(IMemoryCache cache) : ICachingService
     public async Task RemoveAsync(string key)
     {
         cache.Remove(key);
-        await Task.CompletedTask;
+        await Task.CompletedTask.ConfigureAwait(false);
     }
 }

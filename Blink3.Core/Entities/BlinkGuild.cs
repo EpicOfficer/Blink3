@@ -14,7 +14,8 @@ public class BlinkGuild : ICacheKeyIdentifiable
     ///     Represents the identifier of a BlinkGuild entity.
     /// </summary>
     [Key]
-    public required ulong Id { get; set; }
+    [Required]
+    public ulong Id { get; set; }
 
     public string GetCacheKey()
     {

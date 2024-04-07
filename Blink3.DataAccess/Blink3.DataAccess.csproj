@@ -7,17 +7,29 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Blink3.Core\Blink3.Core.csproj"/>
-    </ItemGroup>
-
-    <ItemGroup>
         <Folder Include="Migrations\"/>
     </ItemGroup>
 
     <ItemGroup>
+        <PackageReference Include="EFCore.BulkExtensions.PostgreSql" Version="8.0.2"/>
         <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="8.0.0"/>
         <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.2"/>
         <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL.Design" Version="1.1.0"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\Blink3.Core\Blink3.Core.csproj"/>
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Remove="Words\en-guess.txt" />
+      <Content Include="Words\en-guess.txt">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Content>
+      <None Remove="Words\en-solution.txt" />
+      <Content Include="Words\en-solution.txt">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Content>
     </ItemGroup>
 
 </Project>

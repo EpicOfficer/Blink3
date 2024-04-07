@@ -11,6 +11,11 @@ namespace Blink3.Core.Entities;
 public class WordleLetter
 {
     /// <summary>
+    ///     Unique identifier of this letter
+    /// </summary>
+    public int Id { get; set; }
+    
+    /// <summary>
     ///     The position of this letter in the wordle.
     /// </summary>
     public int Position { get; set; }

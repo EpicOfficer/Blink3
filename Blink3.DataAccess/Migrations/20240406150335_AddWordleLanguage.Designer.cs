@@ -2,6 +2,7 @@
 using Blink3.DataAccess;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -10,9 +11,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Blink3.DataAccess.Migrations
 {
     [DbContext(typeof(BlinkDbContext))]
-    partial class BlinkDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240406150335_AddWordleLanguage")]
+    partial class AddWordleLanguage
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -29,7 +32,7 @@ namespace Blink3.DataAccess.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("BlinkGuilds", (string)null);
+                    b.ToTable("BlinkGuilds");
                 });
 
             modelBuilder.Entity("Blink3.Core.Entities.UserTodo", b =>
@@ -57,7 +60,7 @@ namespace Blink3.DataAccess.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("UserTodos", (string)null);
+                    b.ToTable("UserTodos");
                 });
 
             modelBuilder.Entity("Blink3.Core.Entities.Word", b =>
@@ -90,7 +93,7 @@ namespace Blink3.DataAccess.Migrations
 
                     b.HasIndex("Language", "IsSolution", "Length");
 
-                    b.ToTable("Words", (string)null);
+                    b.ToTable("Words");
                 });
 
             modelBuilder.Entity("Blink3.Core.Entities.Wordle", b =>
@@ -115,7 +118,7 @@ namespace Blink3.DataAccess.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Wordles", (string)null);
+                    b.ToTable("Wordles");
                 });
 
             modelBuilder.Entity("Blink3.Core.Entities.WordleGuess", b =>
@@ -136,7 +139,7 @@ namespace Blink3.DataAccess.Migrations
 
                     b.HasIndex("WordleId");
 
-                    b.ToTable("WordleGuesses", (string)null);
+                    b.ToTable("WordleGuesses");
                 });
 
             modelBuilder.Entity("Blink3.Core.Entities.WordleGuess", b =>
@@ -147,7 +150,7 @@ namespace Blink3.DataAccess.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.OwnsMany("Blink3.Core.Entities.WordleGuess.Letters#Blink3.Core.Entities.WordleLetter", "Letters", b1 =>
+                    b.OwnsMany("Blink3.Core.Entities.WordleLetter", "Letters", b1 =>
                         {
                             b1.Property<int>("WordleGuessId")
                                 .HasColumnType("integer");
@@ -169,7 +172,7 @@ namespace Blink3.DataAccess.Migrations
 
                             b1.HasKey("WordleGuessId", "Id");
 
-                            b1.ToTable("WordleLetter", (string)null);
+                            b1.ToTable("WordleLetter");
 
                             b1.WithOwner()
                                 .HasForeignKey("WordleGuessId");

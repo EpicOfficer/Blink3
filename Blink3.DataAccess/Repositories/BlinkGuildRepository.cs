@@ -10,14 +10,14 @@ public class BlinkGuildRepository(BlinkDbContext dbContext, ICachingService cach
 {
     public async Task<BlinkGuild> GetOrCreateByIdAsync(ulong id)
     {
-        BlinkGuild? guild = await GetByIdAsync(id);
+        BlinkGuild? guild = await GetByIdAsync(id).ConfigureAwait(false);
         if (guild is not null) return guild;
 
         guild = new BlinkGuild
         {
             Id = id
         };
-        await AddAsync(guild);
+        await AddAsync(guild).ConfigureAwait(false);
 
         return guild;
     }

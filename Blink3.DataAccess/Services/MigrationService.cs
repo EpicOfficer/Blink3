@@ -33,7 +33,7 @@ public class MigrationService(
             BlinkDbContext blinkDbContext = GetDbContextFromScope(scope);
 
             logger.LogInformation("Running database migrations...");
-            await blinkDbContext.Database.MigrateAsync(cancellationToken);
+            await blinkDbContext.Database.MigrateAsync(cancellationToken).ConfigureAwait(false);
         }
     }
 

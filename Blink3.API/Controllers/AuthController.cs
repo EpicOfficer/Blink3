@@ -16,7 +16,8 @@ namespace Blink3.API.Controllers;
 [SwaggerTag("Authentication related actions")]
 [ProducesErrorResponseType(typeof(ProblemDetails))]
 [Consumes(MediaTypeNames.Application.Json)]
-public class AuthController(IAuthenticationService authenticationService,
+public class AuthController(
+    IAuthenticationService authenticationService,
     IDiscordTokenService discordTokenService) : ControllerBase
 {
     [HttpGet("login")]
