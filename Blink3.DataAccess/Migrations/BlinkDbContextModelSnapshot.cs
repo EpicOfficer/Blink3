@@ -29,7 +29,7 @@ namespace Blink3.DataAccess.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("BlinkGuilds");
+                    b.ToTable("BlinkGuilds", (string)null);
                 });
 
             modelBuilder.Entity("Blink3.Core.Entities.UserTodo", b =>
@@ -57,7 +57,7 @@ namespace Blink3.DataAccess.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("UserTodos");
+                    b.ToTable("UserTodos", (string)null);
                 });
 
             modelBuilder.Entity("Blink3.Core.Entities.Word", b =>
@@ -90,7 +90,7 @@ namespace Blink3.DataAccess.Migrations
 
                     b.HasIndex("Language", "IsSolution", "Length");
 
-                    b.ToTable("Words");
+                    b.ToTable("Words", (string)null);
                 });
 
             modelBuilder.Entity("Blink3.Core.Entities.Wordle", b =>
@@ -115,7 +115,7 @@ namespace Blink3.DataAccess.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Wordles");
+                    b.ToTable("Wordles", (string)null);
                 });
 
             modelBuilder.Entity("Blink3.Core.Entities.WordleGuess", b =>
@@ -136,7 +136,7 @@ namespace Blink3.DataAccess.Migrations
 
                     b.HasIndex("WordleId");
 
-                    b.ToTable("WordleGuesses");
+                    b.ToTable("WordleGuesses", (string)null);
                 });
 
             modelBuilder.Entity("Blink3.Core.Entities.WordleGuess", b =>
@@ -147,7 +147,7 @@ namespace Blink3.DataAccess.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.OwnsMany("Blink3.Core.Entities.WordleLetter", "Letters", b1 =>
+                    b.OwnsMany("Blink3.Core.Entities.WordleGuess.Letters#Blink3.Core.Entities.WordleLetter", "Letters", b1 =>
                         {
                             b1.Property<int>("WordleGuessId")
                                 .HasColumnType("integer");
@@ -169,7 +169,7 @@ namespace Blink3.DataAccess.Migrations
 
                             b1.HasKey("WordleGuessId", "Id");
 
-                            b1.ToTable("WordleLetter");
+                            b1.ToTable("WordleLetter", (string)null);
 
                             b1.WithOwner()
                                 .HasForeignKey("WordleGuessId");
