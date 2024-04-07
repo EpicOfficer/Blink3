@@ -40,7 +40,7 @@ public class WordleModule(IWordleRepository wordleRepository,
     [SlashCommand("guess", "Try to guess the wordle")]
     public async Task Guess(string word)
     {
-        await DeferAsync();
+        //await DeferAsync();
         
         Wordle? wordle = await wordleRepository.GetByChannelIdAsync(Context.Channel.Id);
         if (wordle is null)
@@ -63,33 +63,9 @@ public class WordleModule(IWordleRepository wordleRepository,
         }
 
         WordleGuess guess = await wordleGameService.MakeGuessAsync(word, Context.User.Id, wordle);
-        if (guess.IsCorrect)
-        {
-            await RespondSuccessAsync("Correct");
-        }
-        else
-        {
-            StringBuilder sb = new();
-
-            foreach (WordleLetter letter in guess.Letters)
-            {
-                switch (letter.State)
-                {
-                    case WordleLetterStateEnum.Incorrect:
-                        sb.Append($":x: {letter.Letter}");
-                        break;
-                    case WordleLetterStateEnum.Misplaced:
-                        sb.Append($":warning: {letter.Letter}");
-                        break;
-                    case WordleLetterStateEnum.Correct:
-                        sb.Append($":white_check_mark: {letter.Letter}");
-                        break;
-                    default:
-                        break;
-                }
-            }
-            
-            await RespondInfoAsync("Nice try", sb.ToString(), ephemeral: false);
-        }
+        
+        MemoryStream img = await wordleGameService.GenerateImageAsync(guess);
+        FileAttachment attachment = new(img, $"{guess.Word}.png", "Blink Wordle");
+        await RespondWithFileAsync(attachment, ephemeral: false);
     }
 }

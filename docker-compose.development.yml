@@ -6,6 +6,7 @@ services:
       - ASPNETCORE_ENVIRONMENT=Development
       - WordLists__en__SolutionWordsFile=/app/bin/Debug/net8.0/Words/en-solution.txt
       - WordLists__en__GuessWordsFile=/app/bin/Debug/net8.0/Words/en-guess.txt
+      - FontPath=/app/bin/Debug/net8.0/Geologica.ttf
     build:
       context: .
       dockerfile: Blink3.Bot/Dockerfile
