@@ -72,7 +72,7 @@ public class WordleModule(IWordleRepository wordleRepository,
         }
         
         MemoryStream img = await wordleGameService.GenerateImageAsync(guess);
-        FileAttachment attachment = new(img, $"{guess.Word}.png", "Blink Wordle");
+        FileAttachment attachment = new(img, $"{guess.Word}.png");
         await FollowupWithFileAsync(text: text, attachment: attachment, ephemeral: false);
     }
 }
