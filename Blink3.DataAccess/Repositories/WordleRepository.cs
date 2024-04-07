@@ -29,4 +29,12 @@ public class WordleRepository(BlinkDbContext dbContext) :
     {
         return await _dbContext.Wordles.AnyAsync(w => w.Id == id).ConfigureAwait(false);
     }
+
+    public async Task AddGuessAsync(Wordle wordle, WordleGuess guess)
+    {
+        _dbContext.Attach(wordle);
+        wordle.Guesses.Add(guess);
+        _dbContext.Entry(wordle).State = EntityState.Modified;
+        await _dbContext.SaveChangesAsync().ConfigureAwait(false);
+    }
 }

@@ -17,7 +17,7 @@ public class WordleModule(IWordleRepository wordleRepository,
     [SlashCommand("wordle", "Start a new game of wordle")]
     public async Task Start()
     {
-        await DeferAsync();
+        await DeferAsync(false);
 
         if (await wordleRepository.GetByChannelIdAsync(Context.Channel.Id) is not null)
         {
@@ -34,13 +34,13 @@ public class WordleModule(IWordleRepository wordleRepository,
             WordToGuess = word
         });
         
-        await RespondSuccessAsync($"Wordle {wordle.Id} started", $"Test word is {wordle.WordToGuess} in lang {wordle.Language}", ephemeral: false);
+        await RespondSuccessAsync("Wordle started", "A new wordle has started.  Type `/guess` guess it.", ephemeral: false);
     }
 
     [SlashCommand("guess", "Try to guess the wordle")]
     public async Task Guess(string word)
     {
-        //await DeferAsync();
+        await DeferAsync(false);
         
         Wordle? wordle = await wordleRepository.GetByChannelIdAsync(Context.Channel.Id);
         if (wordle is null)
@@ -63,9 +63,16 @@ public class WordleModule(IWordleRepository wordleRepository,
         }
 
         WordleGuess guess = await wordleGameService.MakeGuessAsync(word, Context.User.Id, wordle);
+
+        string text = string.Empty;
+        if (guess.IsCorrect)
+        {
+            text = $"**Correct!** You go it in {wordle.TotalAttempts} tries";
+            await wordleRepository.DeleteAsync(wordle);
+        }
         
         MemoryStream img = await wordleGameService.GenerateImageAsync(guess);
         FileAttachment attachment = new(img, $"{guess.Word}.png", "Blink Wordle");
-        await RespondWithFileAsync(attachment, ephemeral: false);
+        await FollowupWithFileAsync(text: text, attachment: attachment, ephemeral: false);
     }
 }

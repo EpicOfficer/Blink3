@@ -7,7 +7,6 @@ using Microsoft.Extensions.Options;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.Fonts;
-using SixLabors.ImageSharp.ColorSpaces;
 using SixLabors.ImageSharp.Drawing.Processing;
 using SixLabors.ImageSharp.Processing;
 using SixLabors.ImageSharp.Formats.Png;
@@ -18,7 +17,7 @@ namespace Blink3.Core.Services;
 ///     Represents a service for playing the Wordle game.
 /// </summary>
 public class WordleGameService(
-    IWordleGuessRepository wordleGuessRepository,
+    IWordleRepository wordleRepository,
     IOptions<BlinkConfiguration> config) : IWordleGameService
 {
     private BlinkConfiguration Config => config.Value;
@@ -26,8 +25,8 @@ public class WordleGameService(
     public async Task<WordleGuess> MakeGuessAsync(string word, ulong userId, Wordle wordle)
     {
         ValidateWordLength(word, wordle);
-    
-        WordleGuess? oldGuess = wordleGuessRepository.GetByWord(wordle, word);
+
+        WordleGuess? oldGuess = wordle.Guesses.FirstOrDefault(w => w.Word == word);
         if (oldGuess is not null) return oldGuess;
     
         WordleGuess guess = CreateInitialGuess(word, userId, wordle);
@@ -36,8 +35,9 @@ public class WordleGameService(
         List<int> misplacedIndices = [];
         MarkCorrectLetters(word, guess, wordle, correctIndices);
         MarkMisplacedLetters(word, guess, wordle, correctIndices, misplacedIndices);
-
-        return await wordleGuessRepository.AddAsync(guess);
+        
+        await wordleRepository.AddGuessAsync(wordle, guess);
+        return guess;
     }
 
     private static Color GetColorForLetter(WordleLetterStateEnum state)
@@ -94,6 +94,8 @@ public class WordleGameService(
     
     public async Task<MemoryStream> GenerateImageAsync(WordleGuess guess)
     {
+        string fontsDirectory = Path.Join(AppDomain.CurrentDomain.BaseDirectory, "Fonts");
+
         const int tileSize = 120;
         const int fontSize = 72;
         const int marginSize = 5;
@@ -104,7 +106,7 @@ public class WordleGameService(
         int imageWidth = tileSize * guess.Letters.Count + 2 * marginSize;
         
         FontCollection fontCollection = new();
-        FontFamily fontFamily = fontCollection.Add(Config.FontPath);
+        FontFamily fontFamily = fontCollection.Add(Path.Join(fontsDirectory, "Geologica.ttf"));
         Font font = fontFamily.CreateFont(fontSize);
         
         using Image<Rgba32> image = new(imageWidth, imageHeight);
