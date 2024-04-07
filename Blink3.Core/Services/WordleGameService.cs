@@ -50,6 +50,16 @@ public class WordleGameService(
         };
     }
     
+    private static char GetIconForLetter(WordleLetterStateEnum state)
+    {
+        return state switch
+        {
+            WordleLetterStateEnum.Correct => '\uE002',
+            WordleLetterStateEnum.Misplaced => '\uE001',
+            _ => '\uE000'
+        };
+    }
+    
     private static void ValidateWordLength(string word, Wordle wordle)
     {
         if (wordle.WordToGuess.Length != word.Length)
@@ -98,6 +108,7 @@ public class WordleGameService(
 
         const int tileSize = 120;
         const int fontSize = 72;
+        const int iconFontSize = 18;
         const int marginSize = 5;
         const int letterSize = tileSize - 2 * marginSize;
         const int imageHeight = tileSize + 2 * marginSize;
@@ -108,6 +119,9 @@ public class WordleGameService(
         FontCollection fontCollection = new();
         FontFamily fontFamily = fontCollection.Add(Path.Join(fontsDirectory, "Geologica.ttf"));
         Font font = fontFamily.CreateFont(fontSize);
+
+        FontFamily iconFontFamily = fontCollection.Add(Path.Join(fontsDirectory, "Icons.ttf"));
+        Font iconFont = iconFontFamily.CreateFont(iconFontSize);
         
         using Image<Rgba32> image = new(imageWidth, imageHeight);
         TextOptions options = new(font)
@@ -115,7 +129,7 @@ public class WordleGameService(
             HorizontalAlignment = HorizontalAlignment.Center,
             VerticalAlignment = VerticalAlignment.Center,
             WrappingLength = letterSize
-        }; 
+        };
         
         image.Mutate(im =>
         {
@@ -143,6 +157,18 @@ public class WordleGameService(
                     font,
                     textColor,
                     new PointF(textX, textY));
+
+                string icon = GetIconForLetter(letter.State).ToString();
+                FontRectangle iconSize = TextMeasurer.MeasureBounds(icon, new TextOptions(iconFont));
+
+                float iconX = rectX + letterSize - iconSize.Width - marginSize;
+                const float iconY = rectY + marginSize;
+                
+                im.DrawText(
+                    icon,
+                    iconFont,
+                    textColor,
+                    new PointF(iconX, iconY));
             }
         });
 

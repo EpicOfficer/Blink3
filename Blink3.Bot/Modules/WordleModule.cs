@@ -67,7 +67,7 @@ public class WordleModule(IWordleRepository wordleRepository,
         string text = string.Empty;
         if (guess.IsCorrect)
         {
-            text = $"**Correct!** You go it in {wordle.TotalAttempts} tries";
+            text = $"**Correct!** You got it in {wordle.TotalAttempts} tries";
             await wordleRepository.DeleteAsync(wordle);
         }
         
