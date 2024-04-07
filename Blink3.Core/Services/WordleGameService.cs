@@ -105,7 +105,7 @@ public class WordleGameService(
         
         FontCollection fontCollection = new();
         FontFamily fontFamily = fontCollection.Add(Config.FontPath);
-        Font font = fontFamily.CreateFont(fontSize, FontStyle.Bold);
+        Font font = fontFamily.CreateFont(fontSize);
         
         using Image<Rgba32> image = new(imageWidth, imageHeight);
         TextOptions options = new(font)
