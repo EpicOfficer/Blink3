@@ -5,7 +5,7 @@ namespace Blink3.Core.Caching.Memory;
 /// <inheritdoc />
 public class MemoryCachingService(IMemoryCache cache) : ICachingService
 {
-    public async Task SetAsync(string key, object value, TimeSpan? absoluteExpireTime = null)
+    public async Task SetAsync(string key, object value, TimeSpan? absoluteExpireTime = null, CancellationToken cancellationToken = default)
     {
         MemoryCacheEntryOptions cacheEntryOptions = new()
         {
@@ -17,14 +17,14 @@ public class MemoryCachingService(IMemoryCache cache) : ICachingService
         await Task.CompletedTask.ConfigureAwait(false);
     }
 
-    public async Task<T?> GetAsync<T>(string key)
+    public async Task<T?> GetAsync<T>(string key, CancellationToken cancellationToken = default)
     {
         if (cache.TryGetValue(key, out T? value)) return await Task.FromResult(value).ConfigureAwait(false);
 
         return default;
     }
 
-    public async Task RemoveAsync(string key)
+    public async Task RemoveAsync(string key, CancellationToken cancellationToken = default)
     {
         cache.Remove(key);
         await Task.CompletedTask.ConfigureAwait(false);

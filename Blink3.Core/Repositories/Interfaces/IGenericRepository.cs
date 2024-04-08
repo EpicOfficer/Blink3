@@ -12,6 +12,7 @@ public interface IGenericRepository<T> where T : class
     ///     Retrieves an entity by its key values asynchronously.
     /// </summary>
     /// <param name="keyValues">The key values of the entity.</param>
+    /// <param name="cancellationToken"></param>
     /// <returns>A task representing the asynchronous operation. The task result contains the entity if found, otherwise null.</returns>
     Task<T?> GetByIdAsync(params object[] keyValues);
 
@@ -20,28 +21,28 @@ public interface IGenericRepository<T> where T : class
     /// </summary>
     /// <typeparam name="T">The type of entity.</typeparam>
     /// <returns>A task that represents the asynchronous operation. The task result contains a list of entities of type T.</returns>
-    Task<IReadOnlyCollection<T>> GetAllAsync();
+    Task<IReadOnlyCollection<T>> GetAllAsync(CancellationToken cancellationToken = default);
 
     /// <summary>
     ///     Adds a new entity to the database asynchronously.
     /// </summary>
     /// <param name="entity">The entity to be added.</param>
     /// <returns>A task representing the asynchronous operation. The task result is the added entity.</returns>
-    Task<T> AddAsync(T entity);
+    Task<T> AddAsync(T entity, CancellationToken cancellationToken = default);
 
     /// <summary>
     ///     Updates the specified entity in the repository.
     /// </summary>
     /// <param name="entity">The entity to update.</param>
     /// <returns>A task representing the asynchronous update operation.</returns>
-    Task<T> UpdateAsync(T entity);
+    Task<T> UpdateAsync(T entity, CancellationToken cancellationToken = default);
 
     /// <summary>
     ///     Deletes the specified entity from the database.
     /// </summary>
     /// <param name="entity">The entity to be deleted.</param>
     /// <returns>A task representing the asynchronous operation.</returns>
-    Task DeleteAsync(T entity);
+    Task DeleteAsync(T entity, CancellationToken cancellationToken = default);
 
     /// <summary>
     ///     Deletes an entity from the database by it's key values asynchronously.

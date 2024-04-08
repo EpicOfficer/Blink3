@@ -10,19 +10,21 @@ public class UserTodoRepository(BlinkDbContext dbContext) :
 {
     private readonly BlinkDbContext _dbContext = dbContext;
 
-    public async Task<IReadOnlyCollection<UserTodo>> GetByUserIdAsync(ulong userId)
+    public async Task<IReadOnlyCollection<UserTodo>> GetByUserIdAsync(ulong userId,
+        CancellationToken cancellationToken = default)
     {
         return await _dbContext.UserTodos
             .Where(u => u.UserId.Equals(userId))
-            .ToListAsync().ConfigureAwait(false);
+            .ToListAsync(cancellationToken).ConfigureAwait(false);
     }
 
-    public async Task<int> GetCountByUserIdAsync(ulong userId)
+    public async Task<int> GetCountByUserIdAsync(ulong userId, CancellationToken cancellationToken = default)
     {
-        return await _dbContext.UserTodos.CountAsync(c => c.UserId.Equals(userId)).ConfigureAwait(false);
+        return await _dbContext.UserTodos.CountAsync(c => c.UserId.Equals(userId), cancellationToken)
+            .ConfigureAwait(false);
     }
 
-    public async Task CompleteByIdAsync(int id)
+    public async Task CompleteByIdAsync(int id, CancellationToken cancellationToken = default)
     {
         UserTodo todo = new()
         {
@@ -33,6 +35,6 @@ public class UserTodoRepository(BlinkDbContext dbContext) :
         _dbContext.UserTodos.Attach(todo);
         _dbContext.Entry(todo).Property(u => u.Complete).IsModified = true;
 
-        await _dbContext.SaveChangesAsync().ConfigureAwait(false);
+        await _dbContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
     }
 }

@@ -19,20 +19,14 @@ public class WordleModule(IWordleRepository wordleRepository,
     {
         await DeferAsync(false);
 
-        if (await wordleRepository.GetByChannelIdAsync(Context.Channel.Id) is not null)
+        if (await wordleGameService.IsGameInProgressAsync(Context.Channel.Id))
         {
             await RespondInfoAsync("Game already in progress",
                 "A wordle is already in progress for this channel.  Type `/guess` to try and guess it");
             return;
         }
         
-        string word = await wordRepository.GetRandomSolutionAsync();
-        Wordle wordle = await wordleRepository.AddAsync(new Wordle
-        {
-            ChannelId = Context.Channel.Id,
-            Language = "en",
-            WordToGuess = word
-        });
+        Wordle wordle = await wordleGameService.StartNewGameAsync(Context.Channel.Id, "en", 5);
         
         await RespondSuccessAsync("Wordle started", "A new wordle has started.  Type `/guess` guess it.", ephemeral: false);
     }

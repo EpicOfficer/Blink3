@@ -17,7 +17,7 @@ public interface IWordRepository
     /// <returns>
     ///     <c>true</c> if the word is guessable in the specified language; otherwise, <c>false</c>.
     /// </returns>
-    public Task<bool> IsGuessableAsync(string word, string lang = "en", CancellationToken cancellationToken = new());
+    public Task<bool> IsGuessableAsync(string word, string lang = "en", CancellationToken cancellationToken = default);
 
     /// <summary>
     ///     Generates a random solution word of the specified length and language.
@@ -26,15 +26,15 @@ public interface IWordRepository
     /// <param name="lang">The language of the solution word. Default value is "en".</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A randomly generated solution.</returns>
-    public Task<string> GetRandomSolutionAsync(int length = 5, string lang = "en",
-        CancellationToken cancellationToken = new());
+    public Task<string> GetRandomSolutionAsync(string lang, int length,
+        CancellationToken cancellationToken = default);
 
     /// <summary>
     ///     Retrieves all words from the word repository.
     /// </summary>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A dictionary of WordKey and Word objects representing all words in the repository.</returns>
-    public Task<Dictionary<WordKey, Word>> GetAllAsync(CancellationToken cancellationToken = new());
+    public Task<Dictionary<WordKey, Word>> GetAllAsync(CancellationToken cancellationToken = default);
 
     /// <summary>
     ///     Adds multiple new words to the repository in bulk.
@@ -42,7 +42,7 @@ public interface IWordRepository
     /// <param name="newWords">The collection of new words to be added.</param>
     /// <param name="cancellationToken">(Optional) The cancellation token.</param>
     /// <returns>A task representing the asynchronous operation.</returns>
-    public Task BulkAddAsync(IEnumerable<Word> newWords, CancellationToken cancellationToken = new());
+    public Task BulkAddAsync(IEnumerable<Word> newWords, CancellationToken cancellationToken = default);
 
     /// <summary>
     ///     Performs a bulk update of words in the database.
@@ -50,5 +50,5 @@ public interface IWordRepository
     /// <param name="updateWords">The collection of words to update.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A task representing the asynchronous operation.</returns>
-    public Task BulkUpdateAsync(IEnumerable<Word> updateWords, CancellationToken cancellationToken = new());
+    public Task BulkUpdateAsync(IEnumerable<Word> updateWords, CancellationToken cancellationToken = default);
 }

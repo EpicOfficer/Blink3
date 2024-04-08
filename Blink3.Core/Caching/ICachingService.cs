@@ -15,7 +15,8 @@ public interface ICachingService
     ///     default expiration time is 1 hour.
     /// </param>
     /// <returns>A task that represents the asynchronous operation.</returns>
-    Task SetAsync(string key, object value, TimeSpan? absoluteExpireTime = null);
+    Task SetAsync(string key, object value, TimeSpan? absoluteExpireTime = null,
+        CancellationToken cancellationToken = default);
 
     /// <summary>
     ///     Retrieves the value associated with the specified key.
@@ -25,12 +26,12 @@ public interface ICachingService
     /// <returns>
     ///     The value associated with the specified key, or default(T) if the key is not found.
     /// </returns>
-    Task<T?> GetAsync<T>(string key);
+    Task<T?> GetAsync<T>(string key, CancellationToken cancellationToken = default);
 
     /// <summary>
     ///     Removes the cached item with the specified key.
     /// </summary>
     /// <param name="key">The key of the item to remove from the cache.</param>
     /// <returns>A task that represents the asynchronous operation.</returns>
-    Task RemoveAsync(string key);
+    Task RemoveAsync(string key, CancellationToken cancellationToken = default);
 }

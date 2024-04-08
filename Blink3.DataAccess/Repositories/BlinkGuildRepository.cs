@@ -8,7 +8,7 @@ namespace Blink3.DataAccess.Repositories;
 public class BlinkGuildRepository(BlinkDbContext dbContext, ICachingService cache)
     : GenericRepositoryWithCaching<BlinkGuild>(dbContext, cache), IBlinkGuildRepository
 {
-    public async Task<BlinkGuild> GetOrCreateByIdAsync(ulong id)
+    public async Task<BlinkGuild> GetOrCreateByIdAsync(ulong id, CancellationToken cancellationToken = default)
     {
         BlinkGuild? guild = await GetByIdAsync(id).ConfigureAwait(false);
         if (guild is not null) return guild;
@@ -17,7 +17,7 @@ public class BlinkGuildRepository(BlinkDbContext dbContext, ICachingService cach
         {
             Id = id
         };
-        await AddAsync(guild).ConfigureAwait(false);
+        await AddAsync(guild, cancellationToken).ConfigureAwait(false);
 
         return guild;
     }

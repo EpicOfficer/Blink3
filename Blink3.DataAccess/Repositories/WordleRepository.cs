@@ -18,23 +18,23 @@ public class WordleRepository(BlinkDbContext dbContext) :
             .FirstOrDefaultAsync(w => w.Id == id).ConfigureAwait(false);
     }
 
-    public async Task<Wordle?> GetByChannelIdAsync(ulong channelId)
+    public async Task<Wordle?> GetByChannelIdAsync(ulong channelId, CancellationToken cancellationToken = default)
     {
         return await _dbContext.Wordles
             .Include(w => w.Guesses)
-            .FirstOrDefaultAsync(w => w.ChannelId == channelId).ConfigureAwait(false);
+            .FirstOrDefaultAsync(w => w.ChannelId == channelId, cancellationToken).ConfigureAwait(false);
     }
 
-    public async Task<bool> ExistsByIdAsync(int id)
+    public async Task<bool> ExistsByIdAsync(int id, CancellationToken cancellationToken = default)
     {
-        return await _dbContext.Wordles.AnyAsync(w => w.Id == id).ConfigureAwait(false);
+        return await _dbContext.Wordles.AnyAsync(w => w.Id == id, cancellationToken).ConfigureAwait(false);
     }
 
-    public async Task AddGuessAsync(Wordle wordle, WordleGuess guess)
+    public async Task AddGuessAsync(Wordle wordle, WordleGuess guess, CancellationToken cancellationToken = default)
     {
         _dbContext.Attach(wordle);
         wordle.Guesses.Add(guess);
         _dbContext.Entry(wordle).State = EntityState.Modified;
-        await _dbContext.SaveChangesAsync().ConfigureAwait(false);
+        await _dbContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
     }
 }
