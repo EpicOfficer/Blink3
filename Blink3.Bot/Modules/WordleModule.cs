@@ -1,6 +1,8 @@
 using Blink3.Core.Entities;
 using Blink3.Core.Interfaces;
+using Blink3.Core.Models;
 using Blink3.Core.Repositories.Interfaces;
+using Blink3.DataAccess.Extensions;
 using Discord;
 using Discord.Interactions;
 
@@ -47,12 +49,6 @@ public class WordleModule(IWordleRepository wordleRepository,
             return;
         }
 
-        if (word.Length != wordle.WordToGuess.Length)
-        {
-            await RespondErrorAsync("Invalid guess", "The word you entered is not a valid guess.");
-            return;
-        }
-        
         bool isGuessable = await wordRepository.IsGuessableAsync(word);
         if (!isGuessable)
         {
@@ -60,8 +56,14 @@ public class WordleModule(IWordleRepository wordleRepository,
             return;
         }
 
-        WordleGuess guess = await wordleGameService.MakeGuessAsync(word, Context.User.Id, wordle);
-
+        Result<WordleGuess> guessResult = await wordleGameService.MakeGuessAsync(word, Context.User.Id, wordle);
+        if (!guessResult.IsSuccess)
+        {
+            await RespondErrorAsync("Invalid guess", guessResult.Error ?? "An unspecified error occured.");
+            return;
+        }
+        
+        WordleGuess guess = guessResult.SafeValue();
         string text = string.Empty;
         if (guess.IsCorrect)
         {

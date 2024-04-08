@@ -4,6 +4,7 @@ using Blink3.Core.Enums;
 using Blink3.Core.Extensions;
 using Blink3.Core.Factories;
 using Blink3.Core.Interfaces;
+using Blink3.Core.Models;
 using Blink3.Core.Repositories.Interfaces;
 using Microsoft.Extensions.Options;
 using SixLabors.ImageSharp;
@@ -22,20 +23,20 @@ public class WordleGameService(
     IWordleRepository wordleRepository,
     IOptions<BlinkConfiguration> config) : IWordleGameService
 {
-    public async Task<WordleGuess> MakeGuessAsync(string word, ulong userId, Wordle wordle)
+    public async Task<Result<WordleGuess>> MakeGuessAsync(string word, ulong userId, Wordle wordle)
     {
         if (wordle.ValidateWordLength(word) is not true)
-            throw new InvalidOperationException("Guess length does not match wordle length");
+            return Result<WordleGuess>.Fail($"The word you guessed does not match the wordle length {wordle.WordToGuess.Length}");
         
         WordleGuess? oldGuess = wordle.Guesses.FirstOrDefault(w => w.Word == word);
-        if (oldGuess is not null) return oldGuess;
+        if (oldGuess is not null) return Result<WordleGuess>.Ok(oldGuess);
     
         WordleGuess guess = WordleGuessFactory.Create(wordle, word, userId);
 
         wordle.ProcessGuess(guess);
         
         await wordleRepository.AddGuessAsync(wordle, guess);
-        return guess;
+        return Result<WordleGuess>.Ok(guess);
     }
 
     public async Task<MemoryStream> GenerateImageAsync(WordleGuess guess)

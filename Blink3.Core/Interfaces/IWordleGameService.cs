@@ -1,4 +1,5 @@
 using Blink3.Core.Entities;
+using Blink3.Core.Models;
 
 namespace Blink3.Core.Interfaces;
 
@@ -11,7 +12,7 @@ public interface IWordleGameService
     /// <param name="userId">The ID of the user making the guess.</param>
     /// <param name="wordle">The Wordle game.</param>
     /// <returns>The WordleGuess object representing the player's guess.</returns>
-    public Task<WordleGuess> MakeGuessAsync(string word, ulong userId, Wordle wordle);
+    public Task<Result<WordleGuess>> MakeGuessAsync(string word, ulong userId, Wordle wordle);
 
     /// <summary>
     ///     Generates an image for the provided WordleGuess object.
