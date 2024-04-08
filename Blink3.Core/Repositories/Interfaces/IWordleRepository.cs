@@ -15,7 +15,7 @@ public interface IWordleRepository : IGenericRepository<Wordle>
     ///     A task representing the asynchronous operation.
     ///     The task result is a boolean indicating whether the entity exists or not.
     /// </returns>
-    public Task<bool> ExistsByIdAsync(int id);
+    public Task<bool> ExistsByIdAsync(int id, CancellationToken cancellationToken = default);
 
     /// <summary>
     ///     Retrieves a Wordle game entity by its channel ID asynchronously.
@@ -25,12 +25,12 @@ public interface IWordleRepository : IGenericRepository<Wordle>
     ///     A task representing the asynchronous operation.
     ///     The task result is the Wordle game entity with the specified channel ID, or null if not found.
     /// </returns>
-    public Task<Wordle?> GetByChannelIdAsync(ulong id);
+    public Task<Wordle?> GetByChannelIdAsync(ulong id, CancellationToken cancellationToken = default);
 
     /// <summary>
     ///     Adds a Wordle guess to the repository asynchronously.
     /// </summary>
     /// <param name="wordle">The Wordle game entity containing the guess to be added.</param>
     /// <returns>A task representing the asynchronous operation.</returns>
-    public Task AddGuessAsync(Wordle wordle, WordleGuess guess);
+    public Task AddGuessAsync(Wordle wordle, WordleGuess guess, CancellationToken cancellationToken = default);
 }

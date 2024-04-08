@@ -39,11 +39,12 @@ public class GenericRepositoryWithCaching<T>(BlinkDbContext dbContext, ICachingS
     /// </summary>
     /// <typeparam name="T">The entity type.</typeparam>
     /// <param name="entity">The entity to be set in the cache.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A task representing the asynchronous operation.</returns>
-    private async Task SetEntityInCache(T entity)
+    private async Task SetEntityInCache(T entity, CancellationToken cancellationToken = default)
     {
         string cacheKey = GetCacheKeyFromEntity(entity);
-        await cache.SetAsync(cacheKey, entity).ConfigureAwait(false);
+        await cache.SetAsync(cacheKey, entity, cancellationToken: cancellationToken).ConfigureAwait(false);
     }
 
     /// <summary>
@@ -51,11 +52,12 @@ public class GenericRepositoryWithCaching<T>(BlinkDbContext dbContext, ICachingS
     /// </summary>
     /// <typeparam name="T">The entity type.</typeparam>
     /// <param name="entity">The entity to remove from the cache.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A task that represents the asynchronous operation.</returns>
-    private async Task RemoveEntityFromCache(T entity)
+    private async Task RemoveEntityFromCache(T entity, CancellationToken cancellationToken = default)
     {
         string cacheKey = GetCacheKeyFromEntity(entity);
-        await cache.RemoveAsync(cacheKey).ConfigureAwait(false);
+        await cache.RemoveAsync(cacheKey, cancellationToken).ConfigureAwait(false);
     }
 
     public override async Task<T?> GetByIdAsync(params object[] keyValues)
@@ -73,24 +75,24 @@ public class GenericRepositoryWithCaching<T>(BlinkDbContext dbContext, ICachingS
         return entity;
     }
 
-    public override async Task<T> AddAsync(T entity)
+    public override async Task<T> AddAsync(T entity, CancellationToken cancellationToken = default)
     {
-        T updatedEntity = await base.AddAsync(entity).ConfigureAwait(false);
-        await SetEntityInCache(updatedEntity).ConfigureAwait(false);
+        T updatedEntity = await base.AddAsync(entity, cancellationToken).ConfigureAwait(false);
+        await SetEntityInCache(updatedEntity, cancellationToken).ConfigureAwait(false);
         return updatedEntity;
     }
 
-    public override async Task<T> UpdateAsync(T entity)
+    public override async Task<T> UpdateAsync(T entity, CancellationToken cancellationToken = default)
     {
-        T updatedEntity = await base.UpdateAsync(entity).ConfigureAwait(false);
-        await SetEntityInCache(updatedEntity).ConfigureAwait(false);
+        T updatedEntity = await base.UpdateAsync(entity, cancellationToken).ConfigureAwait(false);
+        await SetEntityInCache(updatedEntity, cancellationToken).ConfigureAwait(false);
         return updatedEntity;
     }
 
-    public override async Task DeleteAsync(T entity)
+    public override async Task DeleteAsync(T entity, CancellationToken cancellationToken = default)
     {
-        await base.DeleteAsync(entity).ConfigureAwait(false);
-        await RemoveEntityFromCache(entity).ConfigureAwait(false);
+        await base.DeleteAsync(entity, cancellationToken).ConfigureAwait(false);
+        await RemoveEntityFromCache(entity, cancellationToken).ConfigureAwait(false);
     }
 
     public override async Task DeleteByIdAsync(params object[] keyValues)

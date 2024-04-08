@@ -24,9 +24,9 @@ public class TodoController(IUserTodoRepository todoRepository) : ApiControllerB
         Tags = ["Todo"]
     )]
     [SwaggerResponse(StatusCodes.Status200OK, "Success", typeof(IEnumerable<UserTodo>))]
-    public async Task<ActionResult<IEnumerable<UserTodo>>> GetAllTodos()
+    public async Task<ActionResult<IEnumerable<UserTodo>>> GetAllTodos(CancellationToken cancellationToken)
     {
-        IReadOnlyCollection<UserTodo> todos = await todoRepository.GetByUserIdAsync(UserId);
+        IReadOnlyCollection<UserTodo> todos = await todoRepository.GetByUserIdAsync(UserId, cancellationToken);
         return Ok(todos);
     }
 
@@ -64,9 +64,10 @@ public class TodoController(IUserTodoRepository todoRepository) : ApiControllerB
         Tags = ["Todo"]
     )]
     [SwaggerResponse(StatusCodes.Status201Created, "Created", typeof(UserTodo))]
-    public async Task<ActionResult<UserTodo>> CreateTodo([FromBody] UserTodoDto userTodoDto)
+    public async Task<ActionResult<UserTodo>> CreateTodo([FromBody] UserTodoDto userTodoDto,
+        CancellationToken cancellationToken)
     {
-        UserTodo createdTodo = await todoRepository.AddAsync(userTodoDto.ToEntity(UserId));
+        UserTodo createdTodo = await todoRepository.AddAsync(userTodoDto.ToEntity(UserId), cancellationToken);
 
         return CreatedAtAction(nameof(GetTodo), new { id = createdTodo.Id }, createdTodo);
     }
@@ -87,13 +88,14 @@ public class TodoController(IUserTodoRepository todoRepository) : ApiControllerB
         Tags = ["Todo"]
     )]
     [SwaggerResponse(StatusCodes.Status204NoContent, "No content")]
-    public async Task<ActionResult> UpdateTodo(int id, [FromBody] UserTodoDto todoDto)
+    public async Task<ActionResult> UpdateTodo(int id, [FromBody] UserTodoDto todoDto,
+        CancellationToken cancellationToken)
     {
         UserTodo? todo = await todoRepository.GetByIdAsync(id);
         ObjectResult? accessCheckResult = CheckAccess(todo?.UserId);
         if (accessCheckResult is not null) return accessCheckResult;
 
-        await todoRepository.UpdateAsync(todoDto.ToEntity(UserId, id));
+        await todoRepository.UpdateAsync(todoDto.ToEntity(UserId, id), cancellationToken);
 
         return NoContent();
     }
@@ -112,13 +114,13 @@ public class TodoController(IUserTodoRepository todoRepository) : ApiControllerB
     )]
     [SwaggerResponse(StatusCodes.Status204NoContent, "No content")]
     [SwaggerResponse(StatusCodes.Status404NotFound, "Todo not found", typeof(ProblemDetails))]
-    public async Task<ActionResult> DeleteTodo(int id)
+    public async Task<ActionResult> DeleteTodo(int id, CancellationToken cancellationToken)
     {
         UserTodo? todo = await todoRepository.GetByIdAsync(id);
         ObjectResult? accessCheckResult = CheckAccess(todo?.UserId);
         if (accessCheckResult is not null) return accessCheckResult;
 
-        await todoRepository.DeleteAsync(todo!);
+        await todoRepository.DeleteAsync(todo!, cancellationToken);
 
         return NoContent();
     }

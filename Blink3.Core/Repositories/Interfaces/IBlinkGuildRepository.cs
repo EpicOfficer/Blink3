@@ -18,5 +18,5 @@ public interface IBlinkGuildRepository : IGenericRepository<BlinkGuild>
     ///     A task representing the asynchronous operation. The task result contains the entity if found or newly created,
     ///     otherwise null.
     /// </returns>
-    Task<BlinkGuild> GetOrCreateByIdAsync(ulong id);
+    Task<BlinkGuild> GetOrCreateByIdAsync(ulong id, CancellationToken cancellationToken = default);
 }

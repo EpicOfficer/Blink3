@@ -1,15 +1,11 @@
-using Blink3.Core.Configuration;
 using Blink3.Core.Entities;
-using Blink3.Core.Enums;
+using Blink3.Core.Extensions;
+using Blink3.Core.Factories;
 using Blink3.Core.Interfaces;
+using Blink3.Core.Models;
 using Blink3.Core.Repositories.Interfaces;
-using Microsoft.Extensions.Options;
+using Blink3.Core.Services.Generators;
 using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.PixelFormats;
-using SixLabors.Fonts;
-using SixLabors.ImageSharp.Drawing.Processing;
-using SixLabors.ImageSharp.Processing;
-using SixLabors.ImageSharp.Formats.Png;
 
 namespace Blink3.Core.Services;
 
@@ -17,164 +13,62 @@ namespace Blink3.Core.Services;
 ///     Represents a service for playing the Wordle game.
 /// </summary>
 public class WordleGameService(
-    IWordleRepository wordleRepository,
-    IOptions<BlinkConfiguration> config) : IWordleGameService
+    IWordRepository wordRepository,
+    IWordleRepository wordleRepository) : IWordleGameService
 {
-    private BlinkConfiguration Config => config.Value;
-    
-    public async Task<WordleGuess> MakeGuessAsync(string word, ulong userId, Wordle wordle)
+    public async Task<bool> IsGameInProgressAsync(ulong channelId, CancellationToken cancellationToken = default)
     {
-        ValidateWordLength(word, wordle);
+        return await wordleRepository.GetByChannelIdAsync(channelId, cancellationToken).ConfigureAwait(false) is not null;
+    }
+
+    public async Task<Result<WordleGuess>> MakeGuessAsync(string word, ulong userId, Wordle wordle,
+        CancellationToken cancellationToken = default)
+    {
+        if (wordle.ValidateWordLength(word) is not true)
+            return Result<WordleGuess>.Fail(
+                $"The word you guessed does not match the wordle length {wordle.WordToGuess.Length}");
 
         WordleGuess? oldGuess = wordle.Guesses.FirstOrDefault(w => w.Word == word);
-        if (oldGuess is not null) return oldGuess;
-    
-        WordleGuess guess = CreateInitialGuess(word, userId, wordle);
+        if (oldGuess is not null) return Result<WordleGuess>.Ok(oldGuess);
 
-        List<int> correctIndices = [];
-        List<int> misplacedIndices = [];
-        MarkCorrectLetters(word, guess, wordle, correctIndices);
-        MarkMisplacedLetters(word, guess, wordle, correctIndices, misplacedIndices);
-        
-        await wordleRepository.AddGuessAsync(wordle, guess);
-        return guess;
+        WordleGuess guess = WordleGuessFactory.Create(wordle, word, userId);
+
+        wordle.ProcessGuess(guess);
+
+        await wordleRepository.AddGuessAsync(wordle, guess, cancellationToken).ConfigureAwait(false);
+        return Result<WordleGuess>.Ok(guess);
     }
 
-    private static Color GetColorForLetter(WordleLetterStateEnum state)
+    public async Task GenerateImageAsync(WordleGuess guess, MemoryStream outStream, CancellationToken cancellationToken = default)
     {
-        return state switch
+        WordleGuessImageGeneratorOptions options = new()
         {
-            WordleLetterStateEnum.Correct => Color.FromRgb(45,101,44),
-            WordleLetterStateEnum.Misplaced => Color.FromRgb(211,162,64),
-            _ => Color.FromRgb(43,43,43)
+            TileSize = 128,
+            FontSize = 72,
+            IconFontSize = 18,
+            MarginSize = 5,
+            BackgroundColour = Color.FromRgb(19, 19, 19),
+            TextColour = Color.FromRgb(217, 220, 221),
+            CorrectTileColour = Color.FromRgb(45, 101, 44),
+            MisplacedTileColour = Color.FromRgb(211, 162, 64),
+            IncorrectTileColour = Color.FromRgb(43, 43, 43)
         };
+
+        await WordleGuessImageGenerator.GenerateImageAsync(guess, options, outStream, cancellationToken);
     }
-    
-    private static char GetIconForLetter(WordleLetterStateEnum state)
+
+    public async Task<Wordle> StartNewGameAsync(ulong channelId, string language, int length,
+        CancellationToken cancellationToken = default)
     {
-        return state switch
+        string word = await wordRepository.GetRandomSolutionAsync(language, length, cancellationToken)
+            .ConfigureAwait(false);
+        Wordle newWordle = new()
         {
-            WordleLetterStateEnum.Correct => '\uE002',
-            WordleLetterStateEnum.Misplaced => '\uE001',
-            _ => '\uE000'
+            ChannelId = channelId,
+            Language = language,
+            WordToGuess = word
         };
-    }
-    
-    private static void ValidateWordLength(string word, Wordle wordle)
-    {
-        if (wordle.WordToGuess.Length != word.Length)
-            throw new InvalidOperationException("Provided word is the wrong length for this wordle");
-    }
-    
-    private static WordleGuess CreateInitialGuess(string word, ulong userId, Wordle wordle)
-    {
-        return new WordleGuess
-        {
-            WordleId = wordle.Id,
-            GuessedById = userId,
-            Letters = Enumerable.Range(0, word.Length)
-                .Select(i => new WordleLetter { Position = i, Letter = word[i], State = WordleLetterStateEnum.Incorrect })
-                .ToList()
-        };
-    }
-    
-    private static void MarkCorrectLetters(string word, WordleGuess guess, Wordle wordle, List<int> correctIndices)
-    {
-        string wordToGuess = wordle.WordToGuess;
-        for(int i = 0; i < wordToGuess.Length; i++)
-        {
-            if (wordToGuess[i] != word[i]) continue;
-            guess.Letters[i].State = WordleLetterStateEnum.Correct;
-            correctIndices.Add(i);
-        }
-    }
-    
-    private static void MarkMisplacedLetters(string word, WordleGuess guess, Wordle wordle, List<int> correctIndices, List<int> misplacedIndices)
-    {
-        string wordToGuess = wordle.WordToGuess;
-        for(int i = 0; i < word.Length; i++)
-        {
-            if (guess.Letters[i].State == WordleLetterStateEnum.Correct) continue;
-            int index = wordToGuess.IndexOf(word[i]);
-            if (index == -1 || correctIndices.Contains(index) || misplacedIndices.Contains(index)) continue;
-            guess.Letters[i].State = WordleLetterStateEnum.Misplaced;
-            misplacedIndices.Add(index);
-        }
-    }
-    
-    public async Task<MemoryStream> GenerateImageAsync(WordleGuess guess)
-    {
-        string fontsDirectory = Path.Join(AppDomain.CurrentDomain.BaseDirectory, "Fonts");
-
-        const int tileSize = 120;
-        const int fontSize = 72;
-        const int iconFontSize = 18;
-        const int marginSize = 5;
-        const int letterSize = tileSize - 2 * marginSize;
-        const int imageHeight = tileSize + 2 * marginSize;
-        Color textColor = Color.FromRgb(217,220,221);
-        Color backGroundColor = Color.FromRgb(19, 19, 19);
-        int imageWidth = tileSize * guess.Letters.Count + 2 * marginSize;
-        
-        FontCollection fontCollection = new();
-        FontFamily fontFamily = fontCollection.Add(Path.Join(fontsDirectory, "Geologica.ttf"));
-        Font font = fontFamily.CreateFont(fontSize);
-
-        FontFamily iconFontFamily = fontCollection.Add(Path.Join(fontsDirectory, "Icons.ttf"));
-        Font iconFont = iconFontFamily.CreateFont(iconFontSize);
-        
-        using Image<Rgba32> image = new(imageWidth, imageHeight);
-        TextOptions options = new(font)
-        {
-            HorizontalAlignment = HorizontalAlignment.Center,
-            VerticalAlignment = VerticalAlignment.Center,
-            WrappingLength = letterSize
-        };
-        
-        image.Mutate(im =>
-        {
-            im.Fill(backGroundColor);
-            
-            for (int i = 0; i < guess.Letters.Count; i++)
-            {
-                WordleLetter letter = guess.Letters[i];
-                string text = letter.Letter.ToString().ToUpper();
-                
-                int rectX = i * tileSize + 2 * marginSize;
-                const int rectY = 2 * marginSize;
-
-                im.Fill(GetColorForLetter(letter.State), new
-                    Rectangle(rectX, rectY, letterSize, letterSize));
-                
-                // Measure the text size.
-                FontRectangle textSize = TextMeasurer.MeasureAdvance(text, options);
-                
-                float textX = rectX + (letterSize - textSize.Width) / 2;
-                float textY = rectY + (letterSize - textSize.Height) / 2;
-                
-                im.DrawText(
-                    text,
-                    font,
-                    textColor,
-                    new PointF(textX, textY));
-
-                string icon = GetIconForLetter(letter.State).ToString();
-                FontRectangle iconSize = TextMeasurer.MeasureBounds(icon, new TextOptions(iconFont));
-
-                float iconX = rectX + letterSize - iconSize.Width - marginSize;
-                const float iconY = rectY + marginSize;
-                
-                im.DrawText(
-                    icon,
-                    iconFont,
-                    textColor,
-                    new PointF(iconX, iconY));
-            }
-        });
-
-        MemoryStream memoryStream = new();
-        await image.SaveAsync(memoryStream, new PngEncoder());
-
-        return memoryStream;
+        await wordleRepository.AddAsync(newWordle, cancellationToken).ConfigureAwait(false);
+        return newWordle;
     }
 }
