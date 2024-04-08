@@ -11,7 +11,11 @@ public interface IWordleGameService
     /// <param name="channelId">The ID of the channel where the game will be played.</param>
     /// <param name="language">The language used in the game.</param>
     /// <param name="length">The length of the word to be guessed.</param>
-    /// <returns>A Result object containing the newly created Wordle game.</returns>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>
+    ///     A <see cref="Task{TResult}" /> representing the asynchronous operation.
+    ///     The task result contains a <see cref="Wordle" /> object representing the newly created Wordle game.
+    /// </returns>
     public Task<Wordle> StartNewGameAsync(ulong channelId, string language, int length,
         CancellationToken cancellationToken = default);
 
@@ -41,8 +45,10 @@ public interface IWordleGameService
     ///     Generates an image for the provided WordleGuess object.
     /// </summary>
     /// <param name="guess">The WordleGuess object for which to generate an image.</param>
+    /// <param name="outStream">The output MemoryStream where the generated image will be written to.</param>
     /// <param name="cancellationToken">The cancellation token used to cancel the asynchronous operation.</param>
-    /// <returns>A Task representing the asynchronous operation that returns a MemoryStream containing the generated image.</returns>
-    public Task<MemoryStream> GenerateImageAsync(WordleGuess guess,
+    /// <returns>A Task representing the asynchronous operation.</returns>
+    public Task GenerateImageAsync(WordleGuess guess,
+        MemoryStream outStream,
         CancellationToken cancellationToken = default);
 }
