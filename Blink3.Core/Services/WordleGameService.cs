@@ -1,6 +1,8 @@
 using Blink3.Core.Configuration;
 using Blink3.Core.Entities;
 using Blink3.Core.Enums;
+using Blink3.Core.Extensions;
+using Blink3.Core.Factories;
 using Blink3.Core.Interfaces;
 using Blink3.Core.Repositories.Interfaces;
 using Microsoft.Extensions.Options;
@@ -20,88 +22,22 @@ public class WordleGameService(
     IWordleRepository wordleRepository,
     IOptions<BlinkConfiguration> config) : IWordleGameService
 {
-    private BlinkConfiguration Config => config.Value;
-    
     public async Task<WordleGuess> MakeGuessAsync(string word, ulong userId, Wordle wordle)
     {
-        ValidateWordLength(word, wordle);
-
+        if (wordle.ValidateWordLength(word) is not true)
+            throw new InvalidOperationException("Guess length does not match wordle length");
+        
         WordleGuess? oldGuess = wordle.Guesses.FirstOrDefault(w => w.Word == word);
         if (oldGuess is not null) return oldGuess;
     
-        WordleGuess guess = CreateInitialGuess(word, userId, wordle);
+        WordleGuess guess = WordleGuessFactory.Create(wordle, word, userId);
 
-        List<int> correctIndices = [];
-        List<int> misplacedIndices = [];
-        MarkCorrectLetters(word, guess, wordle, correctIndices);
-        MarkMisplacedLetters(word, guess, wordle, correctIndices, misplacedIndices);
+        wordle.ProcessGuess(guess);
         
         await wordleRepository.AddGuessAsync(wordle, guess);
         return guess;
     }
 
-    private static Color GetColorForLetter(WordleLetterStateEnum state)
-    {
-        return state switch
-        {
-            WordleLetterStateEnum.Correct => Color.FromRgb(45,101,44),
-            WordleLetterStateEnum.Misplaced => Color.FromRgb(211,162,64),
-            _ => Color.FromRgb(43,43,43)
-        };
-    }
-    
-    private static char GetIconForLetter(WordleLetterStateEnum state)
-    {
-        return state switch
-        {
-            WordleLetterStateEnum.Correct => '\uE002',
-            WordleLetterStateEnum.Misplaced => '\uE001',
-            _ => '\uE000'
-        };
-    }
-    
-    private static void ValidateWordLength(string word, Wordle wordle)
-    {
-        if (wordle.WordToGuess.Length != word.Length)
-            throw new InvalidOperationException("Provided word is the wrong length for this wordle");
-    }
-    
-    private static WordleGuess CreateInitialGuess(string word, ulong userId, Wordle wordle)
-    {
-        return new WordleGuess
-        {
-            WordleId = wordle.Id,
-            GuessedById = userId,
-            Letters = Enumerable.Range(0, word.Length)
-                .Select(i => new WordleLetter { Position = i, Letter = word[i], State = WordleLetterStateEnum.Incorrect })
-                .ToList()
-        };
-    }
-    
-    private static void MarkCorrectLetters(string word, WordleGuess guess, Wordle wordle, List<int> correctIndices)
-    {
-        string wordToGuess = wordle.WordToGuess;
-        for(int i = 0; i < wordToGuess.Length; i++)
-        {
-            if (wordToGuess[i] != word[i]) continue;
-            guess.Letters[i].State = WordleLetterStateEnum.Correct;
-            correctIndices.Add(i);
-        }
-    }
-    
-    private static void MarkMisplacedLetters(string word, WordleGuess guess, Wordle wordle, List<int> correctIndices, List<int> misplacedIndices)
-    {
-        string wordToGuess = wordle.WordToGuess;
-        for(int i = 0; i < word.Length; i++)
-        {
-            if (guess.Letters[i].State == WordleLetterStateEnum.Correct) continue;
-            int index = wordToGuess.IndexOf(word[i]);
-            if (index == -1 || correctIndices.Contains(index) || misplacedIndices.Contains(index)) continue;
-            guess.Letters[i].State = WordleLetterStateEnum.Misplaced;
-            misplacedIndices.Add(index);
-        }
-    }
-    
     public async Task<MemoryStream> GenerateImageAsync(WordleGuess guess)
     {
         string fontsDirectory = Path.Join(AppDomain.CurrentDomain.BaseDirectory, "Fonts");
@@ -176,5 +112,25 @@ public class WordleGameService(
         await image.SaveAsync(memoryStream, new PngEncoder());
 
         return memoryStream;
+    }
+    
+    private static Color GetColorForLetter(WordleLetterStateEnum state)
+    {
+        return state switch
+        {
+            WordleLetterStateEnum.Correct => Color.FromRgb(45,101,44),
+            WordleLetterStateEnum.Misplaced => Color.FromRgb(211,162,64),
+            _ => Color.FromRgb(43,43,43)
+        };
+    }
+    
+    private static char GetIconForLetter(WordleLetterStateEnum state)
+    {
+        return state switch
+        {
+            WordleLetterStateEnum.Correct => '\uE002',
+            WordleLetterStateEnum.Misplaced => '\uE001',
+            _ => '\uE000'
+        };
     }
 }
