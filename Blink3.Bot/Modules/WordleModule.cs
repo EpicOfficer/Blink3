@@ -13,6 +13,7 @@ namespace Blink3.Bot.Modules;
 public class WordleModule(
     IWordleRepository wordleRepository,
     IWordleGameService wordleGameService,
+    IWordsClientService wordsClientService,
     IWordRepository wordRepository) : BlinkModuleBase<IInteractionContext>
 {
     [SlashCommand("wordle", "Start a new game of wordle")]
@@ -71,5 +72,12 @@ public class WordleModule(
         await wordleGameService.GenerateImageAsync(guess, image);
         FileAttachment attachment = new(image, $"{guess.Word}.png");
         await FollowupWithFileAsync(text: text, attachment: attachment, ephemeral: false);
+    }
+
+    [SlashCommand("define", "Get the definition of a word")]
+    public async Task Define(string word)
+    {
+        WordDetails? details = await wordsClientService.GetDefinitionAsync(word);
+        await RespondInfoAsync(details?.Definitions.FirstOrDefault()?.Definition ?? "Could not find definition");
     }
 }

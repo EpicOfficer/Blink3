@@ -28,6 +28,8 @@ try
     HostApplicationBuilder builder = Host.CreateApplicationBuilder(args);
 
     builder.Services.AddHttpClient();
+    builder.Services.AddHttpClient<IDiscordAttachmentService, DiscordAttachmentService>();
+    builder.Services.AddHttpClient<IWordsClientService, WordsClientService>();
 
     builder.Services.AddSerilog();
 

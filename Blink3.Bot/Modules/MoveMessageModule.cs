@@ -1,6 +1,8 @@
-using System.Diagnostics;
 using Blink3.Bot.Extensions;
 using Blink3.Core.Extensions;
+using Blink3.Core.Interfaces;
+using Blink3.Core.Models;
+using Blink3.DataAccess.Extensions;
 using Discord;
 using Discord.Interactions;
 using Discord.Webhook;
@@ -14,7 +16,8 @@ namespace Blink3.Bot.Modules;
 [RequireContext(ContextType.Guild)]
 [RequireUserPermission(GuildPermission.ManageMessages)]
 [RequireBotPermission(GuildPermission.ManageMessages | GuildPermission.ManageWebhooks)]
-public class MoveMessageModule(IHttpClientFactory httpClientFactory) : BlinkModuleBase<IInteractionContext>
+public class MoveMessageModule(IDiscordAttachmentService discordAttachmentService)
+    : BlinkModuleBase<IInteractionContext>
 {
     [MessageCommand("Move message")]
     public async Task MoveMessageFrom(SocketMessage message)
@@ -35,17 +38,18 @@ public class MoveMessageModule(IHttpClientFactory httpClientFactory) : BlinkModu
     {
         await DeferAsync(true);
 
-        if (!TryGetSourceAndTargetChannels(channelIdStr, channels,
-                out SocketTextChannel? sourceChannel,
-                out SocketTextChannel? targetChannel,
-                out string? errorMessage))
+        Result<Tuple<SocketTextChannel, SocketTextChannel>> channelsResult =
+            await GetSourceAndTargetChannelsAsync(channelIdStr, channels);
+
+        if (!channelsResult.IsSuccess)
         {
-            await RespondErrorAsync(message: errorMessage ?? "An unknown error occured moving the message");
+            await RespondErrorAsync(message: channelsResult.Error ?? "An unknown error occured moving the message");
             return;
         }
 
-        Debug.Assert(sourceChannel is not null, nameof(sourceChannel) + " != null");
-        Debug.Assert(targetChannel is not null, nameof(targetChannel) + " != null");
+        SocketTextChannel sourceChannel = channelsResult.SafeValue().Item1;
+        SocketTextChannel targetChannel = channelsResult.SafeValue().Item2;
+
         IMessage? message = await GetMessageToMove(sourceChannel, messageIdStr.ToUlong());
         if (message is null) return;
 
@@ -53,43 +57,31 @@ public class MoveMessageModule(IHttpClientFactory httpClientFactory) : BlinkModu
     }
 
     /// <summary>
-    ///     Tries to get the source and target channels asynchronously.
+    ///     Retrieves the source and target channels for moving a message.
     /// </summary>
     /// <param name="channelIdStr">The ID of the source channel as a string.</param>
-    /// <param name="channels">The array of target channels.</param>
-    /// <param name="sourceChannel">When this method returns, contains the source channel if found; otherwise, null.</param>
-    /// <param name="targetChannel">When this method returns, contains the target channel if found; otherwise, null.</param>
-    /// <param name="errorMessage">Error message, when appropriate</param>
-    /// <returns>true if the source and target channels were successfully obtained; otherwise, false.</returns>
-    private bool TryGetSourceAndTargetChannels(string channelIdStr,
-        IEnumerable<SocketChannel> channels,
-        out SocketTextChannel? sourceChannel,
-        out SocketTextChannel? targetChannel,
-        out string? errorMessage)
+    /// <param name="channels">The collection of socket channels to search for the target channel.</param>
+    /// <returns>
+    ///     A <see cref="Result{T}" /> object with the source and target channels as a tuple if successful,
+    ///     otherwise a failed result with an error message indicating the reason for the failure.
+    /// </returns>
+    private async Task<Result<Tuple<SocketTextChannel, SocketTextChannel>>> GetSourceAndTargetChannelsAsync(
+        string channelIdStr,
+        IEnumerable<SocketChannel> channels)
     {
         ulong sourceChannelId = channelIdStr.ToUlong();
 
-        sourceChannel = null;
-        targetChannel = null;
-        errorMessage = null;
-
-        if (Context.Guild.GetChannelAsync(sourceChannelId).Result is not SocketTextChannel source ||
+        if (await Context.Guild.GetChannelAsync(sourceChannelId) is not SocketTextChannel source ||
             channels.FirstOrDefault() is not SocketTextChannel target)
-        {
-            errorMessage = "Could not get either the source or target channel to move message.";
-            return false;
-        }
+            return Result<Tuple<SocketTextChannel, SocketTextChannel>>.Fail(
+                "Could not get either the source or target channel to move message.");
 
         if (source.Id == target.Id)
-        {
-            errorMessage = "Source and target channels cannot be the same.";
-            return false;
-        }
+            return Result<Tuple<SocketTextChannel, SocketTextChannel>>.Fail(
+                "Source and target channels cannot be the same.");
 
-        sourceChannel = source;
-        targetChannel = target;
-
-        return true;
+        return Result<Tuple<SocketTextChannel, SocketTextChannel>>.Ok(
+            new Tuple<SocketTextChannel, SocketTextChannel>(source, target));
     }
 
     /// <summary>
@@ -122,9 +114,15 @@ public class MoveMessageModule(IHttpClientFactory httpClientFactory) : BlinkModu
         using DiscordWebhookClient client = new(webhook);
 
         if (message.Attachments.Count is not 0)
-            await SendMessageWithAttachments(client, message);
+        {
+            IEnumerable<FileAttachment> attachments =
+                await discordAttachmentService.DownloadAttachmentsFromMessageAsync(message);
+            await SendMessageWithAttachments(client, message, attachments);
+        }
         else
+        {
             await SendMessageWithoutAttachments(client, message);
+        }
 
         await message.DeleteAsync();
 
@@ -141,15 +139,17 @@ public class MoveMessageModule(IHttpClientFactory httpClientFactory) : BlinkModu
         return (await channel.GetWebhooksAsync()).FirstOrDefault() ?? await channel.CreateWebhookAsync("Blink");
     }
 
-    /// <summary>
-    ///     Sends a message with attachments using a DiscordWebhookClient.
-    /// </summary>
-    /// <param name="client">The DiscordWebhookClient to send the message with attachments.</param>
-    /// <param name="message">The message with attachments to send.</param>
-    private async Task SendMessageWithAttachments(DiscordWebhookClient client, IMessage message)
-    {
-        List<FileAttachment> attachments = await GetAttachmentsFromMessage(message);
 
+    /// <summary>
+    ///     Sends a message with attachments using a Discord webhook client.
+    /// </summary>
+    /// <param name="client">The Discord webhook client.</param>
+    /// <param name="message">The Discord message.</param>
+    /// <param name="attachments">The attachments to send with the message.</param>
+    private static async Task SendMessageWithAttachments(DiscordWebhookClient client,
+        IMessage message,
+        IEnumerable<FileAttachment> attachments)
+    {
         await client.SendFilesAsync(attachments,
             message.Content,
             username: message.Author.GetFriendlyName(),
@@ -167,30 +167,5 @@ public class MoveMessageModule(IHttpClientFactory httpClientFactory) : BlinkModu
         await client.SendMessageAsync(message.Content,
             username: message.Author.GetFriendlyName(),
             avatarUrl: message.Author.GetDisplayAvatarUrl());
-    }
-
-    /// <summary>
-    ///     Gets the attachments from a given Discord message.
-    /// </summary>
-    /// <param name="message">The Discord message.</param>
-    /// <returns>A list of file attachments.</returns>
-    private async Task<List<FileAttachment>> GetAttachmentsFromMessage(IMessage message)
-    {
-        List<FileAttachment> attachments = [];
-        using HttpClient httpClient = httpClientFactory.CreateClient();
-
-        foreach (IAttachment? attachment in message.Attachments)
-        {
-            HttpResponseMessage response = await httpClient.GetAsync(attachment.Url);
-            response.EnsureSuccessStatusCode();
-            Stream stream = await response.Content.ReadAsStreamAsync();
-
-            attachments.Add(new FileAttachment(stream,
-                attachment.Filename,
-                attachment.Description,
-                attachment.IsSpoiler()));
-        }
-
-        return attachments;
     }
 }
