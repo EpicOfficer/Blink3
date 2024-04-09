@@ -1,3 +1,4 @@
+using System.Globalization;
 using Blink3.Core.Entities;
 using Blink3.Core.Interfaces;
 using Blink3.Core.Models;
@@ -13,6 +14,7 @@ namespace Blink3.Bot.Modules;
 public class WordleModule(
     IWordleRepository wordleRepository,
     IWordleGameService wordleGameService,
+    IWordsClientService wordsClientService,
     IWordRepository wordRepository) : BlinkModuleBase<IInteractionContext>
 {
     [SlashCommand("wordle", "Start a new game of wordle")]
@@ -70,6 +72,20 @@ public class WordleModule(
         using MemoryStream image = new MemoryStream();
         await wordleGameService.GenerateImageAsync(guess, image);
         FileAttachment attachment = new(image, $"{guess.Word}.png");
-        await FollowupWithFileAsync(text: text, attachment: attachment, ephemeral: false);
+
+        ComponentBuilder? component = new ComponentBuilder().WithButton("Define", $"blink-define-word_{guess.Word}");
+        
+        await FollowupWithFileAsync(text: text, attachment: attachment, ephemeral: false, components: component.Build());
+    }
+
+    [SlashCommand("define", "Get the definition of a word")]
+    [ComponentInteraction("blink-define-word_*")]
+    public async Task Define(string word)
+    {
+        TextInfo textInfo = CultureInfo.CurrentCulture.TextInfo;
+        WordDetails? details = await wordsClientService.GetDefinitionAsync(word);
+        await RespondPlainAsync($"{textInfo.ToTitleCase(word)}",
+            details?.Definitions.FirstOrDefault()?.Definition ?? "Could not find definition",
+            ephemeral: false);
     }
 }

@@ -44,6 +44,11 @@ public record BlinkConfiguration
     ///     Whether to apply pending EF Migrations to the database on startup
     /// </summary>
     public bool RunMigrations { get; set; } = false;
+
+    /// <summary>
+    ///     Represents the WordsApiKey property in the BlinkConfiguration class.
+    /// </summary>
+    public string WordsApiKey { get; set; } = string.Empty;
 }
 
 /// <summary>

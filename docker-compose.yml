@@ -41,6 +41,7 @@ services:
       - ConnectionStrings__DefaultConnection=Server=blink3.db;Port=5432;Database=${POSTGRES_USER};Userid=${POSTGRES_USER};Password=${POSTGRES_PASSWORD};SslMode=Prefer;TrustServerCertificate=true
       - Redis__ConnectionString=blink3.cache,ssl=false,name=${REDIS_NAME}
       - RunMigrations=${BLINK_RUN_MIGRATIONS}
+      - WordsApiKey=${WORDS_API_KEY}
     depends_on:
       blink3.db:
         condition: service_healthy
