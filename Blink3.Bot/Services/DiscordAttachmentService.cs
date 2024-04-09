@@ -25,7 +25,7 @@ public class DiscordAttachmentService(HttpClient httpClient) : IDiscordAttachmen
         using HttpResponseMessage response = await httpClient.GetAsync(attachment.Url);
         response.EnsureSuccessStatusCode();
 
-        await using Stream stream = await response.Content.ReadAsStreamAsync();
+        Stream stream = await response.Content.ReadAsStreamAsync();
 
         return new FileAttachment(
             stream,
