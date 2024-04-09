@@ -6,62 +6,36 @@ services:
       context: "/Users/joshua/RiderProjects/Blink3"
       dockerfile: "Blink3.API/Dockerfile"
       target: "base"
-      args:
-        BUILD_CONFIGURATION: "Debug"
     command: []
     entrypoint:
-    - "/opt/rider-debugger/linux-musl-arm64/dotnet/dotnet"
-    - "/opt/rider-debugger/JetBrains.Debugger.Worker.exe"
-    - "--mode=server"
-    - "--frontend-port=57100"
-    - "--backend-port=57300"
-    - "--timeout=60"
+    - "dotnet"
+    - "/app/bin/Debug/net8.0/Blink3.API.dll"
     environment:
       DOTNET_USE_POLLING_FILE_WATCHER: "true"
-      RIDER_DEBUGGER_LOG_DIR: "/var/opt/rider-debugger"
-      RESHARPER_LOG_CONF: "/etc/opt/rider-debugger/backend-log.xml"
     image: "blink3.api:dev"
-    ports:
-    - "127.0.0.1:57020:57100"
-    - "127.0.0.1:57220:57300"
+    ports: []
     volumes:
     - "/Users/joshua/.microsoft/usersecrets:/home/app/.microsoft/usersecrets"
     - "/Users/joshua/.nuget/packages:/home/app/.nuget/packages"
     - "/Users/joshua/RiderProjects/Blink3/Blink3.API:/app:rw"
     - "/Users/joshua/RiderProjects/Blink3:/src:rw"
-    - "/Users/joshua/.local/share/JetBrains/RiderRemoteDebugger/2023.3.4/LinuxMuslArm64:/opt/rider-debugger"
-    - "/Applications/Rider.app/Contents/bin:/etc/opt/rider-debugger/backend-log.xml"
-    - "/Users/joshua/Library/Logs/JetBrains/Rider2023.3/DebuggerWorker/JetBrains.Debugger.Worker.2024_4_09_20_54_41:/var/opt/rider-debugger:rw"
     working_dir: "/app"
   blink3.bot:
     build:
       context: "/Users/joshua/RiderProjects/Blink3"
       dockerfile: "Blink3.Bot/Dockerfile"
       target: "base"
-      args:
-        BUILD_CONFIGURATION: "Debug"
     command: []
     entrypoint:
-    - "/opt/rider-debugger/linux-musl-arm64/dotnet/dotnet"
-    - "/opt/rider-debugger/JetBrains.Debugger.Worker.exe"
-    - "--mode=server"
-    - "--frontend-port=57100"
-    - "--backend-port=57300"
-    - "--timeout=60"
+    - "dotnet"
+    - "/app/bin/Debug/net8.0/Blink3.Bot.dll"
     environment:
       DOTNET_USE_POLLING_FILE_WATCHER: "true"
-      RIDER_DEBUGGER_LOG_DIR: "/var/opt/rider-debugger"
-      RESHARPER_LOG_CONF: "/etc/opt/rider-debugger/backend-log.xml"
     image: "blink3.bot:dev"
-    ports:
-    - "127.0.0.1:57021:57100"
-    - "127.0.0.1:57221:57300"
+    ports: []
     volumes:
     - "/Users/joshua/.microsoft/usersecrets:/home/app/.microsoft/usersecrets"
     - "/Users/joshua/.nuget/packages:/home/app/.nuget/packages"
     - "/Users/joshua/RiderProjects/Blink3/Blink3.Bot:/app:rw"
     - "/Users/joshua/RiderProjects/Blink3:/src:rw"
-    - "/Users/joshua/.local/share/JetBrains/RiderRemoteDebugger/2023.3.4/LinuxMuslArm64:/opt/rider-debugger"
-    - "/Applications/Rider.app/Contents/bin:/etc/opt/rider-debugger/backend-log.xml"
-    - "/Users/joshua/Library/Logs/JetBrains/Rider2023.3/DebuggerWorker/JetBrains.Debugger.Worker.2024_4_09_20_54_41:/var/opt/rider-debugger:rw"
     working_dir: "/app"
