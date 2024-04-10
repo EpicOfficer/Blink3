@@ -71,7 +71,7 @@ public class WordleModule(
 
         using MemoryStream image = new();
         await wordleGameService.GenerateImageAsync(guess, image);
-        FileAttachment attachment = new(image, $"{guess.Word}.png");
+        using FileAttachment attachment = new(image, $"{guess.Word}.png");
 
         ComponentBuilder? component = new ComponentBuilder().WithButton("Define", $"blink-define-word_{guess.Word}");
 
