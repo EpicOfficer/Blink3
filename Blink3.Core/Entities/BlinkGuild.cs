@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using Blink3.Core.Caching.Interfaces;
+using Blink3.Core.Interfaces;
 
 // ReSharper disable PropertyCanBeMadeInitOnly.Global
 

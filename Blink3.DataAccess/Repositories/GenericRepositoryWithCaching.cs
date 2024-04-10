@@ -8,7 +8,7 @@ namespace Blink3.DataAccess.Repositories;
 /// </summary>
 /// <typeparam name="T">The entity type.</typeparam>
 public class GenericRepositoryWithCaching<T>(BlinkDbContext dbContext, ICachingService cache)
-    : GenericRepository<T>(dbContext) where T : class, ICacheKeyIdentifiable
+    : GenericRepository<T>(dbContext) where T : class, ICacheKeyIdentifiable, new()
 {
     /// <summary>
     ///     Generates a cache key for the specified entity.
@@ -72,6 +72,20 @@ public class GenericRepositoryWithCaching<T>(BlinkDbContext dbContext, ICachingS
         // Update cache
         if (entity != null) await SetEntityInCache(entity).ConfigureAwait(false);
 
+        return entity;
+    }
+
+    public override async Task<T> GetOrCreateByIdAsync(params object[] keyValues)
+    {
+        string cacheKey = GetCacheKey(keyValues);
+        
+        T? entity = await cache.GetAsync<T>(cacheKey).ConfigureAwait(false);
+        if (entity is not null) return entity;
+
+        entity = await base.GetOrCreateByIdAsync(keyValues).ConfigureAwait(false);
+        
+        await SetEntityInCache(entity);
+        
         return entity;
     }
 
