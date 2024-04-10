@@ -103,7 +103,8 @@ public class WordleModule(
                 {
                     Name = g.Key.ToTitleCase(),
                     Value = string.Join("\n",
-                        g.Select(v => $"- {v.Definition.ToSentenceCase()}")),
+                        g.Select(v => $"- {v.Definition.ToSentenceCase()}"))
+                        .TruncateTo(1020),
                     IsInline = false
                 };
                 return builder;
