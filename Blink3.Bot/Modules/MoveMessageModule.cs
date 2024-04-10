@@ -115,7 +115,7 @@ public class MoveMessageModule(IDiscordAttachmentService discordAttachmentServic
 
         if (message.Attachments.Count is not 0)
         {
-            IEnumerable<FileAttachment> attachments =
+            using IDisposableCollection<FileAttachment> attachments =
                 await discordAttachmentService.DownloadAttachmentsFromMessageAsync(message);
             await SendMessageWithAttachments(client, message, attachments);
         }
