@@ -1,5 +1,6 @@
 using System.Globalization;
 using Blink3.Core.Entities;
+using Blink3.Core.Extensions;
 using Blink3.Core.Interfaces;
 using Blink3.Core.Models;
 using Blink3.Core.Repositories.Interfaces;
@@ -82,10 +83,29 @@ public class WordleModule(
     [ComponentInteraction("blink-define-word_*")]
     public async Task Define(string word)
     {
-        TextInfo textInfo = CultureInfo.CurrentCulture.TextInfo;
-        WordDetails? details = await wordsClientService.GetDefinitionAsync(word);
-        await RespondPlainAsync($"{textInfo.ToTitleCase(word)}",
-            details?.Definitions.FirstOrDefault()?.Definition ?? "Could not find definition",
+        WordDetails? details = null;
+        try
+        {
+            details = await wordsClientService.GetDefinitionAsync(word);
+        }
+        catch
+        {
+            await RespondErrorAsync(word.ToTitleCase(), "An error occured fetching word definition",
+                ephemeral: true);
+            return;
+        }
+
+        EmbedFieldBuilder[]? fields = details?.Definitions.Select(wordDetails => new EmbedFieldBuilder
+        {
+            Name = wordDetails.PartOfSpeech.ToTitleCase(),
+            Value = wordDetails.Definition.ToSentenceCase(),
+            IsInline = false
+        }).ToArray();
+        
+        await RespondPlainAsync(
+            name: word.ToTitleCase(),
+            message: fields?.Length < 1 ? "Could not find a definition" : string.Empty,
+            embedFields: fields,
             ephemeral: false);
     }
 }
