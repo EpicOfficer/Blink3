@@ -26,10 +26,14 @@ public class DiscordAttachmentService(HttpClient httpClient) : IDiscordAttachmen
         using HttpResponseMessage response = await httpClient.GetAsync(attachment.Url);
         response.EnsureSuccessStatusCode();
 
-        Stream stream = await response.Content.ReadAsStreamAsync();
+        // Copy the content of the response stream to a new MemoryStream
+        Stream responseStream = await response.Content.ReadAsStreamAsync();
+        MemoryStream ms = new MemoryStream();
+        await responseStream.CopyToAsync(ms);
+        ms.Position = 0;  // Reset the MemoryStream position
 
         return new FileAttachment(
-            stream,
+            ms,
             attachment.Filename,
             attachment.Description,
             attachment.IsSpoiler());
