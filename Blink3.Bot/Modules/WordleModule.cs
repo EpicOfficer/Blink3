@@ -1,4 +1,3 @@
-using System.Globalization;
 using Blink3.Core.Entities;
 using Blink3.Core.Extensions;
 using Blink3.Core.Interfaces;
@@ -70,13 +69,14 @@ public class WordleModule(
             await wordleRepository.DeleteAsync(wordle);
         }
 
-        using MemoryStream image = new MemoryStream();
+        using MemoryStream image = new();
         await wordleGameService.GenerateImageAsync(guess, image);
         FileAttachment attachment = new(image, $"{guess.Word}.png");
 
         ComponentBuilder? component = new ComponentBuilder().WithButton("Define", $"blink-define-word_{guess.Word}");
-        
-        await FollowupWithFileAsync(text: text, attachment: attachment, ephemeral: false, components: component.Build());
+
+        await FollowupWithFileAsync(text: text, attachment: attachment, ephemeral: false,
+            components: component.Build());
     }
 
     [SlashCommand("define", "Get the definition of a word")]
@@ -91,21 +91,29 @@ public class WordleModule(
         catch
         {
             await RespondErrorAsync(word.ToTitleCase(), "An error occured fetching word definition",
-                ephemeral: true);
+                true);
             return;
         }
 
-        EmbedFieldBuilder[]? fields = details?.Definitions.Select(wordDetails => new EmbedFieldBuilder
-        {
-            Name = wordDetails.PartOfSpeech.ToTitleCase(),
-            Value = wordDetails.Definition.ToSentenceCase(),
-            IsInline = false
-        }).ToArray();
-        
+        EmbedFieldBuilder[]? groupedDefinitions = details?.Definitions
+            .GroupBy(wd => wd.PartOfSpeech)
+            .Select(g =>
+            {
+                EmbedFieldBuilder? builder = new()
+                {
+                    Name = g.Key.ToTitleCase(),
+                    Value = string.Join("\n",
+                        g.Select(v => $"- {v.Definition.ToSentenceCase()}")),
+                    IsInline = false
+                };
+                return builder;
+            })
+            .ToArray();
+
         await RespondPlainAsync(
-            name: word.ToTitleCase(),
-            message: fields?.Length < 1 ? "Could not find a definition" : string.Empty,
-            embedFields: fields,
+            $"Definition of {word.ToTitleCase()}",
+            groupedDefinitions?.Length < 1 ? "Could not find a definition" : string.Empty,
+            embedFields: groupedDefinitions,
             ephemeral: false);
     }
 }
