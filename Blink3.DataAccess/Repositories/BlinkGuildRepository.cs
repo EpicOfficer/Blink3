@@ -6,19 +6,4 @@ namespace Blink3.DataAccess.Repositories;
 
 /// <inheritdoc cref="IBlinkGuildRepository" />
 public class BlinkGuildRepository(BlinkDbContext dbContext, ICachingService cache)
-    : GenericRepositoryWithCaching<BlinkGuild>(dbContext, cache), IBlinkGuildRepository
-{
-    public async Task<BlinkGuild> GetOrCreateByIdAsync(ulong id, CancellationToken cancellationToken = default)
-    {
-        BlinkGuild? guild = await GetByIdAsync(id).ConfigureAwait(false);
-        if (guild is not null) return guild;
-
-        guild = new BlinkGuild
-        {
-            Id = id
-        };
-        await AddAsync(guild, cancellationToken).ConfigureAwait(false);
-
-        return guild;
-    }
-}
+    : GenericRepositoryWithCaching<BlinkGuild>(dbContext, cache), IBlinkGuildRepository;

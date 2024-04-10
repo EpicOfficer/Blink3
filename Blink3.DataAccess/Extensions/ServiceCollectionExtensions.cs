@@ -24,6 +24,7 @@ public static class ServiceCollectionExtensions
 
         services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
         services.AddScoped<IBlinkGuildRepository, BlinkGuildRepository>();
+        services.AddScoped<IBlinkUserRepository, BlinkUserRepository>();
         services.AddScoped<IUserTodoRepository, UserTodoRepository>();
         services.AddScoped<IWordRepository, WordRepository>();
         services.AddScoped<IWordleRepository, WordleRepository>();

@@ -15,6 +15,7 @@ public class WordleModule(
     IWordleRepository wordleRepository,
     IWordleGameService wordleGameService,
     IWordsClientService wordsClientService,
+    IBlinkUserRepository blinkUserRepository,
     IWordRepository wordRepository) : BlinkModuleBase<IInteractionContext>
 {
     [SlashCommand("wordle", "Start a new game of wordle")]
@@ -65,7 +66,16 @@ public class WordleModule(
         string text = string.Empty;
         if (guess.IsCorrect)
         {
-            text = $"**Correct!** You got it in {wordle.TotalAttempts} tries";
+            text = $"**Correct!** You got it in {wordle.TotalAttempts} tries.  ";
+            int pointsToAdd = 11 - wordle.TotalAttempts;
+            if (pointsToAdd > 0)
+            {
+                BlinkUser user = await blinkUserRepository.GetOrCreateByIdAsync(Context.User.Id);
+                user.Points += pointsToAdd;
+                await blinkUserRepository.UpdateAsync(user);
+                text += $"You have been awarded {pointsToAdd} points";
+            }
+
             await wordleRepository.DeleteAsync(wordle);
         }
 
@@ -90,8 +100,7 @@ public class WordleModule(
         }
         catch
         {
-            await RespondErrorAsync(word.ToTitleCase(), "An error occured fetching word definition",
-                true);
+            await RespondErrorAsync(word.ToTitleCase(), "An error occured fetching word definition");
             return;
         }
 
@@ -103,7 +112,7 @@ public class WordleModule(
                 {
                     Name = g.Key.ToTitleCase(),
                     Value = string.Join("\n",
-                        g.Select(v => $"- {v.Definition.ToSentenceCase()}"))
+                            g.Select(v => $"- {v.Definition.ToSentenceCase()}"))
                         .TruncateTo(1020),
                     IsInline = false
                 };
@@ -116,5 +125,12 @@ public class WordleModule(
             groupedDefinitions?.Length < 1 ? "Could not find a definition" : string.Empty,
             embedFields: groupedDefinitions,
             ephemeral: false);
+    }
+
+    [SlashCommand("points", "Show off your points!")]
+    public async Task Points()
+    {
+        int points = (await blinkUserRepository.GetByIdAsync(Context.User.Id))?.Points ?? 0;
+        await RespondPlainAsync($"You currently have {points} point{(points != 1 ? "s" : null)}.", ephemeral: false);
     }
 }

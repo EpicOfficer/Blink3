@@ -1,53 +1,75 @@
 // ReSharper disable UnusedMember.Global
 
+using Blink3.Core.Interfaces;
+
 namespace Blink3.Core.Repositories.Interfaces;
 
 /// <summary>
 ///     Represents a generic repository for accessing and manipulating data.
 /// </summary>
 /// <typeparam name="T">The type of the entity.</typeparam>
-public interface IGenericRepository<T> where T : class
+public interface IGenericRepository<T> where T : class, new()
 {
     /// <summary>
-    ///     Retrieves an entity by its key values asynchronously.
+    ///     Retrieves an object of type T by its id.
     /// </summary>
-    /// <param name="keyValues">The key values of the entity.</param>
-    /// <param name="cancellationToken"></param>
-    /// <returns>A task representing the asynchronous operation. The task result contains the entity if found, otherwise null.</returns>
+    /// <param name="keyValues">The id(s) of the object to retrieve.</param>
+    /// <returns>
+    ///     A task that represents the asynchronous operation. The task result contains the retrieved object, or null if
+    ///     not found.
+    /// </returns>
     Task<T?> GetByIdAsync(params object[] keyValues);
 
     /// <summary>
-    ///     Gets all entities of type T asynchronously.
+    ///     Retrieves an entity by its identifier or creates a new instance if it does not exist.
     /// </summary>
-    /// <typeparam name="T">The type of entity.</typeparam>
-    /// <returns>A task that represents the asynchronous operation. The task result contains a list of entities of type T.</returns>
+    /// <param name="keyValues">The values representing the identifier of the entity.</param>
+    /// <returns>
+    ///     A task that represents the asynchronous operation. The task result contains an instance of the entity.
+    ///     If an instance with the specified identifier is found, it is returned; otherwise, a new instance of the entity is
+    ///     created.
+    /// </returns>
+    Task<T> GetOrCreateByIdAsync(params object[] keyValues);
+
+    /// <summary>
+    ///     Retrieves all entities of type T from the database asynchronously.
+    /// </summary>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>
+    ///     A task that represents the asynchronous operation. The task result contains a read-only collection of entities
+    ///     of type T.
+    /// </returns>
     Task<IReadOnlyCollection<T>> GetAllAsync(CancellationToken cancellationToken = default);
 
     /// <summary>
-    ///     Adds a new entity to the database asynchronously.
+    ///     Adds a new entity to the repository.
     /// </summary>
     /// <param name="entity">The entity to be added.</param>
-    /// <returns>A task representing the asynchronous operation. The task result is the added entity.</returns>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A task representing the asynchronous operation.</returns>
     Task<T> AddAsync(T entity, CancellationToken cancellationToken = default);
 
     /// <summary>
-    ///     Updates the specified entity in the repository.
+    ///     Updates the content of the specified entity in the repository.
     /// </summary>
-    /// <param name="entity">The entity to update.</param>
-    /// <returns>A task representing the asynchronous update operation.</returns>
+    /// <param name="entity">The entity to be updated.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>The updated entity.</returns>
     Task<T> UpdateAsync(T entity, CancellationToken cancellationToken = default);
 
     /// <summary>
-    ///     Deletes the specified entity from the database.
+    ///     Deletes an entity asynchronously.
     /// </summary>
-    /// <param name="entity">The entity to be deleted.</param>
+    /// <typeparam name="T">The type of the entity.</typeparam>
+    /// <param name="entity">The entity to delete.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A task representing the asynchronous operation.</returns>
     Task DeleteAsync(T entity, CancellationToken cancellationToken = default);
 
     /// <summary>
-    ///     Deletes an entity from the database by it's key values asynchronously.
+    ///     Deletes a record from the repository using the specified ID values.
     /// </summary>
-    /// <param name="keyValues">The key values of the entity.</param>
-    /// <returns>A task representing the asynchronous operation.</returns>
+    /// <param name="keyValues">The ID values that uniquely identify the record to delete.</param>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     Task DeleteByIdAsync(params object[] keyValues);
 }

@@ -25,6 +25,11 @@ public class BlinkDbContext : DbContext
     public DbSet<BlinkGuild> BlinkGuilds => Set<BlinkGuild>();
 
     /// <summary>
+    ///     Represents the collection of Blink users in the Blink3 application.
+    /// </summary>
+    public DbSet<BlinkUser> BlinkUsers => Set<BlinkUser>();
+    
+    /// <summary>
     ///     Represents a user's "to do" items.
     /// </summary>
     public DbSet<UserTodo> UserTodos => Set<UserTodo>();
