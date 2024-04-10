@@ -39,4 +39,16 @@ public static class StringExtensions
         if (string.IsNullOrWhiteSpace(str)) return str;
         return char.ToUpper(str[0]) + str[1..].ToLower();
     }
+
+    /// <summary>
+    ///     Truncates a string to a specified maximum length.
+    /// </summary>
+    /// <param name="input">The input string to truncate.</param>
+    /// <param name="maxLength">The maximum length of the truncated string.</param>
+    /// <returns>The truncated string.</returns>
+    public static string TruncateTo(this string input, int maxLength)
+    {
+        if (string.IsNullOrEmpty(input)) return input;
+        return input.Length <= maxLength ? input : string.Concat(input.AsSpan(0, maxLength - 3), "...");
+    }
 }

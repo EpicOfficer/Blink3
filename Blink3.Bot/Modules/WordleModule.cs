@@ -71,7 +71,7 @@ public class WordleModule(
 
         using MemoryStream image = new();
         await wordleGameService.GenerateImageAsync(guess, image);
-        FileAttachment attachment = new(image, $"{guess.Word}.png");
+        using FileAttachment attachment = new(image, $"{guess.Word}.png");
 
         ComponentBuilder? component = new ComponentBuilder().WithButton("Define", $"blink-define-word_{guess.Word}");
 
@@ -103,7 +103,8 @@ public class WordleModule(
                 {
                     Name = g.Key.ToTitleCase(),
                     Value = string.Join("\n",
-                        g.Select(v => $"- {v.Definition.ToSentenceCase()}")),
+                        g.Select(v => $"- {v.Definition.ToSentenceCase()}"))
+                        .TruncateTo(1020),
                     IsInline = false
                 };
                 return builder;
