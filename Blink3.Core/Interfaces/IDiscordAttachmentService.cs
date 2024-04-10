@@ -12,5 +12,5 @@ public interface IDiscordAttachmentService
     /// </summary>
     /// <param name="message">The Discord message containing the attachments.</param>
     /// <returns>A list of downloaded file attachments.</returns>
-    Task<IEnumerable<FileAttachment>> DownloadAttachmentsFromMessageAsync(IMessage message);
+    Task<IDisposableCollection<FileAttachment>> DownloadAttachmentsFromMessageAsync(IMessage message);
 }

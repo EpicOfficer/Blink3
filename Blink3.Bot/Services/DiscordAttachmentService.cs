@@ -1,3 +1,4 @@
+using Blink3.Core.Helpers;
 using Blink3.Core.Interfaces;
 using Discord;
 
@@ -6,14 +7,14 @@ namespace Blink3.Bot.Services;
 /// <inheritdoc />
 public class DiscordAttachmentService(HttpClient httpClient) : IDiscordAttachmentService
 {
-    public async Task<IEnumerable<FileAttachment>> DownloadAttachmentsFromMessageAsync(IMessage message)
+    public async Task<IDisposableCollection<FileAttachment>> DownloadAttachmentsFromMessageAsync(IMessage message)
     {
         IEnumerable<Task<FileAttachment>> downloadTasks = message.Attachments.Select(
             async attachment => await CreateFileAttachmentFromUrlAsync(attachment));
-
-        return (await Task.WhenAll(downloadTasks)).ToList();
+        FileAttachment[] attachments = await Task.WhenAll(downloadTasks);
+        return new DisposableCollection<FileAttachment>(attachments);
     }
-    
+
     /// <summary>
     ///     Retrieve a file attachment from a message asynchronously.
     /// </summary>
