@@ -24,6 +24,7 @@ public static class ServiceCollectionExtensions
         {
             services.AddStackExchangeRedisCache(options => { options.Configuration = config.Redis.ConnectionString; });
             services.AddSingleton<ICachingService, RedisCachingService>();
+            return;
         }
 
         services.AddMemoryCache();

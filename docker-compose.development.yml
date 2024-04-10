@@ -1,6 +1,14 @@
 version: '3.8'
 
 services:
+  blink3.db:
+    ports:
+      - "5432:5432"
+
+  blink3.cache:
+    ports:
+      - "6379:6379"
+
   blink3.bot:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
