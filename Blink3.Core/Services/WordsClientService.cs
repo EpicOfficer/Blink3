@@ -1,3 +1,4 @@
+using System.Net;
 using System.Net.Http.Json;
 using Blink3.Core.Caching;
 using Blink3.Core.Configuration;
@@ -32,7 +33,12 @@ public class WordsClientService : IWordsClientService
             { } cachedWordDetails) return cachedWordDetails;
 
         string url = $"/words/{word.ToLower().Trim()}/definitions";
-        WordDetails? wordDetails = await _httpClient.GetFromJsonAsync<WordDetails>(url, cancellationToken: cancellationToken);
+        using HttpResponseMessage response = await _httpClient.GetAsync(url, cancellationToken);
+
+        if (response.StatusCode == HttpStatusCode.NotFound) return null;
+        
+        response.EnsureSuccessStatusCode();
+        WordDetails? wordDetails = await response.Content.ReadFromJsonAsync<WordDetails>(cancellationToken: cancellationToken);
         
         if (wordDetails is not null)
             await _cachingService.SetAsync(cacheKey, wordDetails, cancellationToken: cancellationToken);
