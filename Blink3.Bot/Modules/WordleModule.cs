@@ -1,3 +1,4 @@
+using Blink3.Bot.Extensions;
 using Blink3.Core.Entities;
 using Blink3.Core.Extensions;
 using Blink3.Core.Interfaces;
@@ -93,6 +94,7 @@ public class WordleModule(
     [ComponentInteraction("blink-define-word_*")]
     public async Task Define(string word)
     {
+        await DeferAsync(false);
         WordDetails? details = null;
         try
         {
@@ -119,10 +121,10 @@ public class WordleModule(
                 return builder;
             })
             .ToArray();
-
+        
         await RespondPlainAsync(
             $"Definition of {word.ToTitleCase()}",
-            groupedDefinitions?.Length < 1 ? "Could not find a definition" : string.Empty,
+            details is null ? "No definition found" : string.Empty,
             embedFields: groupedDefinitions,
             ephemeral: false);
     }
@@ -132,5 +134,31 @@ public class WordleModule(
     {
         int points = (await blinkUserRepository.GetByIdAsync(Context.User.Id))?.Points ?? 0;
         await RespondPlainAsync($"You currently have {points} point{(points != 1 ? "s" : null)}.", ephemeral: false);
+    }
+
+    [SlashCommand("leaderboard", "Display points leaderboard")]
+    public async Task Leaderboard()
+    {
+        IEnumerable<BlinkUser> leaderboard = await blinkUserRepository.GetLeaderboardAsync();
+
+        IEnumerable<Task<EmbedFieldBuilder>> embedFieldBuilderTasks = leaderboard.Select(async (blinkUser, ix) =>
+        {
+            IUser? discordUser = await Context.Client.GetUserAsync(blinkUser.Id);
+            string name = discordUser.GetFriendlyName();
+            EmbedFieldBuilder field = new()
+            {
+                Name = $"{ix + 1}. {name}",
+                Value = $"{blinkUser.Points} Point{(blinkUser.Points != 1 ? "s" : null)}",
+                IsInline = false
+            };
+            return field;
+        });
+        
+        EmbedFieldBuilder[] embedFieldBuilder = await Task.WhenAll(embedFieldBuilderTasks);
+        
+        await RespondPlainAsync("Points Leaderboard",
+            "",
+            embedFields: embedFieldBuilder,
+            ephemeral: false);
     }
 }

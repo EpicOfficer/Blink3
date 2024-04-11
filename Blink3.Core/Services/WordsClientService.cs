@@ -1,3 +1,4 @@
+using System.Net;
 using System.Net.Http.Json;
 using Blink3.Core.Caching;
 using Blink3.Core.Configuration;
@@ -32,10 +33,31 @@ public class WordsClientService : IWordsClientService
             { } cachedWordDetails) return cachedWordDetails;
 
         string url = $"/words/{word.ToLower().Trim()}/definitions";
-        WordDetails? wordDetails = await _httpClient.GetFromJsonAsync<WordDetails>(url, cancellationToken: cancellationToken);
+        using HttpResponseMessage response = await _httpClient.GetAsync(url, cancellationToken);
+
+        if (response.StatusCode == HttpStatusCode.NotFound) return null;
         
-        if (wordDetails is not null)
-            await _cachingService.SetAsync(cacheKey, wordDetails, cancellationToken: cancellationToken);
+        response.EnsureSuccessStatusCode();
+        WordDetails? wordDetails = await response.Content.ReadFromJsonAsync<WordDetails>(cancellationToken: cancellationToken);
+
+        // Early return if wordDetails or Definitions are null
+        if (wordDetails?.Definitions is null)
+            return null;
+        
+        // Filter definitions
+        List<WordDefinition>? validDefinitions = wordDetails.Definitions
+            .Where(wd => !string.IsNullOrWhiteSpace(wd.PartOfSpeech) &&
+                         !string.IsNullOrWhiteSpace(wd.Definition))
+            .ToList();
+
+        // Early return if no valid definitions
+        if (!validDefinitions.Any()) 
+            return null;
+
+        // Assign filtered definitions back
+        wordDetails.Definitions = validDefinitions;
+        
+        await _cachingService.SetAsync(cacheKey, wordDetails, cancellationToken: cancellationToken);
         return wordDetails;
     }
 }
