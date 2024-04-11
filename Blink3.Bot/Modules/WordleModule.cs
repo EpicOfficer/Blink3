@@ -107,8 +107,6 @@ public class WordleModule(
         }
 
         EmbedFieldBuilder[]? groupedDefinitions = details?.Definitions
-            .Where(wd => !string.IsNullOrWhiteSpace(wd.Definition))
-            .Where(wd => !string.IsNullOrWhiteSpace(wd.PartOfSpeech))
             .GroupBy(wd => wd.PartOfSpeech)
             .Select(g =>
             {
@@ -124,19 +122,9 @@ public class WordleModule(
             })
             .ToArray();
         
-        // Check if the definitions list is null or empty
-        if (details?.Definitions is null || details.Definitions.Count is 0)
-        {
-            await RespondPlainAsync(
-                $"Definition of {word.ToTitleCase()}",
-                "Could not find a definition",
-                ephemeral: false);
-            return;
-        }
-
         await RespondPlainAsync(
             $"Definition of {word.ToTitleCase()}",
-            string.Empty,
+            details is null ? "No definition found" : string.Empty,
             embedFields: groupedDefinitions,
             ephemeral: false);
     }

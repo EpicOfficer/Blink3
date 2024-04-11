@@ -39,9 +39,25 @@ public class WordsClientService : IWordsClientService
         
         response.EnsureSuccessStatusCode();
         WordDetails? wordDetails = await response.Content.ReadFromJsonAsync<WordDetails>(cancellationToken: cancellationToken);
+
+        // Early return if wordDetails or Definitions are null
+        if (wordDetails?.Definitions is null)
+            return null;
         
-        if (wordDetails is not null)
-            await _cachingService.SetAsync(cacheKey, wordDetails, cancellationToken: cancellationToken);
+        // Filter definitions
+        List<WordDefinition>? validDefinitions = wordDetails.Definitions
+            .Where(wd => !string.IsNullOrWhiteSpace(wd.PartOfSpeech) &&
+                         !string.IsNullOrWhiteSpace(wd.Definition))
+            .ToList();
+
+        // Early return if no valid definitions
+        if (!validDefinitions.Any()) 
+            return null;
+
+        // Assign filtered definitions back
+        wordDetails.Definitions = validDefinitions;
+        
+        await _cachingService.SetAsync(cacheKey, wordDetails, cancellationToken: cancellationToken);
         return wordDetails;
     }
 }
