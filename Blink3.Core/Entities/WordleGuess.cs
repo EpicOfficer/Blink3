@@ -1,5 +1,7 @@
 using System.ComponentModel.DataAnnotations;
+using Blink3.Core.Caching.Interfaces;
 using Blink3.Core.Enums;
+using Blink3.Core.Extensions;
 
 // ReSharper disable CollectionNeverUpdated.Global
 // ReSharper disable PropertyCanBeMadeInitOnly.Global
@@ -12,7 +14,7 @@ namespace Blink3.Core.Entities;
 /// <summary>
 ///     Represents a word entered by a player in the Wordle game.
 /// </summary>
-public class WordleGuess
+public class WordleGuess : ICacheKeyIdentifiable
 {
     /// <summary>
     ///     Represents the identifier of a WordleGuess object.
@@ -61,4 +63,13 @@ public class WordleGuess
     /// </summary>
     [Required]
     public Wordle Wordle { get; set; } = new();
+
+    public string GetCacheKey()
+    {
+        string serializedState = string.Join("-", this.Letters.Select(letter =>
+            $"{letter.Position}:{letter.Letter}_{letter.State}"));
+        string md5Hash = serializedState.ToMd5();
+
+        return $"wordle:image:{md5Hash}";
+    }
 }

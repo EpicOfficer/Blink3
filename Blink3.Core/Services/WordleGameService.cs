@@ -14,7 +14,8 @@ namespace Blink3.Core.Services;
 /// </summary>
 public class WordleGameService(
     IWordRepository wordRepository,
-    IWordleRepository wordleRepository) : IWordleGameService
+    IWordleRepository wordleRepository,
+    IWordleGuessImageGenerator guessImageGenerator) : IWordleGameService
 {
     public async Task<bool> IsGameInProgressAsync(ulong channelId, CancellationToken cancellationToken = default)
     {
@@ -43,10 +44,6 @@ public class WordleGameService(
     {
         WordleGuessImageGeneratorOptions options = new()
         {
-            TileSize = 128,
-            FontSize = 72,
-            IconFontSize = 18,
-            MarginSize = 5,
             BackgroundColour = Color.FromRgb(19, 19, 19),
             TextColour = Color.FromRgb(217, 220, 221),
             CorrectTileColour = Color.FromRgb(45, 101, 44),
@@ -54,7 +51,7 @@ public class WordleGameService(
             IncorrectTileColour = Color.FromRgb(43, 43, 43)
         };
 
-        await WordleGuessImageGenerator.GenerateImageAsync(guess, options, outStream, cancellationToken);
+        await guessImageGenerator.GenerateImageAsync(guess, options, outStream, cancellationToken);
     }
 
     public async Task<Wordle> StartNewGameAsync(ulong channelId, string language, int length,

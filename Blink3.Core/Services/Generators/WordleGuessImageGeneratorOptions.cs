@@ -8,32 +8,6 @@ namespace Blink3.Core.Services.Generators;
 public class WordleGuessImageGeneratorOptions
 {
     /// <summary>
-    ///     Gets or sets the size of the tiles.
-    /// </summary>
-    /// <remarks>
-    ///     This property represents the size of the tiles in the WordleGuessImageGeneratorOptions class.
-    /// </remarks>
-    public int TileSize { get; set; }
-
-    /// <summary>
-    ///     The font size used for text in WordleGuessImageGeneratorOptions.
-    /// </summary>
-    public int FontSize { get; set; }
-
-    /// <summary>
-    ///     Gets or sets the font size for the icons.
-    /// </summary>
-    /// <value>
-    ///     The font size for the icons.
-    /// </value>
-    public int IconFontSize { get; set; }
-
-    /// <summary>
-    ///     Gets or sets the margin size for the WordleGuessImageGeneratorOptions.
-    /// </summary>
-    public int MarginSize { get; set; }
-
-    /// <summary>
     ///     Gets or sets the color of the text.
     /// </summary>
     /// <value>

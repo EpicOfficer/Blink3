@@ -1,4 +1,6 @@
 using System.Globalization;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace Blink3.Core.Extensions;
 
@@ -50,5 +52,23 @@ public static class StringExtensions
     {
         if (string.IsNullOrEmpty(input)) return input;
         return input.Length <= maxLength ? input : string.Concat(input.AsSpan(0, maxLength - 3), "...");
+    }
+
+    /// <summary>
+    ///     Converts a string to its MD5 hash value.
+    /// </summary>
+    /// <param name="str">The input string to convert.</param>
+    /// <returns>The MD5 hash value of the input string.</returns>
+    public static string ToMd5(this string str)
+    {
+        // Use input string to calculate MD5 hash
+        using MD5 md5 = MD5.Create();
+        byte[] inputBytes = Encoding.UTF8.GetBytes(str);
+        byte[] hashBytes = MD5.HashData(inputBytes);
+
+        // Convert the byte array to hexadecimal string
+        StringBuilder sb = new();
+        foreach (byte t in hashBytes) sb.Append(t.ToString("x2"));
+        return sb.ToString();
     }
 }
