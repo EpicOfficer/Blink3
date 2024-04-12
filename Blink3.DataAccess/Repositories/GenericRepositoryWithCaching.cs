@@ -20,7 +20,7 @@ public class GenericRepositoryWithCaching<T>(BlinkDbContext dbContext, ICachingS
         if (keyValues.Length == 0) throw new ArgumentException("No valid key provided", nameof(keyValues));
 
         string key = string.Join(":", keyValues.Select(k => k.ToString()));
-        return $"{nameof(T)}:{key}";
+        return $"{typeof(T)}:{key}";
     }
 
     /// <summary>
@@ -31,7 +31,7 @@ public class GenericRepositoryWithCaching<T>(BlinkDbContext dbContext, ICachingS
     /// <returns>The cache key for the entity.</returns>
     private static string GetCacheKeyFromEntity(T entity)
     {
-        return $"{nameof(T)}:{entity.GetCacheKey()}";
+        return $"{typeof(T)}:{entity.GetCacheKey()}";
     }
 
     /// <summary>

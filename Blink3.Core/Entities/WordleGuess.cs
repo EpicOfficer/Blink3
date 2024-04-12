@@ -14,7 +14,7 @@ namespace Blink3.Core.Entities;
 /// <summary>
 ///     Represents a word entered by a player in the Wordle game.
 /// </summary>
-public class WordleGuess : ICacheKeyIdentifiable
+public class WordleGuess
 {
     /// <summary>
     ///     Represents the identifier of a WordleGuess object.
@@ -63,13 +63,4 @@ public class WordleGuess : ICacheKeyIdentifiable
     /// </summary>
     [Required]
     public Wordle Wordle { get; set; } = new();
-
-    public string GetCacheKey()
-    {
-        string serializedState = string.Join("-", this.Letters.Select(letter =>
-            $"{letter.Position}:{letter.Letter}_{letter.State}"));
-        string md5Hash = serializedState.ToMd5();
-
-        return $"wordle:image:{md5Hash}";
-    }
 }

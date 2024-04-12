@@ -1,6 +1,10 @@
 using System.Diagnostics.CodeAnalysis;
 using Blink3.Core.Entities;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using Microsoft.IdentityModel.Tokens;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.PixelFormats;
 
 namespace Blink3.DataAccess;
 
@@ -51,6 +55,8 @@ public class BlinkDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        base.OnModelCreating(modelBuilder);
+
         modelBuilder.Entity<Wordle>()
             .HasMany(w => w.Guesses)
             .WithOne(g => g.Wordle)
@@ -66,5 +72,20 @@ public class BlinkDbContext : DbContext
         // Composite index on Text and Language 
         modelBuilder.Entity<Word>()
             .HasIndex(w => new { w.Text, w.Language });
+
+        // Define the value converter
+        ValueConverter<Color?, string> colorConverter = new(
+            v => v.HasValue ? v.Value.ToPixel<Rgba32>().ToHex() : "",
+            v => v != "00000000" && !v.IsNullOrEmpty() ?
+                Color.FromPixel(Rgba32.ParseHex(v)) : null);
+        
+        modelBuilder.Entity<BlinkGuild>(entity =>
+        {
+            entity.Property(b => b.BackgroundColour).HasConversion(colorConverter);
+            entity.Property(b => b.TextColour).HasConversion(colorConverter);
+            entity.Property(b => b.CorrectTileColour).HasConversion(colorConverter);
+            entity.Property(b => b.MisplacedTileColour).HasConversion(colorConverter);
+            entity.Property(b => b.IncorrectTileColour).HasConversion(colorConverter);
+        });
     }
 }

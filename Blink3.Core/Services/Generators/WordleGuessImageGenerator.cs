@@ -78,17 +78,11 @@ public class WordleGuessImageGenerator : IWordleGuessImageGenerator
     /// </summary>
     private readonly Font _iconFont;
 
-    private readonly ICachingService _cachingService;
-    private readonly ILogger<WordleGuessImageGenerator> _logger;
-
     /// <summary>
     ///     Generates an image representing a WordleGuess object asynchronously.
     /// </summary>
     public WordleGuessImageGenerator(ICachingService cachingService, ILogger<WordleGuessImageGenerator> logger)
     {
-        _cachingService = cachingService;
-        _logger = logger;
-
         FontCollection fontCollection = new();
         string fontsDirectory = Path.Join(AppDomain.CurrentDomain.BaseDirectory, "Fonts");
         FontFamily fontFamily = fontCollection.Add(Path.Join(fontsDirectory, "Geologica.ttf"));
@@ -110,23 +104,8 @@ public class WordleGuessImageGenerator : IWordleGuessImageGenerator
         MemoryStream outStream,
         CancellationToken cancellationToken = default)
     {
-        string cacheKey = guess.GetCacheKey();
-        byte[]? cachedImage = await _cachingService.GetAsync<byte[]>(cacheKey, cancellationToken);
-        if (cachedImage is not null)
-        {
-            _logger.LogInformation("Retrieving image from cache for key {key}", cacheKey);
-            outStream.Write(cachedImage, 0, cachedImage.Length);
-            return;
-        }
-
-        _logger.LogInformation("Generating image for key {key}", cacheKey);
-        
         // Create a new image and save it to the memory stream
         await CreateAndSaveImageAsync(guess, options, outStream, cancellationToken);
-
-        // Cache the image bytes
-        byte[] imageBytes = outStream.ToArray();
-        await _cachingService.SetAsync(cacheKey, imageBytes, TimeSpan.FromHours(3), cancellationToken);
     }
 
     /// <summary>
@@ -154,6 +133,7 @@ public class WordleGuessImageGenerator : IWordleGuessImageGenerator
             WrappingLength = LetterSize
         };
 
+        guess.Letters = guess.Letters.OrderBy(p => p.Position).ToList();
         // Fill background and draw letters
         image.Mutate(im =>
         {

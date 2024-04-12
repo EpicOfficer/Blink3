@@ -1,3 +1,4 @@
+using Blink3.Core.Constants;
 using Blink3.Core.Entities;
 using Blink3.Core.Extensions;
 using Blink3.Core.Factories;
@@ -40,15 +41,15 @@ public class WordleGameService(
         return Result<WordleGuess>.Ok(guess);
     }
 
-    public async Task GenerateImageAsync(WordleGuess guess, MemoryStream outStream, CancellationToken cancellationToken = default)
+    public async Task GenerateImageAsync(WordleGuess guess, MemoryStream outStream, BlinkGuild blinkGuild, CancellationToken cancellationToken = default)
     {
         WordleGuessImageGeneratorOptions options = new()
         {
-            BackgroundColour = Color.FromRgb(19, 19, 19),
-            TextColour = Color.FromRgb(217, 220, 221),
-            CorrectTileColour = Color.FromRgb(45, 101, 44),
-            MisplacedTileColour = Color.FromRgb(211, 162, 64),
-            IncorrectTileColour = Color.FromRgb(43, 43, 43)
+            BackgroundColour = blinkGuild.BackgroundColour == default ? WordleImageConstants.BackgroundColour : blinkGuild.BackgroundColour,
+            TextColour = blinkGuild.TextColour == default ? WordleImageConstants.TextColour : blinkGuild.TextColour,
+            CorrectTileColour = blinkGuild.CorrectTileColour == default ? WordleImageConstants.CorrectTileColour : blinkGuild.CorrectTileColour,
+            MisplacedTileColour = blinkGuild.MisplacedTileColour == default ? WordleImageConstants.MisplacedTileColour : blinkGuild.MisplacedTileColour,
+            IncorrectTileColour = blinkGuild.IncorrectTileColour == default ? WordleImageConstants.IncorrectTileColour : blinkGuild.IncorrectTileColour
         };
 
         await guessImageGenerator.GenerateImageAsync(guess, options, outStream, cancellationToken);
