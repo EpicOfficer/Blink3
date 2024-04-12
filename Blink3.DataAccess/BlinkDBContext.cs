@@ -73,19 +73,13 @@ public class BlinkDbContext : DbContext
         modelBuilder.Entity<Word>()
             .HasIndex(w => new { w.Text, w.Language });
 
-        // Define the value converter
-        ValueConverter<Color?, string> colorConverter = new(
-            v => v.HasValue ? v.Value.ToPixel<Rgba32>().ToHex() : "",
-            v => v != "00000000" && !v.IsNullOrEmpty() ?
-                Color.FromPixel(Rgba32.ParseHex(v)) : null);
-        
         modelBuilder.Entity<BlinkGuild>(entity =>
         {
-            entity.Property(b => b.BackgroundColour).HasConversion(colorConverter);
-            entity.Property(b => b.TextColour).HasConversion(colorConverter);
-            entity.Property(b => b.CorrectTileColour).HasConversion(colorConverter);
-            entity.Property(b => b.MisplacedTileColour).HasConversion(colorConverter);
-            entity.Property(b => b.IncorrectTileColour).HasConversion(colorConverter);
+            entity.Property(p => p.BackgroundColour).IsRequired(false);
+            entity.Property(p => p.TextColour).IsRequired(false);
+            entity.Property(p => p.CorrectTileColour).IsRequired(false);
+            entity.Property(p => p.MisplacedTileColour).IsRequired(false);
+            entity.Property(p => p.IncorrectTileColour).IsRequired(false);
         });
     }
 }

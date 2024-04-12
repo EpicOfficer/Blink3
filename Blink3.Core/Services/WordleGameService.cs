@@ -7,6 +7,7 @@ using Blink3.Core.Models;
 using Blink3.Core.Repositories.Interfaces;
 using Blink3.Core.Services.Generators;
 using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.PixelFormats;
 
 namespace Blink3.Core.Services;
 
@@ -45,11 +46,11 @@ public class WordleGameService(
     {
         WordleGuessImageGeneratorOptions options = new()
         {
-            BackgroundColour = blinkGuild.BackgroundColour == default ? WordleImageConstants.BackgroundColour : blinkGuild.BackgroundColour,
-            TextColour = blinkGuild.TextColour == default ? WordleImageConstants.TextColour : blinkGuild.TextColour,
-            CorrectTileColour = blinkGuild.CorrectTileColour == default ? WordleImageConstants.CorrectTileColour : blinkGuild.CorrectTileColour,
-            MisplacedTileColour = blinkGuild.MisplacedTileColour == default ? WordleImageConstants.MisplacedTileColour : blinkGuild.MisplacedTileColour,
-            IncorrectTileColour = blinkGuild.IncorrectTileColour == default ? WordleImageConstants.IncorrectTileColour : blinkGuild.IncorrectTileColour
+            BackgroundColour = Color.ParseHex(blinkGuild.BackgroundColour),
+            TextColour = Color.ParseHex(blinkGuild.TextColour),
+            CorrectTileColour = Color.ParseHex(blinkGuild.CorrectTileColour),
+            MisplacedTileColour = Color.ParseHex(blinkGuild.MisplacedTileColour),
+            IncorrectTileColour = Color.ParseHex(blinkGuild.IncorrectTileColour)
         };
 
         await guessImageGenerator.GenerateImageAsync(guess, options, outStream, cancellationToken);

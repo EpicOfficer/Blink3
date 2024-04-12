@@ -1,4 +1,3 @@
-using Blink3.Core.Constants;
 using Blink3.Core.Entities;
 using Blink3.Core.Repositories.Interfaces;
 using Discord;
@@ -47,26 +46,27 @@ public class ConfigModule(IBlinkGuildRepository blinkGuildRepository)
         {
             case SettingsEnum.WordleBackgroundColour:
                 await SetPropertyColour(guild, value,
-                    colour => guild.BackgroundColour = colour);
+                    (entity, colour) => entity.BackgroundColour = colour?.ToHex() ?? string.Empty);
                 break;
             case SettingsEnum.WordleTextColour:
                 await SetPropertyColour(guild, value,
-                    colour => guild.TextColour = colour);
+                    (entity, colour) => entity.TextColour = colour?.ToHex() ?? string.Empty);
                 break;
             case SettingsEnum.WordleCorrectTileColour:
                 await SetPropertyColour(guild, value,
-                    colour => guild.CorrectTileColour = colour);
+                    (entity, colour) => entity.CorrectTileColour = colour?.ToHex() ?? string.Empty);
                 break;
             case SettingsEnum.WordleMisplacedTileColour:
                 await SetPropertyColour(guild, value,
-                    colour => guild.MisplacedTileColour = colour);
+                    (entity, colour) => entity.MisplacedTileColour = colour?.ToHex() ?? string.Empty);
                 break;
             case SettingsEnum.WordleIncorrectTileColour:
                 await SetPropertyColour(guild, value,
-                    colour => guild.IncorrectTileColour = colour);
+                    (entity, colour) => entity.IncorrectTileColour = colour?.ToHex() ?? string.Empty);
                 break;
             case SettingsEnum.StaffLoggingChannel:
-                await SetPropertyChannel(guild, value, channel => guild.LoggingChannelId = channel);
+                await SetPropertyChannel(guild, value,
+                    (entity, channel) => entity.LoggingChannelId = channel);
                 break;
             default:
                 await RespondErrorAsync("Unrecognised setting", "The setting you provided is not recognised.");
@@ -81,20 +81,20 @@ public class ConfigModule(IBlinkGuildRepository blinkGuildRepository)
     /// <param name="value">The new value of the channel property. Use null to reset it to default.</param>
     /// <param name="setChannel">The action to set the channel property in the BlinkGuild object.</param>
     /// <returns>A task representing the asynchronous operation.</returns>
-    private async Task SetPropertyChannel(BlinkGuild guild, string? value, Action<ulong?> setChannel)
+    private async Task SetPropertyChannel(BlinkGuild guild, string? value, Action<BlinkGuild, ulong?> setChannel)
     {
         if (value is null)
         {
-            setChannel(null);
-            await _blinkGuildRepository.UpdateAsync(guild);
+            await _blinkGuildRepository.UpdatePropertiesAsync(guild,
+                entity => setChannel(entity, null));
             await RespondSuccessAsync("Value reset", "Channel/Category ID has been reset to default");
             return;
         }
         
         if (ulong.TryParse(value, out ulong channelId))
         {
-            setChannel(channelId);
-            await _blinkGuildRepository.UpdateAsync(guild);
+            await _blinkGuildRepository.UpdatePropertiesAsync(guild,
+                entity => setChannel(entity, channelId));
             await RespondSuccessAsync("Value updated", "Channel/Category ID has been updated");
             return;
         }
@@ -108,12 +108,12 @@ public class ConfigModule(IBlinkGuildRepository blinkGuildRepository)
     /// <param name="guild">The BlinkGuild object.</param>
     /// <param name="value">The hex code value of the colour. If null or empty, the colour will be reset.</param>
     /// <param name="setColor">The action to set the colour property.</param>
-    private async Task SetPropertyColour(BlinkGuild guild, string? value, Action<Color> setColor)
+    private async Task SetPropertyColour(BlinkGuild guild, string? value, Action<BlinkGuild, Color?> setColor)
     {
         if (string.IsNullOrEmpty(value))
         {
-            setColor(default);
-            await _blinkGuildRepository.UpdateAsync(guild);
+            await _blinkGuildRepository.UpdatePropertiesAsync(guild,
+                entity => setColor(entity, null));
             await RespondSuccessAsync("Colour reset", "Colour has been reset to default");
             return;
         }
@@ -124,8 +124,8 @@ public class ConfigModule(IBlinkGuildRepository blinkGuildRepository)
             return;
         }
 
-        setColor(color);
-        await _blinkGuildRepository.UpdateAsync(guild);
+        await _blinkGuildRepository.UpdatePropertiesAsync(guild, entity =>
+            setColor(entity, color));
         await RespondSuccessAsync("Colour updated", $"Colour has been changed to {value.ToUpper()}");
     }
 }

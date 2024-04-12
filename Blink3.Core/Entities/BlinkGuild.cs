@@ -20,39 +20,39 @@ public class BlinkGuild : ICacheKeyIdentifiable
     [Required]
     public ulong Id { get; set; }
 
-    private Color? _backgroundColour;
-    public Color BackgroundColour
+    private string? _backgroundColour = null;
+    public string BackgroundColour
     {
-        get => _backgroundColour ?? WordleImageConstants.BackgroundColour;
-        set => _backgroundColour = value;
+        get => string.IsNullOrEmpty(_backgroundColour) ? WordleImageConstants.BackgroundColour.ToHex() : _backgroundColour;
+        set => _backgroundColour = string.IsNullOrEmpty(value) ? null : value;
     }
     
-    private Color? _textColour;
-    public Color TextColour
+    private string? _textColour = null;
+    public string TextColour
     {
-        get => _textColour ?? WordleImageConstants.TextColour;
-        set => _textColour = value;
+        get => string.IsNullOrEmpty(_textColour) ? WordleImageConstants.TextColour.ToHex() : _textColour;
+        set => _textColour = string.IsNullOrEmpty(value) ? null : value;
     }
     
-    private Color? _correctTileColour;
-    public Color CorrectTileColour
+    private string? _correctTileColour = null;
+    public string CorrectTileColour
     {
-        get => _correctTileColour ?? WordleImageConstants.CorrectTileColour;
-        set => _correctTileColour = value;
+        get => string.IsNullOrEmpty(_correctTileColour) ? WordleImageConstants.CorrectTileColour.ToHex() : _correctTileColour;
+        set => _correctTileColour = string.IsNullOrEmpty(value) ? null : value;
     }
     
-    private Color? _misplacedTileColour;
-    public Color MisplacedTileColour
+    private string? _misplacedTileColour = null;
+    public string MisplacedTileColour
     {
-        get => _misplacedTileColour ?? WordleImageConstants.MisplacedTileColour;
-        set => _misplacedTileColour = value;
+        get => string.IsNullOrEmpty(_misplacedTileColour) ? WordleImageConstants.MisplacedTileColour.ToHex() : _misplacedTileColour;
+        set => _misplacedTileColour = string.IsNullOrEmpty(value) ? null : value;
     }
     
-    private Color? _incorrectTileColour;
-    public Color IncorrectTileColour
+    private string? _incorrectTileColour = null;
+    public string IncorrectTileColour
     {
-        get => _incorrectTileColour ?? WordleImageConstants.IncorrectTileColour;
-        set => _incorrectTileColour = value;
+        get => string.IsNullOrEmpty(_incorrectTileColour) ? WordleImageConstants.IncorrectTileColour.ToHex() : _incorrectTileColour;
+        set => _incorrectTileColour = string.IsNullOrEmpty(value) ? null : value;
     }
     
     public ulong? LoggingChannelId { get; set; }
