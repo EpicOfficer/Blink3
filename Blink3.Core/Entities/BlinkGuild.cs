@@ -54,6 +54,8 @@ public class BlinkGuild : ICacheKeyIdentifiable
         get => _incorrectTileColour ?? WordleImageConstants.IncorrectTileColour;
         set => _incorrectTileColour = value;
     }
+    
+    public ulong? LoggingChannelId { get; set; }
 
     public string GetCacheKey()
     {
