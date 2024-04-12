@@ -24,10 +24,6 @@ public class GenericRepository<T>(BlinkDbContext dbContext)
         (IEntityType? entityType, IKey? key) = GetEntityTypeAndKey();
         entity = CreateEntityWithKeys(key, keyValues);
 
-        if (!IsCreatable(entityType, key))
-            throw new InvalidOperationException(
-                "Cannot automatically create entity. Some non-key properties are required.");
-
         dbContext.Entry(entity).State = EntityState.Detached;
 
         await AddAsync(entity).ConfigureAwait(false);
@@ -101,18 +97,5 @@ public class GenericRepository<T>(BlinkDbContext dbContext)
         }
 
         return entity;
-    }
-
-    private static bool IsCreatable(IEntityType? entityType, IKey? key)
-    {
-        if (entityType == null) return false;
-
-        IEnumerable<IProperty> requiredProperties = entityType.GetProperties()
-            .Where(p => !p.IsNullable &&
-                        // int has a default value of 0, and this is acceptable outside of keys
-                        !(p.ClrType == typeof(int)) &&
-                        !key?.Properties.Contains(p) == true);
-
-        return !requiredProperties.Any();
     }
 }

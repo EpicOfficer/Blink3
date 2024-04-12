@@ -16,8 +16,9 @@ public class WordleModule(
     IWordleRepository wordleRepository,
     IWordleGameService wordleGameService,
     IWordsClientService wordsClientService,
+    IBlinkGuildRepository blinkGuildRepository,
     IBlinkUserRepository blinkUserRepository,
-    IWordRepository wordRepository) : BlinkModuleBase<IInteractionContext>
+    IWordRepository wordRepository) : BlinkModuleBase<IInteractionContext>(blinkGuildRepository)
 {
     [SlashCommand("wordle", "Start a new game of wordle")]
     public async Task Start()
@@ -81,8 +82,8 @@ public class WordleModule(
         }
 
         using MemoryStream image = new();
-        await wordleGameService.GenerateImageAsync(guess, image);
-        using FileAttachment attachment = new(image, $"{guess.Word}.png");
+        await wordleGameService.GenerateImageAsync(guess, image, await FetchConfig());
+        using FileAttachment attachment = new(image, $"{wordle.Id}_{guess.Id}.png");
 
         ComponentBuilder? component = new ComponentBuilder().WithButton("Define", $"blink-define-word_{guess.Word}");
 

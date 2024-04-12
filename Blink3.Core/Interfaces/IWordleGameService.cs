@@ -50,5 +50,6 @@ public interface IWordleGameService
     /// <returns>A Task representing the asynchronous operation.</returns>
     public Task GenerateImageAsync(WordleGuess guess,
         MemoryStream outStream,
+        BlinkGuild blinkGuild,
         CancellationToken cancellationToken = default);
 }

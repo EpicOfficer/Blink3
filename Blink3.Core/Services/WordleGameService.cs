@@ -5,7 +5,6 @@ using Blink3.Core.Interfaces;
 using Blink3.Core.Models;
 using Blink3.Core.Repositories.Interfaces;
 using Blink3.Core.Services.Generators;
-using SixLabors.ImageSharp;
 
 namespace Blink3.Core.Services;
 
@@ -40,15 +39,15 @@ public class WordleGameService(
         return Result<WordleGuess>.Ok(guess);
     }
 
-    public async Task GenerateImageAsync(WordleGuess guess, MemoryStream outStream, CancellationToken cancellationToken = default)
+    public async Task GenerateImageAsync(WordleGuess guess, MemoryStream outStream, BlinkGuild blinkGuild, CancellationToken cancellationToken = default)
     {
         WordleGuessImageGeneratorOptions options = new()
         {
-            BackgroundColour = Color.FromRgb(19, 19, 19),
-            TextColour = Color.FromRgb(217, 220, 221),
-            CorrectTileColour = Color.FromRgb(45, 101, 44),
-            MisplacedTileColour = Color.FromRgb(211, 162, 64),
-            IncorrectTileColour = Color.FromRgb(43, 43, 43)
+            BackgroundColour = blinkGuild.BackgroundColour,
+            TextColour = blinkGuild.TextColour,
+            CorrectTileColour = blinkGuild.CorrectTileColour,
+            MisplacedTileColour = blinkGuild.MisplacedTileColour,
+            IncorrectTileColour = blinkGuild.IncorrectTileColour
         };
 
         await guessImageGenerator.GenerateImageAsync(guess, options, outStream, cancellationToken);
