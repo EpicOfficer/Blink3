@@ -1,8 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using Blink3.Core.Caching.Interfaces;
 using Blink3.Core.Constants;
-using Blink3.Core.Interfaces;
-using SixLabors.ImageSharp;
 
 // ReSharper disable PropertyCanBeMadeInitOnly.Global
 
@@ -13,6 +11,12 @@ namespace Blink3.Core.Entities;
 /// </summary>
 public class BlinkGuild : ICacheKeyIdentifiable
 {
+    private string? _backgroundColour;
+    private string? _correctTileColour;
+    private string? _incorrectTileColour;
+    private string? _misplacedTileColour;
+    private string? _textColour;
+
     /// <summary>
     ///     Represents the identifier of a BlinkGuild entity.
     /// </summary>
@@ -20,41 +24,82 @@ public class BlinkGuild : ICacheKeyIdentifiable
     [Required]
     public ulong Id { get; set; }
 
-    private Color? _backgroundColour;
-    public Color BackgroundColour
+    /// <summary>
+    ///     Gets or sets the wordle background colour.
+    /// </summary>
+    /// <remarks>
+    ///     The wordle background colour represented as a hexadecimal string. If the background colour is not set, it returns
+    ///     the default background colour defined in <see cref="WordleImageConstants" />.
+    /// </remarks>
+    public string BackgroundColour
     {
-        get => _backgroundColour ?? WordleImageConstants.BackgroundColour;
-        set => _backgroundColour = value;
+        get => string.IsNullOrEmpty(_backgroundColour)
+            ? WordleImageConstants.BackgroundColour.ToHex()
+            : _backgroundColour;
+        set => _backgroundColour = string.IsNullOrEmpty(value) ? null : value;
     }
-    
-    private Color? _textColour;
-    public Color TextColour
+
+    /// <summary>
+    ///     Gets or sets the wordle text colour.
+    /// </summary>
+    /// <remarks>
+    ///     The wordle text colour represented as a hexadecimal string. If the text colour is not set, it returns the default
+    ///     text colour defined in <see cref="WordleImageConstants" />.
+    /// </remarks>
+    public string TextColour
     {
-        get => _textColour ?? WordleImageConstants.TextColour;
-        set => _textColour = value;
+        get => string.IsNullOrEmpty(_textColour) ? WordleImageConstants.TextColour.ToHex() : _textColour;
+        set => _textColour = string.IsNullOrEmpty(value) ? null : value;
     }
-    
-    private Color? _correctTileColour;
-    public Color CorrectTileColour
+
+    /// <summary>
+    ///     Gets or sets the wordle correct tile background colour.
+    /// </summary>
+    /// <remarks>
+    ///     The correct tile background colour represented as a hexadecimal string. If the correct tile background colour is
+    ///     not set, it returns the default correct tile background colour defined in <see cref="WordleImageConstants" />.
+    /// </remarks>
+    public string CorrectTileColour
     {
-        get => _correctTileColour ?? WordleImageConstants.CorrectTileColour;
-        set => _correctTileColour = value;
+        get => string.IsNullOrEmpty(_correctTileColour)
+            ? WordleImageConstants.CorrectTileColour.ToHex()
+            : _correctTileColour;
+        set => _correctTileColour = string.IsNullOrEmpty(value) ? null : value;
     }
-    
-    private Color? _misplacedTileColour;
-    public Color MisplacedTileColour
+
+    /// <summary>
+    ///     Gets or sets the wordle misplaced tile background colour.
+    /// </summary>
+    /// <remarks>
+    ///     The misplaced tile background colour represented as a hexadecimal string. If the misplaced tile background colour
+    ///     is not set, it returns the default misplaced tile background colour defined in <see cref="WordleImageConstants" />.
+    /// </remarks>
+    public string MisplacedTileColour
     {
-        get => _misplacedTileColour ?? WordleImageConstants.MisplacedTileColour;
-        set => _misplacedTileColour = value;
+        get => string.IsNullOrEmpty(_misplacedTileColour)
+            ? WordleImageConstants.MisplacedTileColour.ToHex()
+            : _misplacedTileColour;
+        set => _misplacedTileColour = string.IsNullOrEmpty(value) ? null : value;
     }
-    
-    private Color? _incorrectTileColour;
-    public Color IncorrectTileColour
+
+    /// <summary>
+    ///     Gets or sets the wordle incorrect tile background colour.
+    /// </summary>
+    /// <remarks>
+    ///     The incorrect tile background colour represented as a hexadecimal string. If the incorrect tile background colour
+    ///     is not set, it returns the default incorrect tile background colour defined in <see cref="WordleImageConstants" />.
+    /// </remarks>
+    public string IncorrectTileColour
     {
-        get => _incorrectTileColour ?? WordleImageConstants.IncorrectTileColour;
-        set => _incorrectTileColour = value;
+        get => string.IsNullOrEmpty(_incorrectTileColour)
+            ? WordleImageConstants.IncorrectTileColour.ToHex()
+            : _incorrectTileColour;
+        set => _incorrectTileColour = string.IsNullOrEmpty(value) ? null : value;
     }
-    
+
+    /// <summary>
+    ///     Gets or sets the ID of the channel to be used for staff logging.
+    /// </summary>
     public ulong? LoggingChannelId { get; set; }
 
     public string GetCacheKey()

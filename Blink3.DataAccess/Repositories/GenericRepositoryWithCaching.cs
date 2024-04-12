@@ -1,3 +1,4 @@
+using System.Linq.Expressions;
 using Blink3.Core.Caching;
 using Blink3.Core.Caching.Interfaces;
 
@@ -100,6 +101,13 @@ public class GenericRepositoryWithCaching<T>(BlinkDbContext dbContext, ICachingS
     {
         T updatedEntity = await base.UpdateAsync(entity, cancellationToken).ConfigureAwait(false);
         await SetEntityInCache(updatedEntity, cancellationToken).ConfigureAwait(false);
+        return updatedEntity;
+    }
+    
+    public override async Task<T> UpdatePropertiesAsync(T entity, params Action<T>[] updatedProperties)
+    {
+        T updatedEntity = await base.UpdatePropertiesAsync(entity, updatedProperties).ConfigureAwait(false);
+        await SetEntityInCache(updatedEntity).ConfigureAwait(false);
         return updatedEntity;
     }
 

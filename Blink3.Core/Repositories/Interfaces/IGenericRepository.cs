@@ -1,5 +1,6 @@
 // ReSharper disable UnusedMember.Global
 
+using System.Linq.Expressions;
 using Blink3.Core.Interfaces;
 
 namespace Blink3.Core.Repositories.Interfaces;
@@ -56,6 +57,16 @@ public interface IGenericRepository<T> where T : class, new()
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The updated entity.</returns>
     Task<T> UpdateAsync(T entity, CancellationToken cancellationToken = default);
+
+
+    /// <summary>
+    ///     Updates the properties of an entity asynchronously.
+    /// </summary>
+    /// <typeparam name="T">The type of the entity.</typeparam>
+    /// <param name="entity">The entity to update.</param>
+    /// <param name="updatedProperties">The actions that update the properties of the entity.</param>
+    /// <returns>A task that represents the asynchronous operation.</returns>
+    Task<T> UpdatePropertiesAsync(T entity, params Action<T>[] updatedProperties);
 
     /// <summary>
     ///     Deletes an entity asynchronously.
