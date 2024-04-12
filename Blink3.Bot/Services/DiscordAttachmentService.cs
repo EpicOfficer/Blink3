@@ -7,10 +7,10 @@ namespace Blink3.Bot.Services;
 /// <inheritdoc />
 public class DiscordAttachmentService(HttpClient httpClient) : IDiscordAttachmentService
 {
-    public async Task<IDisposableCollection<FileAttachment>> DownloadAttachmentsFromMessageAsync(IMessage message)
+    public async Task<IDisposableCollection<FileAttachment>> DownloadAsync(IMessage message, bool? spoiler = null)
     {
         IEnumerable<Task<FileAttachment>> downloadTasks = message.Attachments.Select(
-            async attachment => await CreateFileAttachmentFromUrlAsync(attachment));
+            async attachment => await CreateFileAttachmentFromUrlAsync(attachment, spoiler));
         FileAttachment[] attachments = await Task.WhenAll(downloadTasks);
         return new DisposableCollection<FileAttachment>(attachments);
     }
@@ -21,7 +21,8 @@ public class DiscordAttachmentService(HttpClient httpClient) : IDiscordAttachmen
     /// <param name="attachment">The attachment from which to retrieve the file.</param>
     /// <returns>The FileAttachment object representing the retrieved file attachment.</returns>
     private async Task<FileAttachment> CreateFileAttachmentFromUrlAsync(
-        IAttachment attachment)
+        IAttachment attachment,
+        bool? spoiler)
     {
         using HttpResponseMessage response = await httpClient.GetAsync(attachment.Url);
         response.EnsureSuccessStatusCode();
@@ -36,6 +37,6 @@ public class DiscordAttachmentService(HttpClient httpClient) : IDiscordAttachmen
             ms,
             attachment.Filename,
             attachment.Description,
-            attachment.IsSpoiler());
+            spoiler ?? attachment.IsSpoiler());
     }
 }

@@ -32,7 +32,7 @@ public class WordleModule(
             return;
         }
 
-        _ = await wordleGameService.StartNewGameAsync(Context.Channel.Id, "en", 5);
+        wordleGameService.StartNewGameAsync(Context.Channel.Id, "en", 5).Forget();
 
         await RespondSuccessAsync("Wordle started", "A new wordle has started.  Type `/guess` guess it.", false);
     }

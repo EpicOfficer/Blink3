@@ -17,13 +17,13 @@ public class ConfigModule(IBlinkGuildRepository blinkGuildRepository)
 {
     private readonly IBlinkGuildRepository _blinkGuildRepository = blinkGuildRepository;
 
-    
-    
     public enum SettingsEnum
     {
         [ChoiceDisplay("Wordle Background Colour")]
         WordleBackgroundColour,
-        [ChoiceDisplay("Wordle Text Colour")] WordleTextColour,
+        
+        [ChoiceDisplay("Wordle Text Colour")]
+        WordleTextColour,
 
         [ChoiceDisplay("Wordle Correct Tile Colour")]
         WordleCorrectTileColour,
@@ -32,7 +32,10 @@ public class ConfigModule(IBlinkGuildRepository blinkGuildRepository)
         WordleMisplacedTileColour,
 
         [ChoiceDisplay("Wordle Incorrect Tile Colour")]
-        WordleIncorrectTileColour
+        WordleIncorrectTileColour,
+        
+        [ChoiceDisplay("Staff Logging Channel")]
+        StaffLoggingChannel
     }
     
     [SlashCommand("set", "Change or reset config values")]
@@ -62,12 +65,49 @@ public class ConfigModule(IBlinkGuildRepository blinkGuildRepository)
                 await SetPropertyColour(guild, value,
                     colour => guild.IncorrectTileColour = colour);
                 break;
+            case SettingsEnum.StaffLoggingChannel:
+                await SetPropertyChannel(guild, value, channel => guild.LoggingChannelId = channel);
+                break;
             default:
                 await RespondErrorAsync("Unrecognised setting", "The setting you provided is not recognised.");
                 break;
         }
     }
 
+    /// <summary>
+    ///     Sets the value of a channel property in the BlinkGuild object.
+    /// </summary>
+    /// <param name="guild">The BlinkGuild object to modify.</param>
+    /// <param name="value">The new value of the channel property. Use null to reset it to default.</param>
+    /// <param name="setChannel">The action to set the channel property in the BlinkGuild object.</param>
+    /// <returns>A task representing the asynchronous operation.</returns>
+    private async Task SetPropertyChannel(BlinkGuild guild, string? value, Action<ulong?> setChannel)
+    {
+        if (value is null)
+        {
+            setChannel(null);
+            await _blinkGuildRepository.UpdateAsync(guild);
+            await RespondSuccessAsync("Channel reset", "Channel has been reset to default");
+            return;
+        }
+        
+        if (ulong.TryParse(value, out ulong channelId))
+        {
+            setChannel(channelId);
+            await _blinkGuildRepository.UpdateAsync(guild);
+            await RespondSuccessAsync("Channel set", "Channel has been set");
+            return;
+        }
+        
+        await RespondErrorAsync("Invalid channel", "The value you provided is not a valid channel ID.");
+    }
+
+    /// <summary>
+    ///     Sets the specified property colour for the BlinkGuild object.
+    /// </summary>
+    /// <param name="guild">The BlinkGuild object.</param>
+    /// <param name="value">The hex code value of the colour. If null or empty, the colour will be reset.</param>
+    /// <param name="setColor">The action to set the colour property.</param>
     private async Task SetPropertyColour(BlinkGuild guild, string? value, Action<Color> setColor)
     {
         if (string.IsNullOrEmpty(value))
