@@ -13,7 +13,7 @@ public class ImageSharpColorConverter : JsonConverter<Color>
             throw new JsonException();
         }
         
-        return Color.ParseHex(reader.GetString() ?? string.Empty);
+        return Color.ParseHex(reader.GetString() ?? default(Color).ToHex());
     }
 
     public override void Write(Utf8JsonWriter writer, Color colorToConvert, JsonSerializerOptions options)
