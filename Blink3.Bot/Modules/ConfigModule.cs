@@ -87,7 +87,7 @@ public class ConfigModule(IBlinkGuildRepository blinkGuildRepository)
         {
             setChannel(null);
             await _blinkGuildRepository.UpdateAsync(guild);
-            await RespondSuccessAsync("Channel reset", "Channel has been reset to default");
+            await RespondSuccessAsync("Value reset", "Channel/Category ID has been reset to default");
             return;
         }
         
@@ -95,7 +95,7 @@ public class ConfigModule(IBlinkGuildRepository blinkGuildRepository)
         {
             setChannel(channelId);
             await _blinkGuildRepository.UpdateAsync(guild);
-            await RespondSuccessAsync("Channel set", "Channel has been set");
+            await RespondSuccessAsync("Value updated", "Channel/Category ID has been updated");
             return;
         }
         
@@ -114,7 +114,7 @@ public class ConfigModule(IBlinkGuildRepository blinkGuildRepository)
         {
             setColor(default);
             await _blinkGuildRepository.UpdateAsync(guild);
-            await RespondSuccessAsync("Colour reset", "Colour has been reset");
+            await RespondSuccessAsync("Colour reset", "Colour has been reset to default");
             return;
         }
 
@@ -126,6 +126,6 @@ public class ConfigModule(IBlinkGuildRepository blinkGuildRepository)
 
         setColor(color);
         await _blinkGuildRepository.UpdateAsync(guild);
-        await RespondSuccessAsync("Colour changed", $"Colour has been changed to {value.ToUpper()}");
+        await RespondSuccessAsync("Colour updated", $"Colour has been changed to {value.ToUpper()}");
     }
 }
