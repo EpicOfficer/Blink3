@@ -72,6 +72,7 @@ try
 
     builder.Services.AddHostedService<InteractionHandler>();
     builder.Services.AddHostedService<BotStatusService>();
+    builder.Services.AddHostedService<TempVcCleanService>();
 
     IHost host = builder.Build();
 
