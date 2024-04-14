@@ -34,7 +34,10 @@ public class ConfigModule(IBlinkGuildRepository blinkGuildRepository)
         WordleIncorrectTileColour,
         
         [ChoiceDisplay("Staff Logging Channel")]
-        StaffLoggingChannel
+        StaffLoggingChannel,
+        
+        [ChoiceDisplay("Temporary VC Category")]
+        TempVcCategory
     }
     
     [SlashCommand("set", "Change or reset config values")]
@@ -65,8 +68,12 @@ public class ConfigModule(IBlinkGuildRepository blinkGuildRepository)
                     (entity, colour) => entity.IncorrectTileColour = colour?.ToHex() ?? string.Empty);
                 break;
             case SettingsEnum.StaffLoggingChannel:
-                await SetPropertyChannel(guild, value,
+                await SetPropertyUlong(guild, value,
                     (entity, channel) => entity.LoggingChannelId = channel);
+                break;
+            case SettingsEnum.TempVcCategory:
+                await SetPropertyUlong(guild, value,
+                    (entity, category) => entity.TemporaryVcCategoryId = category);
                 break;
             default:
                 await RespondErrorAsync("Unrecognised setting", "The setting you provided is not recognised.");
@@ -75,31 +82,31 @@ public class ConfigModule(IBlinkGuildRepository blinkGuildRepository)
     }
 
     /// <summary>
-    ///     Sets the value of a channel property in the BlinkGuild object.
+    ///     Sets the value of a ulong property in the BlinkGuild object.
     /// </summary>
     /// <param name="guild">The BlinkGuild object to modify.</param>
-    /// <param name="value">The new value of the channel property. Use null to reset it to default.</param>
-    /// <param name="setChannel">The action to set the channel property in the BlinkGuild object.</param>
+    /// <param name="value">The new value of the ulong property. Use null to reset it to default.</param>
+    /// <param name="setUlong">The action to set the ulong property in the BlinkGuild object.</param>
     /// <returns>A task representing the asynchronous operation.</returns>
-    private async Task SetPropertyChannel(BlinkGuild guild, string? value, Action<BlinkGuild, ulong?> setChannel)
+    private async Task SetPropertyUlong(BlinkGuild guild, string? value, Action<BlinkGuild, ulong?> setUlong)
     {
         if (value is null)
         {
             await _blinkGuildRepository.UpdatePropertiesAsync(guild,
-                entity => setChannel(entity, null));
-            await RespondSuccessAsync("Value reset", "Channel/Category ID has been reset to default");
+                entity => setUlong(entity, null));
+            await RespondSuccessAsync("Value reset", "The ID has been reset to default");
             return;
         }
         
         if (ulong.TryParse(value, out ulong channelId))
         {
             await _blinkGuildRepository.UpdatePropertiesAsync(guild,
-                entity => setChannel(entity, channelId));
-            await RespondSuccessAsync("Value updated", "Channel/Category ID has been updated");
+                entity => setUlong(entity, channelId));
+            await RespondSuccessAsync("Value updated", "The ID has been updated successfully");
             return;
         }
         
-        await RespondErrorAsync("Invalid channel", "The value you provided is not a valid channel ID.");
+        await RespondErrorAsync("Invalid channel", "The value you provided is not a valid ID.");
     }
 
     /// <summary>

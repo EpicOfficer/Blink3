@@ -1,10 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 using Blink3.Core.Entities;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using Microsoft.IdentityModel.Tokens;
-using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.PixelFormats;
 
 namespace Blink3.DataAccess;
 
@@ -52,6 +48,11 @@ public class BlinkDbContext : DbContext
     ///     List of words used in the wordle game.
     /// </summary>
     public DbSet<Word> Words => Set<Word>();
+    
+    /// <summary>
+    ///     Represents a temporary voice channel entity.
+    /// </summary>
+    public DbSet<TempVc> TempVcs => Set<TempVc>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -64,15 +65,13 @@ public class BlinkDbContext : DbContext
 
         modelBuilder.Entity<WordleGuess>()
             .OwnsMany(guess => guess.Letters);
-
-        // Composite index on Language, IsSolution and Length
-        modelBuilder.Entity<Word>()
-            .HasIndex(w => new { w.Language, w.IsSolution, w.Length });
-
-        // Composite index on Text and Language 
-        modelBuilder.Entity<Word>()
-            .HasIndex(w => new { w.Text, w.Language });
-
+        
+        modelBuilder.Entity<Word>(entity =>
+        {
+            entity.HasIndex(w => new { w.Language, w.IsSolution, w.Length });
+            entity.HasIndex(w => new { w.Text, w.Language });
+        });
+        
         modelBuilder.Entity<BlinkGuild>(entity =>
         {
             entity.Property(p => p.BackgroundColour).IsRequired(false);
@@ -81,5 +80,7 @@ public class BlinkDbContext : DbContext
             entity.Property(p => p.MisplacedTileColour).IsRequired(false);
             entity.Property(p => p.IncorrectTileColour).IsRequired(false);
         });
+        
+        modelBuilder.Entity<TempVc>(p => p.HasKey(t => new { t.GuildId, t.ChannelId }));
     }
 }

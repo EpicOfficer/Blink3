@@ -35,30 +35,34 @@ public class WordSeedService(
         foreach ((string language, WordListConfig files) in wordLists)
         {
             string solutionWordsFile = files.SolutionWordsFile;
-            string guessWordsFile = files.GuessWordsFile;
+            string? guessWordsFile = files.GuessWordsFile;
 
             logger.LogInformation("Reading solution words for language '{lang}' from file '{file}'...",
                 language, solutionWordsFile);
             List<Word> solutionWords = await GetWordsFromFile(
-                files.SolutionWordsFile,
+                solutionWordsFile,
                 true,
                 language,
                 cancellationToken).ConfigureAwait(false);
             logger.LogInformation("Got {count} solution words for language '{lang}'",
                 solutionWords.Count,
                 language);
-            
-            logger.LogInformation("Reading guess words for language '{lang}' from file '{file}'...",
-                language, guessWordsFile);
-            List<Word> guessWords = await GetWordsFromFile(
-                files.GuessWordsFile,
-                false,
-                language,
-                cancellationToken).ConfigureAwait(false);
-            logger.LogInformation("Got {count} guess words for language '{lang}'",
-                guessWords.Count,
-                language);
 
+            List<Word> guessWords = [];
+            if (guessWordsFile is not null)
+            {
+                logger.LogInformation("Reading guess words for language '{lang}' from file '{file}'...",
+                    language, guessWordsFile);
+                 guessWords = await GetWordsFromFile(
+                     guessWordsFile,
+                    false,
+                    language,
+                    cancellationToken).ConfigureAwait(false);
+                logger.LogInformation("Got {count} guess words for language '{lang}'",
+                    guessWords.Count,
+                    language);
+            }
+            
             foreach (Word newWord in solutionWords.Concat(guessWords))
                 if (existingWords.TryGetValue(new WordKey(newWord.Language, newWord.Text), out Word? existingWord))
                 {
@@ -100,6 +104,8 @@ public class WordSeedService(
     private static async Task<List<Word>> GetWordsFromFile(string wordsFile, bool isSolution, string language,
         CancellationToken cancellationToken)
     {
+        if (!File.Exists(wordsFile)) return [];
+        
         return (await File.ReadAllLinesAsync(wordsFile, cancellationToken).ConfigureAwait(false))
             .Select(word => new Word
             {

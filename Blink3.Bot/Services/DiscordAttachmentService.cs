@@ -19,6 +19,7 @@ public class DiscordAttachmentService(HttpClient httpClient) : IDiscordAttachmen
     ///     Retrieve a file attachment from a message asynchronously.
     /// </summary>
     /// <param name="attachment">The attachment from which to retrieve the file.</param>
+    /// <param name="spoiler">Set the spoiler property of all retrieved attachments. Defaults to unmodified.</param>
     /// <returns>The FileAttachment object representing the retrieved file attachment.</returns>
     private async Task<FileAttachment> CreateFileAttachmentFromUrlAsync(
         IAttachment attachment,

@@ -3,6 +3,7 @@ using System;
 using Blink3.DataAccess;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Blink3.DataAccess.Migrations
 {
     [DbContext(typeof(BlinkDbContext))]
-    partial class BlinkDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240413164835_TempVCs")]
+    partial class TempVCs
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -42,9 +45,6 @@ namespace Blink3.DataAccess.Migrations
 
                     b.Property<string>("MisplacedTileColour")
                         .HasColumnType("text");
-
-                    b.Property<decimal?>("TemporaryVcCategoryId")
-                        .HasColumnType("numeric(20,0)");
 
                     b.Property<string>("TextColour")
                         .HasColumnType("text");

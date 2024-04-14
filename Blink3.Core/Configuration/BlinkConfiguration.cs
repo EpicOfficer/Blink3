@@ -132,5 +132,5 @@ public record WordListConfig
     /// <remarks>
     ///     Must be a .txt file with one word per line.
     /// </remarks>
-    public string GuessWordsFile { get; init; } = string.Empty;
+    public string? GuessWordsFile { get; init; }
 }
