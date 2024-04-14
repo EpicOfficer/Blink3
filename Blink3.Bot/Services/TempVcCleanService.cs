@@ -50,8 +50,8 @@ public class TempVcCleanService(
         _logger.LogInformation("Cleaning {count} unique VCs in {guildCount} guilds",
             tempVcs.Count, guilds.Count);
         
-        foreach (KeyValuePair<ulong, List<TempVc>> tempVcGuild in guilds)
-            await HandleGuild(tempVcGuild.Key, tempVcGuild.Value, tempVcRepository);
+        foreach (KeyValuePair<ulong, List<TempVc>> guild in guilds)
+            await HandleGuild(guild.Key, guild.Value, tempVcRepository);
     }
 
     private async Task HandleGuild(ulong guildId, List<TempVc> tempVcs, ITempVcRepository tempVcRepository)
