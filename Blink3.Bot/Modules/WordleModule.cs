@@ -1,3 +1,4 @@
+using Blink3.Bot.Enums;
 using Blink3.Bot.Extensions;
 using Blink3.Core.Entities;
 using Blink3.Core.Extensions;
@@ -21,7 +22,7 @@ public class WordleModule(
     IWordRepository wordRepository) : BlinkModuleBase<IInteractionContext>(blinkGuildRepository)
 {
     [SlashCommand("wordle", "Start a new game of wordle")]
-    public async Task Start()
+    public async Task Start(WordleLanguageEnum language = WordleLanguageEnum.English)
     {
         await DeferAsync();
 
@@ -32,16 +33,39 @@ public class WordleModule(
             return;
         }
 
-        wordleGameService.StartNewGameAsync(Context.Channel.Id, "en", 5).Forget();
+        string lang = language switch
+        {
+            WordleLanguageEnum.Spanish => "es",
+            _ => "en"
+        };
+        
+        string langString = language switch
+        {
+            WordleLanguageEnum.Spanish => "Spanish",
+            WordleLanguageEnum.English => "English",
+            _ => "English"
+        };
+        
+        wordleGameService.StartNewGameAsync(Context.Channel.Id, lang, 5).Forget();
 
-        await RespondSuccessAsync("Wordle started", "A new wordle has started.  Type `/guess` guess it.", false);
+        List<EmbedFieldBuilder> fields =
+        [
+            new EmbedFieldBuilder()
+            {
+                Name = "Language",
+                Value = langString
+            }
+        ];
+
+        await RespondSuccessAsync("Wordle started", "A new wordle has started.  Type `/guess` guess it.", false,
+            embedFields: fields.ToArray());
     }
 
     [SlashCommand("guess", "Try to guess the wordle")]
     public async Task Guess(string word)
     {
         await DeferAsync();
-
+        
         Wordle? wordle = await wordleRepository.GetByChannelIdAsync(Context.Channel.Id);
         if (wordle is null)
         {
@@ -50,7 +74,7 @@ public class WordleModule(
             return;
         }
 
-        bool isGuessable = await wordRepository.IsGuessableAsync(word);
+        bool isGuessable = await wordRepository.IsGuessableAsync(word, wordle.Language);
         if (!isGuessable)
         {
             await RespondErrorAsync("Invalid guess", "The word you entered is not a valid guess.");
@@ -85,18 +109,22 @@ public class WordleModule(
         await wordleGameService.GenerateImageAsync(guess, image, await FetchConfig());
         using FileAttachment attachment = new(image, $"{wordle.Id}_{guess.Id}.png");
 
-        ComponentBuilder? component = new ComponentBuilder().WithButton("Define", $"blink-define-word_{guess.Word}");
-
+        ComponentBuilder? component = null;
+        if (wordle.Language == "en")
+        {
+            component = new ComponentBuilder().WithButton("Define", $"blink-define-word_{guess.Word}");
+        }
+        
         await FollowupWithFileAsync(text: text, attachment: attachment, ephemeral: false,
-            components: component.Build());
+            components: component?.Build());
     }
 
     [SlashCommand("define", "Get the definition of a word")]
     [ComponentInteraction("blink-define-word_*")]
     public async Task Define(string word)
     {
-        await DeferAsync(false);
-        WordDetails? details = null;
+        await DeferAsync();
+        WordDetails? details;
         try
         {
             details = await wordsClientService.GetDefinitionAsync(word);
@@ -111,7 +139,7 @@ public class WordleModule(
             .GroupBy(wd => wd.PartOfSpeech)
             .Select(g =>
             {
-                EmbedFieldBuilder? builder = new()
+                EmbedFieldBuilder builder = new()
                 {
                     Name = g.Key.ToTitleCase(),
                     Value = string.Join("\n",
@@ -158,7 +186,6 @@ public class WordleModule(
         EmbedFieldBuilder[] embedFieldBuilder = await Task.WhenAll(embedFieldBuilderTasks);
         
         await RespondPlainAsync("Points Leaderboard",
-            "",
             embedFields: embedFieldBuilder,
             ephemeral: false);
     }

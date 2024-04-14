@@ -104,6 +104,8 @@ public class TempVcModule(
         if (tempVc is null || voiceChannel is null)
             return;
 
+        await tempVcRepository.UpdatePropertiesAsync(tempVc, vc => vc.CamOnly = !vc.CamOnly);
+        
         try
         {
             switch (tempVc.CamOnly)
@@ -121,8 +123,7 @@ public class TempVcModule(
         {
             // ignored
         }
-
-        await tempVcRepository.UpdatePropertiesAsync(tempVc, vc => vc.CamOnly = !vc.CamOnly);
+        
         await RespondSuccessAsync("Temporary VC updated",
             $"Camera only mode has been {(tempVc.CamOnly ? "enabled" : "disabled")}.");
     }
