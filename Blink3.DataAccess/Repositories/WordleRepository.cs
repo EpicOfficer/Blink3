@@ -32,7 +32,6 @@ public class WordleRepository(BlinkDbContext dbContext) :
 
     public async Task AddGuessAsync(Wordle wordle, WordleGuess guess, CancellationToken cancellationToken = default)
     {
-        guess.Letters = guess.Letters.OrderBy(p => p.Position).ToList();
         _dbContext.Attach(wordle);
         wordle.Guesses.Add(guess);
         _dbContext.Entry(wordle).State = EntityState.Modified;

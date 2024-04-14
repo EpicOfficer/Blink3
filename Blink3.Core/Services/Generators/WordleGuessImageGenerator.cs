@@ -133,7 +133,6 @@ public class WordleGuessImageGenerator : IWordleGuessImageGenerator
             WrappingLength = LetterSize
         };
 
-        guess.Letters = guess.Letters.OrderBy(p => p.Position).ToList();
         // Fill background and draw letters
         image.Mutate(im =>
         {

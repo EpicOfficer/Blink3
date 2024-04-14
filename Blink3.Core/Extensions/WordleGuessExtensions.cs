@@ -34,18 +34,32 @@ public static class WordleGuessExtensions
     /// <param name="wordle">The Wordle object to compare the guess against.</param>
     /// <param name="correctIndices">The collection of indices that represent the correct letters.</param>
     /// <param name="misplacedIndices">The list to store the indices of the misplaced letters.</param>
-    public static void MarkMisplacedLetters(this WordleGuess guess, Wordle wordle, ICollection<int> correctIndices,
-        ICollection<int> misplacedIndices)
+    public static void MarkMisplacedLetters(this WordleGuess guess, Wordle wordle,
+        ICollection<int> correctIndices, ICollection<int> misplacedIndices)
     {
         string word = guess.Word;
         string wordToGuess = wordle.WordToGuess;
+        Dictionary<char, int> checkedLettersCount = new Dictionary<char, int>();  // number of times a letter has been processed
+
         for (int i = 0; i < word.Length; i++)
         {
+            char letter = word[i];
             if (guess.Letters[i].State == WordleLetterStateEnum.Correct) continue;
-            int index = wordToGuess.IndexOf(word[i]);
-            if (index == -1 || correctIndices.Contains(index) || misplacedIndices.Contains(index)) continue;
-            guess.Letters[i].State = WordleLetterStateEnum.Misplaced;
-            misplacedIndices.Add(index);
+
+            checkedLettersCount.TryAdd(letter, 0);
+            int letterOccurrences = wordToGuess.AllIndexesOf(letter).Count;
+
+            if (checkedLettersCount[letter] >= letterOccurrences) continue;
+            checkedLettersCount[letter]++;
+
+            List<int> indices = wordToGuess.AllIndexesOf(letter);
+            foreach (int index in indices.Where(index =>
+                         !(correctIndices.Contains(index) || misplacedIndices.Contains(index))))
+            {
+                guess.Letters[i].State = WordleLetterStateEnum.Misplaced;
+                misplacedIndices.Add(index);
+                break;
+            }
         }
     }
 }
