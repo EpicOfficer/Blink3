@@ -71,4 +71,23 @@ public static class StringExtensions
         foreach (byte t in hashBytes) sb.Append(t.ToString("x2"));
         return sb.ToString();
     }
+
+    /// <summary>
+    ///     Finds all indexes of a specified character in a string.
+    /// </summary>
+    /// <param name="str">The input string to search in.</param>
+    /// <param name="value">The character to find the indexes of.</param>
+    /// <returns>A list of integers representing the indexes at which the character was found.</returns>
+    public static List<int> AllIndexesOf(this string str, char value)
+    {
+        List<int> indexes = [];
+        int index = 0;
+        while ((index = str.IndexOf(value, index)) != -1)
+        {
+            indexes.Add(index);
+            index++;
+        }
+
+        return indexes;
+    }
 }
