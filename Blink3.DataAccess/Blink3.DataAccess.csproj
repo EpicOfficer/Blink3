@@ -22,17 +22,17 @@
     </ItemGroup>
 
     <ItemGroup>
-      <None Remove="Words\en-guess.txt" />
-      <Content Include="Words\en-guess.txt">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </Content>
-      <None Remove="Words\en-solution.txt" />
-      <Content Include="Words\en-solution.txt">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </Content>
-      <None Update="Words\es-solution.txt">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </None>
+        <None Remove="Words\en-guess.txt"/>
+        <Content Include="Words\en-guess.txt">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </Content>
+        <None Remove="Words\en-solution.txt"/>
+        <Content Include="Words\en-solution.txt">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </Content>
+        <None Update="Words\es-solution.txt">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </None>
     </ItemGroup>
 
 </Project>

@@ -1,5 +1,4 @@
 using System.ComponentModel.DataAnnotations;
-using Blink3.Core.Interfaces;
 
 namespace Blink3.Core.Entities;
 

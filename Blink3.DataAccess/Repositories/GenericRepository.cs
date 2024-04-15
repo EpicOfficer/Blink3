@@ -1,4 +1,3 @@
-using System.Linq.Expressions;
 using Blink3.Core.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
@@ -52,14 +51,11 @@ public class GenericRepository<T>(BlinkDbContext dbContext)
 
         return entity;
     }
-    
+
     public virtual async Task<T> UpdatePropertiesAsync(T entity, params Action<T>[] updatedProperties)
     {
         EntityEntry<T> dbEntity = dbContext.Set<T>().Attach(entity);
-        foreach (Action<T> property in updatedProperties)
-        {
-            property(entity);
-        }
+        foreach (Action<T> property in updatedProperties) property(entity);
 
         await dbContext.SaveChangesAsync().ConfigureAwait(false);
 

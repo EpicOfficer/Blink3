@@ -15,24 +15,19 @@ public class WordleGuessExtensionsTests
         Wordle wordle = new() { WordToGuess = "apple" };
         WordleGuess guess = WordleHelpers.CreateGuess("apple");
         List<int> correctIndices = [];
-        
+
         // Act
         guess.MarkCorrectLetters(wordle, correctIndices);
-        
+
         // Assert 
         foreach (WordleLetter letter in guess.Letters)
-        {
             Assert.That(letter.State, Is.EqualTo(WordleLetterStateEnum.Correct));
-        }
 
-        for (int i = 0; i < wordle.WordToGuess.Length; i++)
-        {
-            Assert.That(correctIndices, Does.Contain(i));
-        }
-        
+        for (int i = 0; i < wordle.WordToGuess.Length; i++) Assert.That(correctIndices, Does.Contain(i));
+
         Assert.That(guess.IsCorrect, Is.EqualTo(true));
     }
-    
+
     [Test]
     public void MarkCorrectLetters_NoLettersCorrect_ShouldNotMarkAnyLetterCorrect()
     {
@@ -46,9 +41,7 @@ public class WordleGuessExtensionsTests
 
         // Assert
         foreach (WordleLetter letter in guess.Letters)
-        {
             Assert.That(letter.State, Is.Not.EqualTo(WordleLetterStateEnum.Correct));
-        }
 
         Assert.Multiple(() =>
         {
@@ -65,20 +58,15 @@ public class WordleGuessExtensionsTests
         Wordle wordle = new() { WordToGuess = "apple" };
         List<int> correctIndices = [];
         List<int> misplacedIndices = [];
-        
+
         // Act
         guess.MarkMisplacedLetters(wordle, correctIndices, misplacedIndices);
-        
+
         // Assert
         foreach (WordleLetter letter in guess.Letters)
-        {
             Assert.That(letter.State, Is.EqualTo(WordleLetterStateEnum.Misplaced));
-        }
-        
-        for (int i = 0; i < wordle.WordToGuess.Length; i++)
-        {
-            Assert.That(misplacedIndices, Does.Contain(i));
-        }
+
+        for (int i = 0; i < wordle.WordToGuess.Length; i++) Assert.That(misplacedIndices, Does.Contain(i));
 
         Assert.Multiple(() =>
         {
@@ -95,15 +83,13 @@ public class WordleGuessExtensionsTests
         Wordle wordle = new() { WordToGuess = "apple" };
         List<int> correctIndices = [];
         List<int> misplacedIndices = [];
-        
+
         // Act
         guess.MarkMisplacedLetters(wordle, correctIndices, misplacedIndices);
-        
+
         // Assert
         foreach (WordleLetter letter in guess.Letters)
-        {
             Assert.That(letter.State, Is.EqualTo(WordleLetterStateEnum.Incorrect));
-        }
 
         Assert.Multiple(() =>
         {
@@ -119,21 +105,19 @@ public class WordleGuessExtensionsTests
     {
         // Arrange
         WordleGuess guess = WordleHelpers.CreateGuess("onion");
-        Wordle wordle = new Wordle { WordToGuess = "pools" };
+        Wordle wordle = new() { WordToGuess = "pools" };
         List<int> correctIndices = [];
         List<int> misplacedIndices = [];
-        
+
         // Act
         guess.MarkMisplacedLetters(wordle, correctIndices, misplacedIndices);
-        
+
         // Assert
         foreach (WordleLetter letter in guess.Letters)
-        {
             Assert.That(letter.State,
                 letter.Letter == 'o' // If letter is 'o'
                     ? Is.EqualTo(WordleLetterStateEnum.Misplaced)
                     : Is.Not.EqualTo(WordleLetterStateEnum.Misplaced));
-        }
 
         Assert.Multiple(() =>
         {

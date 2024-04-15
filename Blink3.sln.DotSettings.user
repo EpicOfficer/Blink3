@@ -9,5 +9,8 @@
     &lt;TestId&gt;NUnit3x::D8F3BEB2-9D9B-49CD-8711-D1A4BA78C689::net8.0::Blink3.Tests.Core.Extensions.WordleExtensionsTests.ValidateWordLength_WordAndGuessSameLength_ShouldReturnTrue&lt;/TestId&gt;
     &lt;TestId&gt;NUnit3x::D8F3BEB2-9D9B-49CD-8711-D1A4BA78C689::net8.0::Blink3.Tests.Core.Extensions.WordleExtensionsTests.ValidateWordLength_WordAndGuessDifferentLength_ShouldReturnFalse&lt;/TestId&gt;
     &lt;TestId&gt;NUnit3x::D8F3BEB2-9D9B-49CD-8711-D1A4BA78C689::net8.0::Blink3.Tests.Core.Extensions.WordleExtensionsTests.ProcessGuess_MixtureOfCorrectMisplacedAndIncorrectLetters_ShouldMarkAccordingly&lt;/TestId&gt;
+    &lt;TestId&gt;NUnit3x::D8F3BEB2-9D9B-49CD-8711-D1A4BA78C689::net8.0::Blink3.Tests.Core.Services.WordleGameServiceTests.Test_IsGameInProgressAsync&lt;/TestId&gt;
+    &lt;TestId&gt;NUnit3x::D8F3BEB2-9D9B-49CD-8711-D1A4BA78C689::net8.0::Blink3.Tests.Core.Services.WordleGameServiceTests.Test_IsGameInProgressAsync_NoGameInProgress&lt;/TestId&gt;
+    &lt;TestId&gt;NUnit3x::D8F3BEB2-9D9B-49CD-8711-D1A4BA78C689::net8.0::Blink3.Tests.Core.Services.WordleGameServiceTests&lt;/TestId&gt;
   &lt;/TestAncestor&gt;
 &lt;/SessionState&gt;</s:String></wpf:ResourceDictionary>

@@ -6,7 +6,8 @@ using Discord.Interactions;
 
 namespace Blink3.Bot.Modules;
 
-public class BlinkModuleBase<T>(IBlinkGuildRepository? blinkGuildRepository = null) : InteractionModuleBase<T> where T : class, IInteractionContext
+public class BlinkModuleBase<T>(IBlinkGuildRepository? blinkGuildRepository = null)
+    : InteractionModuleBase<T> where T : class, IInteractionContext
 {
     /// <summary>
     ///     Responds to an interaction with the provided embed, ephemeral flag, and message components.
@@ -82,9 +83,7 @@ public class BlinkModuleBase<T>(IBlinkGuildRepository? blinkGuildRepository = nu
     protected async Task<BlinkGuild> FetchConfig()
     {
         if (blinkGuildRepository is not null && Context.Interaction.GuildId is not null)
-        {
             return await blinkGuildRepository.GetOrCreateByIdAsync(Context.Interaction.GuildId);
-        }
 
         return new BlinkGuild();
     }

@@ -43,13 +43,13 @@ public class TempVcCleanService(
         using IServiceScope scope = scopeFactory.CreateScope();
         ITempVcRepository tempVcRepository = scope.ServiceProvider.GetRequiredService<ITempVcRepository>();
         IReadOnlyCollection<TempVc> tempVcs = await tempVcRepository.GetAllAsync();
-        
+
         Dictionary<ulong, List<TempVc>> guilds = tempVcs.GroupBy(tempVc => tempVc.GuildId)
             .ToDictionary(group => group.Key, group => group.ToList());
 
         _logger.LogInformation("Cleaning {count} unique VCs in {guildCount} guilds",
             tempVcs.Count, guilds.Count);
-        
+
         foreach (KeyValuePair<ulong, List<TempVc>> guild in guilds)
             await HandleGuild(guild.Key, guild.Value, tempVcRepository);
     }
@@ -65,7 +65,7 @@ public class TempVcCleanService(
     {
         // If the VC was created less than 2 minutes ago, skip it
         if (tempVc.CreatedAt.AddMinutes(2) > DateTime.UtcNow) return;
-        
+
         // If the VC is missing, delete it from the database
         if (guild.GetVoiceChannel(tempVc.ChannelId) is not { } channel)
         {

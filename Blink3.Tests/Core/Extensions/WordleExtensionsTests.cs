@@ -14,10 +14,10 @@ public class WordleExtensionsTests
         // Arrange
         WordleGuess guess = WordleHelpers.CreateGuess("alien");
         Wordle wordle = new() { WordToGuess = "apple" };
-        
+
         // Act
         wordle.ProcessGuess(guess);
-        
+
         // Assert
         Assert.Multiple(() =>
         {
@@ -28,31 +28,31 @@ public class WordleExtensionsTests
             Assert.That(guess.Letters[4].State, Is.EqualTo(WordleLetterStateEnum.Incorrect));
         });
     }
-    
+
     [Test]
     public void ValidateWordLength_WordAndGuessSameLength_ShouldReturnTrue()
     {
         // Arrange
         Wordle wordle = new() { WordToGuess = "apple" };
         string guess = "grunt";
-        
+
         // Act
         bool isSameLength = wordle.ValidateWordLength(guess);
-        
+
         // Assert
         Assert.That(isSameLength, Is.True);
     }
-    
+
     [Test]
     public void ValidateWordLength_WordAndGuessDifferentLength_ShouldReturnFalse()
     {
         // Arrange
         Wordle wordle = new() { WordToGuess = "apple" };
         string guess = "grunts";
-        
+
         // Act
         bool isSameLength = wordle.ValidateWordLength(guess);
-        
+
         // Assert
         Assert.That(isSameLength, Is.False);
     }

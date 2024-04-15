@@ -105,7 +105,7 @@ public class TempVcModule(
             return;
 
         await tempVcRepository.UpdatePropertiesAsync(tempVc, vc => vc.CamOnly = !vc.CamOnly);
-        
+
         try
         {
             switch (tempVc.CamOnly)
@@ -123,7 +123,7 @@ public class TempVcModule(
         {
             // ignored
         }
-        
+
         await RespondSuccessAsync("Temporary VC updated",
             $"Camera only mode has been {(tempVc.CamOnly ? "enabled" : "disabled")}.");
     }
@@ -145,11 +145,11 @@ public class TempVcModule(
     {
         TempVc? tempVc = await tempVcRepository.GetByUserIdAsync(Context.Guild.Id, Context.User.Id);
         if (tempVc is not null) return tempVc;
-        
+
         await RespondErrorAsync("No Temporary VC", "You do not have a temporary VC in this server.");
         return null;
     }
-    
+
     private async Task<(TempVc?, IVoiceChannel?)> GetTempVcAndVoiceChannelAsync()
     {
         TempVc? tempVc = await GetTempVcAsync();
@@ -157,7 +157,7 @@ public class TempVcModule(
 
         IVoiceChannel? voiceChannel = await Context.Guild.GetVoiceChannelAsync(tempVc.ChannelId);
         if (voiceChannel is not null) return (tempVc, voiceChannel);
-        
+
         await RespondErrorAsync("Temporary VC not found", "Your temporary VC could not be found.");
         return (null, null);
     }

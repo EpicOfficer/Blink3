@@ -106,7 +106,7 @@ public class BlinkGuild : ICacheKeyIdentifiable
     ///     Gets or sets the ID of the category where Temporary VCs will be created
     /// </summary>
     public ulong? TemporaryVcCategoryId { get; set; }
-    
+
     public string GetCacheKey()
     {
         return Id.ToString();
