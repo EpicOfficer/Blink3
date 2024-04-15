@@ -53,8 +53,8 @@ public class WordSeedService(
             {
                 logger.LogInformation("Reading guess words for language '{lang}' from file '{file}'...",
                     language, guessWordsFile);
-                 guessWords = await GetWordsFromFile(
-                     guessWordsFile,
+                guessWords = await GetWordsFromFile(
+                    guessWordsFile,
                     false,
                     language,
                     cancellationToken).ConfigureAwait(false);
@@ -62,7 +62,7 @@ public class WordSeedService(
                     guessWords.Count,
                     language);
             }
-            
+
             foreach (Word newWord in solutionWords.Concat(guessWords))
                 if (existingWords.TryGetValue(new WordKey(newWord.Language, newWord.Text), out Word? existingWord))
                 {
@@ -81,7 +81,7 @@ public class WordSeedService(
 
         logger.LogInformation("Adding {count} new words to database...", newWords.Count);
         await words.BulkAddAsync(newWords, cancellationToken).ConfigureAwait(false);
-        
+
         logger.LogInformation("Updating {count} existing words in database...", wordsToUpdate.Count);
         await words.BulkUpdateAsync(wordsToUpdate, cancellationToken).ConfigureAwait(false);
 
@@ -105,7 +105,7 @@ public class WordSeedService(
         CancellationToken cancellationToken)
     {
         if (!File.Exists(wordsFile)) return [];
-        
+
         return (await File.ReadAllLinesAsync(wordsFile, cancellationToken).ConfigureAwait(false))
             .Select(word => new Word
             {

@@ -5,7 +5,6 @@ using Blink3.Core.Extensions;
 using Blink3.Core.Interfaces;
 using Blink3.Core.Models;
 using Blink3.Core.Repositories.Interfaces;
-using Blink3.DataAccess.Extensions;
 using Discord;
 using Discord.Interactions;
 
@@ -38,19 +37,19 @@ public class WordleModule(
             WordleLanguageEnum.Spanish => "es",
             _ => "en"
         };
-        
+
         string langString = language switch
         {
             WordleLanguageEnum.Spanish => "Spanish",
             WordleLanguageEnum.English => "English",
             _ => "English"
         };
-        
+
         wordleGameService.StartNewGameAsync(Context.Channel.Id, lang, 5).Forget();
 
         List<EmbedFieldBuilder> fields =
         [
-            new EmbedFieldBuilder()
+            new EmbedFieldBuilder
             {
                 Name = "Language",
                 Value = langString
@@ -65,7 +64,7 @@ public class WordleModule(
     public async Task Guess(string word)
     {
         await DeferAsync();
-        
+
         Wordle? wordle = await wordleRepository.GetByChannelIdAsync(Context.Channel.Id);
         if (wordle is null)
         {
@@ -111,10 +110,8 @@ public class WordleModule(
 
         ComponentBuilder? component = null;
         if (wordle.Language == "en")
-        {
             component = new ComponentBuilder().WithButton("Define", $"blink-define-word_{guess.Word}");
-        }
-        
+
         await FollowupWithFileAsync(text: text, attachment: attachment, ephemeral: false,
             components: component?.Build());
     }
@@ -150,7 +147,7 @@ public class WordleModule(
                 return builder;
             })
             .ToArray();
-        
+
         await RespondPlainAsync(
             $"Definition of {word.ToTitleCase()}",
             details is null ? "No definition found" : string.Empty,
@@ -182,9 +179,9 @@ public class WordleModule(
             };
             return field;
         });
-        
+
         EmbedFieldBuilder[] embedFieldBuilder = await Task.WhenAll(embedFieldBuilderTasks);
-        
+
         await RespondPlainAsync("Points Leaderboard",
             embedFields: embedFieldBuilder,
             ephemeral: false);
