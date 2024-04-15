@@ -37,7 +37,7 @@ For local development:
 
 For production:
 
-    docker-compose -f docker-compose.yml -f docker-compose.production.yml up --build 
+    docker-compose -f docker-compose.yml -f docker-compose.production.yml up -d
 
 An `.env.example` file has been included in the repository. Rename or copy this file to `.env` and replace the sample values with your actual environment values to set up your environment.
 
