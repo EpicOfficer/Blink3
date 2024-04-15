@@ -1,0 +1,13 @@
+﻿<wpf:ResourceDictionary xml:space="preserve" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:s="clr-namespace:System;assembly=mscorlib" xmlns:ss="urn:shemas-jetbrains-com:settings-storage-xaml" xmlns:wpf="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=18389142_002Df254_002D49c6_002Dab1c_002D6e815f7fa023/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="MarkCorrectLetters_AllLettersCorrect_ShouldMarkAllLettersCorrect" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
+  &lt;TestAncestor&gt;
+    &lt;TestId&gt;NUnit3x::D8F3BEB2-9D9B-49CD-8711-D1A4BA78C689::net8.0::Blink3.Tests.Core.Extensions.WordleGuessExtensionsTests.MarkCorrectLetters_AllLettersCorrect_ShouldMarkAllLettersCorrect&lt;/TestId&gt;
+    &lt;TestId&gt;NUnit3x::D8F3BEB2-9D9B-49CD-8711-D1A4BA78C689::net8.0::Blink3.Tests.Core.Extensions.WordleGuessExtensionsTests.MarkCorrectLetters_NoLettersCorrect_ShouldNotMarkAnyLetterCorrect&lt;/TestId&gt;
+    &lt;TestId&gt;NUnit3x::D8F3BEB2-9D9B-49CD-8711-D1A4BA78C689::net8.0::Blink3.Tests.Core.Extensions.WordleGuessExtensionsTests.MarkMisplacedLetters_AllLettersMisplaced_ShouldMarkAllLettersMisplaced&lt;/TestId&gt;
+    &lt;TestId&gt;NUnit3x::D8F3BEB2-9D9B-49CD-8711-D1A4BA78C689::net8.0::Blink3.Tests.Core.Extensions.WordleGuessExtensionsTests.MarkMisplacedLetters_NoLettersMisplaced_ShouldNotMarkAnyLetterMisplaced&lt;/TestId&gt;
+    &lt;TestId&gt;NUnit3x::D8F3BEB2-9D9B-49CD-8711-D1A4BA78C689::net8.0::Blink3.Tests.Core.Extensions.WordleGuessExtensionsTests.MarkMisplacedLetters_WordContainsTwoOfSameLetterAndGuessContainsTwoOfSameMisplaced_ShouldMarkThemMisplaced&lt;/TestId&gt;
+    &lt;TestId&gt;NUnit3x::D8F3BEB2-9D9B-49CD-8711-D1A4BA78C689::net8.0::Blink3.Tests.Core.Extensions.WordleExtensionsTests.ValidateWordLength_WordAndGuessSameLength_ShouldReturnTrue&lt;/TestId&gt;
+    &lt;TestId&gt;NUnit3x::D8F3BEB2-9D9B-49CD-8711-D1A4BA78C689::net8.0::Blink3.Tests.Core.Extensions.WordleExtensionsTests.ValidateWordLength_WordAndGuessDifferentLength_ShouldReturnFalse&lt;/TestId&gt;
+    &lt;TestId&gt;NUnit3x::D8F3BEB2-9D9B-49CD-8711-D1A4BA78C689::net8.0::Blink3.Tests.Core.Extensions.WordleExtensionsTests.ProcessGuess_MixtureOfCorrectMisplacedAndIncorrectLetters_ShouldMarkAccordingly&lt;/TestId&gt;
+  &lt;/TestAncestor&gt;
+&lt;/SessionState&gt;</s:String></wpf:ResourceDictionary>
