@@ -57,7 +57,8 @@ try
                              GatewayIntents.GuildMembers |
                              GatewayIntents.GuildMessages |
                              GatewayIntents.MessageContent |
-                             GatewayIntents.DirectMessages
+                             GatewayIntents.DirectMessages |
+                             GatewayIntents.GuildVoiceStates
         };
 
         config.Token = appConfig.Discord.BotToken;
