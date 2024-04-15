@@ -1,7 +1,7 @@
 name: Publish Docker images
 on:
-  pull_request:
-    branches: [ "main" ]
+  release:
+    types: [created]
 
 env:
   REGISTRY: ghcr.io
@@ -44,6 +44,7 @@ jobs:
         with:
           images: ${{ matrix.image }}
           tags: |
+            type=ref,event=tag
             type=ref,event=branch
             type=raw,pattern=latest,value=latest
             type=sha,prefix=commit_,
