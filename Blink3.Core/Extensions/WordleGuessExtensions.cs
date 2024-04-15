@@ -1,6 +1,8 @@
 using Blink3.Core.Entities;
 using Blink3.Core.Enums;
 
+// ReSharper disable SuggestBaseTypeForParameter
+
 namespace Blink3.Core.Extensions;
 
 /// <summary>
@@ -39,27 +41,67 @@ public static class WordleGuessExtensions
     {
         string word = guess.Word;
         string wordToGuess = wordle.WordToGuess;
-        Dictionary<char, int> checkedLettersCount = new(); // number of times a letter has been processed
+
+        Dictionary<char, int> checkedLettersCount = new();
+        Dictionary<char, List<int>> charIndicesMap = GenerateCharIndicesMap(wordToGuess);
 
         for (int i = 0; i < word.Length; i++)
+            MarkSpecificLetter(guess, word, correctIndices, misplacedIndices, checkedLettersCount, charIndicesMap, i);
+    }
+
+    /// <summary>
+    ///     Generates a character indices map for a given word.
+    /// </summary>
+    /// <param name="wordToGuess">The word to generate the character indices map for.</param>
+    /// <returns>A dictionary with characters as keys and lists of indices as values.</returns>
+    private static Dictionary<char, List<int>> GenerateCharIndicesMap(string wordToGuess)
+    {
+        Dictionary<char, List<int>> charIndicesMap = new(wordToGuess.Length);
+
+        for (int i = 0; i < wordToGuess.Length; i++)
         {
-            char letter = word[i];
-            if (guess.Letters[i].State == WordleLetterStateEnum.Correct) continue;
-
-            checkedLettersCount.TryAdd(letter, 0);
-            int letterOccurrences = wordToGuess.AllIndexesOf(letter).Count;
-
-            if (checkedLettersCount[letter] >= letterOccurrences) continue;
-            checkedLettersCount[letter]++;
-
-            List<int> indices = wordToGuess.AllIndexesOf(letter);
-            foreach (int index in indices.Where(index =>
-                         !(correctIndices.Contains(index) || misplacedIndices.Contains(index))))
+            if (!charIndicesMap.TryGetValue(wordToGuess[i], out List<int>? value))
             {
-                guess.Letters[i].State = WordleLetterStateEnum.Misplaced;
-                misplacedIndices.Add(index);
-                break;
+                value = new List<int>();
+                charIndicesMap[wordToGuess[i]] = value;
             }
+
+            value.Add(i);
         }
+
+        return charIndicesMap;
+    }
+
+    /// <summary>
+    ///     Marks a specific letter in the WordleGuess object based on given parameters.
+    /// </summary>
+    /// <param name="guess">The WordleGuess object</param>
+    /// <param name="word">The word from the guess</param>
+    /// <param name="correctIndices">The collection of correct indices</param>
+    /// <param name="misplacedIndices">The collection of misplaced indices</param>
+    /// <param name="checkedLettersCount">The dictionary of checked letters count</param>
+    /// <param name="charIndicesMap">The dictionary mapping characters to indices</param>
+    /// <param name="i">The index of the letter to mark</param>
+    private static void MarkSpecificLetter(WordleGuess guess, string word, ICollection<int> correctIndices,
+        ICollection<int> misplacedIndices, Dictionary<char, int> checkedLettersCount,
+        Dictionary<char, List<int>> charIndicesMap, int i)
+    {
+        char letter = word[i];
+        if (guess.Letters[i].State == WordleLetterStateEnum.Correct) return;
+
+        checkedLettersCount.TryAdd(letter, 0);
+        checkedLettersCount[letter]++;
+
+        if (!charIndicesMap.TryGetValue(letter, out List<int>? value)) return;
+
+        foreach (int index in value.Where(index =>
+                     !correctIndices.Contains(index) && !misplacedIndices.Contains(index)))
+        {
+            guess.Letters[i].State = WordleLetterStateEnum.Misplaced;
+            misplacedIndices.Add(index);
+            break;
+        }
+
+        if (checkedLettersCount[letter] >= value.Count) charIndicesMap.Remove(letter);
     }
 }

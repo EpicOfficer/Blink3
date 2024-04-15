@@ -14,8 +14,8 @@ public static class WordleExtensions
     /// <param name="guess">The word guess entered by a player.</param>
     public static void ProcessGuess(this Wordle wordle, WordleGuess guess)
     {
-        List<int> correctIndices = [];
-        List<int> misplacedIndices = [];
+        ICollection<int> correctIndices = [];
+        ICollection<int> misplacedIndices = [];
 
         guess.MarkCorrectLetters(wordle, correctIndices);
         guess.MarkMisplacedLetters(wordle, correctIndices, misplacedIndices);
