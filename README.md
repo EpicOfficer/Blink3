@@ -1,2 +1,3 @@
 # Blink
-[![Build & publish Blink Docker images](https://github.com/EpicOfficer/Blink3/actions/workflows/docker-image.yml/badge.svg?branch=main)](https://github.com/EpicOfficer/Blink3/actions/workflows/docker-image.yml)
+[![Build](https://github.com/EpicOfficer/Blink3/actions/workflows/build.yml/badge.svg)](https://github.com/EpicOfficer/Blink3/actions/workflows/build.yml)
+[![Publish Docker Images](https://github.com/EpicOfficer/Blink3/actions/workflows/docker-image.yml/badge.svg?branch=main)](https://github.com/EpicOfficer/Blink3/actions/workflows/docker-image.yml)
