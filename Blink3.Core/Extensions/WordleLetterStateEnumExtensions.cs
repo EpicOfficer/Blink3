@@ -1,10 +1,9 @@
 using Blink3.Core.Enums;
-using SixLabors.ImageSharp;
 
 namespace Blink3.Core.Extensions;
 
 /// <summary>
-///     Provides extension methods for the <see cref="WordleLetterStateEnum"/> enum.
+///     Provides extension methods for the <see cref="WordleLetterStateEnum" /> enum.
 /// </summary>
 public static class WordleLetterStateEnumExtensions
 {

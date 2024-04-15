@@ -39,7 +39,7 @@ public static class WordleGuessExtensions
     {
         string word = guess.Word;
         string wordToGuess = wordle.WordToGuess;
-        Dictionary<char, int> checkedLettersCount = new Dictionary<char, int>();  // number of times a letter has been processed
+        Dictionary<char, int> checkedLettersCount = new(); // number of times a letter has been processed
 
         for (int i = 0; i < word.Length; i++)
         {

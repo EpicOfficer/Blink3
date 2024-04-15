@@ -28,7 +28,7 @@ public class BlinkDbContext : DbContext
     ///     Represents the collection of Blink users in the Blink3 application.
     /// </summary>
     public DbSet<BlinkUser> BlinkUsers => Set<BlinkUser>();
-    
+
     /// <summary>
     ///     Represents a user's "to do" items.
     /// </summary>
@@ -48,7 +48,7 @@ public class BlinkDbContext : DbContext
     ///     List of words used in the wordle game.
     /// </summary>
     public DbSet<Word> Words => Set<Word>();
-    
+
     /// <summary>
     ///     Represents a temporary voice channel entity.
     /// </summary>
@@ -65,13 +65,13 @@ public class BlinkDbContext : DbContext
 
         modelBuilder.Entity<WordleGuess>()
             .OwnsMany(guess => guess.Letters);
-        
+
         modelBuilder.Entity<Word>(entity =>
         {
             entity.HasIndex(w => new { w.Language, w.IsSolution, w.Length });
             entity.HasIndex(w => new { w.Text, w.Language });
         });
-        
+
         modelBuilder.Entity<BlinkGuild>(entity =>
         {
             entity.Property(p => p.BackgroundColour).IsRequired(false);
@@ -80,7 +80,7 @@ public class BlinkDbContext : DbContext
             entity.Property(p => p.MisplacedTileColour).IsRequired(false);
             entity.Property(p => p.IncorrectTileColour).IsRequired(false);
         });
-        
+
         modelBuilder.Entity<TempVc>(p => p.HasKey(t => new { t.GuildId, t.ChannelId }));
     }
 }

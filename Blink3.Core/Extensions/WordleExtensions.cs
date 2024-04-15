@@ -16,7 +16,7 @@ public static class WordleExtensions
     {
         List<int> correctIndices = [];
         List<int> misplacedIndices = [];
-        
+
         guess.MarkCorrectLetters(wordle, correctIndices);
         guess.MarkMisplacedLetters(wordle, correctIndices, misplacedIndices);
     }

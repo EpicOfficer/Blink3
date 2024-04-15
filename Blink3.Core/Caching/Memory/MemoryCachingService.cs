@@ -5,7 +5,8 @@ namespace Blink3.Core.Caching.Memory;
 /// <inheritdoc />
 public class MemoryCachingService(IMemoryCache cache) : ICachingService
 {
-    public async Task SetAsync(string key, object value, TimeSpan? absoluteExpireTime = null, CancellationToken cancellationToken = default)
+    public async Task SetAsync(string key, object value, TimeSpan? absoluteExpireTime = null,
+        CancellationToken cancellationToken = default)
     {
         MemoryCacheEntryOptions cacheEntryOptions = new()
         {

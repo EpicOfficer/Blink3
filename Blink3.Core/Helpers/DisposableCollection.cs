@@ -7,7 +7,7 @@ namespace Blink3.Core.Helpers;
 public class DisposableCollection<T>(IEnumerable<T> items) : IDisposableCollection<T> where T : IDisposable
 {
     private readonly LinkedList<T> _items = new(items);
-    
+
     public IEnumerator<T> GetEnumerator()
     {
         return _items.GetEnumerator();
@@ -20,11 +20,8 @@ public class DisposableCollection<T>(IEnumerable<T> items) : IDisposableCollecti
 
     public void Dispose()
     {
-        foreach (T item in _items)
-        {
-            item.Dispose();
-        }
-        
+        foreach (T item in _items) item.Dispose();
+
         GC.SuppressFinalize(this);
     }
 }

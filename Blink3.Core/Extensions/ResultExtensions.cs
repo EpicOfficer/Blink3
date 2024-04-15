@@ -1,6 +1,6 @@
 using Blink3.Core.Models;
 
-namespace Blink3.DataAccess.Extensions;
+namespace Blink3.Core.Extensions;
 
 public static class ResultExtensions
 {

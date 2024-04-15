@@ -8,9 +8,9 @@ namespace Blink3.DataAccess.Repositories;
 public class BlinkUserRepository(BlinkDbContext dbContext)
     : GenericRepository<BlinkUser>(dbContext), IBlinkUserRepository
 {
-    private readonly BlinkDbContext _dbContext = dbContext;
     private const int LeaderboardSize = 5;
-    
+    private readonly BlinkDbContext _dbContext = dbContext;
+
     public async Task<IEnumerable<BlinkUser>> GetLeaderboardAsync()
     {
         return await _dbContext.BlinkUsers

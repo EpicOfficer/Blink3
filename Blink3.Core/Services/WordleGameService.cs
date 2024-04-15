@@ -1,4 +1,3 @@
-using Blink3.Core.Constants;
 using Blink3.Core.Entities;
 using Blink3.Core.Extensions;
 using Blink3.Core.Factories;
@@ -7,7 +6,6 @@ using Blink3.Core.Models;
 using Blink3.Core.Repositories.Interfaces;
 using Blink3.Core.Services.Generators;
 using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.PixelFormats;
 
 namespace Blink3.Core.Services;
 
@@ -21,7 +19,8 @@ public class WordleGameService(
 {
     public async Task<bool> IsGameInProgressAsync(ulong channelId, CancellationToken cancellationToken = default)
     {
-        return await wordleRepository.GetByChannelIdAsync(channelId, cancellationToken).ConfigureAwait(false) is not null;
+        return await wordleRepository.GetByChannelIdAsync(channelId, cancellationToken).ConfigureAwait(false) is not
+            null;
     }
 
     public async Task<Result<WordleGuess>> MakeGuessAsync(string word, ulong userId, Wordle wordle,
@@ -42,7 +41,8 @@ public class WordleGameService(
         return Result<WordleGuess>.Ok(guess);
     }
 
-    public async Task GenerateImageAsync(WordleGuess guess, MemoryStream outStream, BlinkGuild blinkGuild, CancellationToken cancellationToken = default)
+    public async Task GenerateImageAsync(WordleGuess guess, MemoryStream outStream, BlinkGuild blinkGuild,
+        CancellationToken cancellationToken = default)
     {
         WordleGuessImageGeneratorOptions options = new()
         {

@@ -36,14 +36,14 @@ public class WordsClientService : IWordsClientService
         using HttpResponseMessage response = await _httpClient.GetAsync(url, cancellationToken);
 
         if (response.StatusCode == HttpStatusCode.NotFound) return null;
-        
+
         response.EnsureSuccessStatusCode();
-        WordDetails? wordDetails = await response.Content.ReadFromJsonAsync<WordDetails>(cancellationToken: cancellationToken);
+        WordDetails? wordDetails = await response.Content.ReadFromJsonAsync<WordDetails>(cancellationToken);
 
         // Early return if wordDetails or Definitions are null
         if (wordDetails?.Definitions is null)
             return null;
-        
+
         // Filter definitions
         List<WordDefinition>? validDefinitions = wordDetails.Definitions
             .Where(wd => !string.IsNullOrWhiteSpace(wd.PartOfSpeech) &&
@@ -51,12 +51,12 @@ public class WordsClientService : IWordsClientService
             .ToList();
 
         // Early return if no valid definitions
-        if (!validDefinitions.Any()) 
+        if (!validDefinitions.Any())
             return null;
 
         // Assign filtered definitions back
         wordDetails.Definitions = validDefinitions;
-        
+
         await _cachingService.SetAsync(cacheKey, wordDetails, cancellationToken: cancellationToken);
         return wordDetails;
     }

@@ -3,7 +3,6 @@
 // ReSharper disable PropertyCanBeMadeInitOnly.Global
 
 using System.ComponentModel.DataAnnotations;
-using Blink3.Core.Interfaces;
 
 namespace Blink3.Core.Entities;
 
@@ -32,7 +31,7 @@ public class Wordle
     ///     The language this wordle was started in
     /// </summary>
     public string Language { get; set; } = string.Empty;
-    
+
     /// <summary>
     ///     Represents the word to guess in the Wordle game.
     /// </summary>

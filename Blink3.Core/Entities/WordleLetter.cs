@@ -14,7 +14,7 @@ public class WordleLetter
     ///     Unique identifier of this letter
     /// </summary>
     public int Id { get; set; }
-    
+
     /// <summary>
     ///     The position of this letter in the wordle.
     /// </summary>

@@ -30,9 +30,9 @@ public class DiscordAttachmentService(HttpClient httpClient) : IDiscordAttachmen
 
         // Copy the content of the response stream to a new MemoryStream
         Stream responseStream = await response.Content.ReadAsStreamAsync();
-        MemoryStream ms = new MemoryStream();
+        MemoryStream ms = new();
         await responseStream.CopyToAsync(ms);
-        ms.Position = 0;  // Reset the MemoryStream position
+        ms.Position = 0; // Reset the MemoryStream position
 
         return new FileAttachment(
             ms,

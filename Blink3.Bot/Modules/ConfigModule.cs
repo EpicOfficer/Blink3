@@ -14,15 +14,12 @@ namespace Blink3.Bot.Modules;
 public class ConfigModule(IBlinkGuildRepository blinkGuildRepository)
     : BlinkModuleBase<IInteractionContext>(blinkGuildRepository)
 {
-    private readonly IBlinkGuildRepository _blinkGuildRepository = blinkGuildRepository;
-
     public enum SettingsEnum
     {
         [ChoiceDisplay("Wordle Background Colour")]
         WordleBackgroundColour,
-        
-        [ChoiceDisplay("Wordle Text Colour")]
-        WordleTextColour,
+
+        [ChoiceDisplay("Wordle Text Colour")] WordleTextColour,
 
         [ChoiceDisplay("Wordle Correct Tile Colour")]
         WordleCorrectTileColour,
@@ -32,14 +29,16 @@ public class ConfigModule(IBlinkGuildRepository blinkGuildRepository)
 
         [ChoiceDisplay("Wordle Incorrect Tile Colour")]
         WordleIncorrectTileColour,
-        
+
         [ChoiceDisplay("Staff Logging Channel")]
         StaffLoggingChannel,
-        
+
         [ChoiceDisplay("Temporary VC Category")]
         TempVcCategory
     }
-    
+
+    private readonly IBlinkGuildRepository _blinkGuildRepository = blinkGuildRepository;
+
     [SlashCommand("set", "Change or reset config values")]
     public async Task Set(SettingsEnum setting, string? value = null)
     {
@@ -97,7 +96,7 @@ public class ConfigModule(IBlinkGuildRepository blinkGuildRepository)
             await RespondSuccessAsync("Value reset", "The ID has been reset to default");
             return;
         }
-        
+
         if (ulong.TryParse(value, out ulong channelId))
         {
             await _blinkGuildRepository.UpdatePropertiesAsync(guild,
@@ -105,7 +104,7 @@ public class ConfigModule(IBlinkGuildRepository blinkGuildRepository)
             await RespondSuccessAsync("Value updated", "The ID has been updated successfully");
             return;
         }
-        
+
         await RespondErrorAsync("Invalid channel", "The value you provided is not a valid ID.");
     }
 
