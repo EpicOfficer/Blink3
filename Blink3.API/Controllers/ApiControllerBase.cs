@@ -125,6 +125,19 @@ public abstract class ApiControllerBase(ICachingService cachingService) : Contro
         return managedGuilds;
     }
     
+    /// <summary>
+    ///     Checks if the user has access to the specified guild.
+    /// </summary>
+    /// <param name="guildId">The ID of the guild to check access for.</param>
+    /// <returns>
+    /// Returns an <see cref="ObjectResult"/> representing a problem response if the user doesn't have access, or null if the user has access.
+    /// </returns>
+    protected async Task<ObjectResult?> CheckGuildAccessAsync(ulong guildId)
+    {
+        List<DiscordPartialGuild> guilds = await GetUserGuilds();
+        return guilds.All(g => g.Id != guildId) ? ProblemForUnauthorizedAccess() : null;
+    }
+    
     ~ApiControllerBase()
     {
         Client?.Dispose();

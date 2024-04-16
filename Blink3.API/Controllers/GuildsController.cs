@@ -1,6 +1,5 @@
 using Blink3.Core.Caching;
 using Blink3.Core.Models;
-using Discord.Rest;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 
