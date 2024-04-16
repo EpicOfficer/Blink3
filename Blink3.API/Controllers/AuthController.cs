@@ -2,6 +2,7 @@ using System.Net.Mime;
 using AspNet.Security.OAuth.Discord;
 using Blink3.API.Interfaces;
 using Blink3.API.Models;
+using Blink3.Core.Caching;
 using Blink3.Core.DiscordAuth;
 using Blink3.Core.DiscordAuth.Extensions;
 using Microsoft.AspNetCore.Authentication;
@@ -18,7 +19,8 @@ namespace Blink3.API.Controllers;
 [Consumes(MediaTypeNames.Application.Json)]
 public class AuthController(
     IAuthenticationService authenticationService,
-    IDiscordTokenService discordTokenService) : ControllerBase
+    IDiscordTokenService discordTokenService,
+    ICachingService cachingService) : ControllerBase
 {
     [HttpGet("login")]
     [SwaggerOperation(

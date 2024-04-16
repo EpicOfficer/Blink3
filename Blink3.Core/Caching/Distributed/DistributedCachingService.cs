@@ -1,10 +1,10 @@
 using System.Text.Json;
 using Microsoft.Extensions.Caching.Distributed;
 
-namespace Blink3.Core.Caching.Redis;
+namespace Blink3.Core.Caching.Distributed;
 
 /// <inheritdoc />
-public class RedisCachingService(IDistributedCache cache) : ICachingService
+public class DistributedCachingService(IDistributedCache cache) : ICachingService
 {
     public async Task SetAsync(string key, object value, TimeSpan? absoluteExpireTime = null,
         CancellationToken cancellationToken = default)

@@ -62,10 +62,7 @@ try
     // Add Data Access layer and cache provider
     builder.Services.AddDataAccess(appConfig);
     builder.Services.AddCaching(appConfig);
-
-    // Add Discord Rest Client and startup service
-    builder.Services.AddSingleton<DiscordRestClient>();
-    builder.Services.AddHostedService<DiscordStartupService>();
+    builder.Services.AddSession();
 
     // For getting discord tokens
     builder.Services.AddHttpClient();
@@ -75,7 +72,7 @@ try
     builder.Services.AddDiscordAuth(appConfig);
 
     WebApplication app = builder.Build();
-
+    
     if (!app.Environment.IsDevelopment())
     {
         app.UseForwardedHeaders();
@@ -92,6 +89,8 @@ try
     // Use Cors
     app.UseCors("CorsPolicy");
 
+    app.UseSession();
+    
     // Add authentication / authorization middleware
     app.UseAuthentication();
     app.UseAuthorization();

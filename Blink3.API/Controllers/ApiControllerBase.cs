@@ -1,5 +1,8 @@
 using System.Net.Mime;
+using Blink3.Core.Caching;
 using Blink3.Core.DiscordAuth.Extensions;
+using Discord;
+using Discord.Rest;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
@@ -18,8 +21,11 @@ namespace Blink3.API.Controllers;
 [Route("api/[controller]")]
 [ApiController]
 [Authorize]
-public abstract class ApiControllerBase : ControllerBase
+public abstract class ApiControllerBase(ICachingService cachingService) : ControllerBase
 {
+    protected readonly ICachingService CachingService = cachingService;
+    protected DiscordRestClient? Client;
+    
     /// <summary>
     ///     Represents an Unauthorized Access message.
     /// </summary>
@@ -78,5 +84,21 @@ public abstract class ApiControllerBase : ControllerBase
     {
         if (userId is null) return ProblemForMissingItem();
         return userId != UserId ? ProblemForUnauthorizedAccess() : null;
+    }
+
+    protected async Task InitDiscordClientAsync()
+    {
+        if (Client is not null) return;
+        string? accessToken = await CachingService.GetAsync<string>($"token:{UserId}");
+        if (accessToken is null) return;
+        
+        Client = new DiscordRestClient();
+        await Client.LoginAsync(TokenType.Bearer, accessToken);
+    }
+    
+    ~ApiControllerBase()
+    {
+        Client?.Dispose();
+        Client = null;
     }
 }

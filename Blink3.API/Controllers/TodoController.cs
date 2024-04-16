@@ -1,3 +1,4 @@
+using Blink3.Core.Caching;
 using Blink3.Core.DTOs;
 using Blink3.Core.Entities;
 using Blink3.Core.Repositories.Interfaces;
@@ -10,7 +11,7 @@ namespace Blink3.API.Controllers;
 ///     Controller for performing CRUD operations on userTodo items.
 /// </summary>
 [SwaggerTag("All CRUD operations for todo items")]
-public class TodoController(IUserTodoRepository todoRepository) : ApiControllerBase
+public class TodoController(ICachingService cachingService, IUserTodoRepository todoRepository) : ApiControllerBase(cachingService)
 {
     /// <summary>
     ///     Retrieves all userTodo items for the current user.
