@@ -1,6 +1,7 @@
 using System.Net.Mime;
 using Blink3.Core.Caching;
 using Blink3.Core.DiscordAuth.Extensions;
+using Blink3.Core.Models;
 using Discord;
 using Discord.Rest;
 using Microsoft.AspNetCore.Authorization;
@@ -94,6 +95,34 @@ public abstract class ApiControllerBase(ICachingService cachingService) : Contro
         
         Client = new DiscordRestClient();
         await Client.LoginAsync(TokenType.Bearer, accessToken);
+    }
+
+    protected async Task<List<DiscordPartialGuild>> GetUserGuilds()
+    {
+        await InitDiscordClientAsync();
+        
+        List<DiscordPartialGuild> managedGuilds = await CachingService.GetOrAddAsync($"discord:guilds:{UserId}",
+            async () =>
+            {
+                List<DiscordPartialGuild> manageable = [];
+                if (Client is null) return manageable;
+                
+                IAsyncEnumerable<IReadOnlyCollection<RestUserGuild>> guilds = Client.GetGuildSummariesAsync();
+                await foreach (IReadOnlyCollection<RestUserGuild> guildCollection in guilds)
+                {
+                    manageable.AddRange(guildCollection.Where(g => g.Permissions.ManageGuild).Select(g =>
+                        new DiscordPartialGuild
+                        {
+                            Id = g.Id,
+                            Name = g.Name,
+                            IconUrl = g.IconUrl
+                        }));
+                }
+
+                return manageable;
+            }, TimeSpan.FromMinutes(5));
+
+        return managedGuilds;
     }
     
     ~ApiControllerBase()

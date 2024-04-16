@@ -1,4 +1,5 @@
 using Blink3.Core.Caching;
+using Blink3.Core.Models;
 using Discord.Rest;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
@@ -8,20 +9,11 @@ namespace Blink3.API.Controllers;
 public class GuildsController(ICachingService cachingService) : ApiControllerBase(cachingService)
 {
     [HttpGet]
-    [SwaggerResponse(StatusCodes.Status200OK, "Success", typeof(RestUserGuild[]))]
-    public async Task<ActionResult<RestUserGuild[]>> GetAllGuilds()
+    [SwaggerResponse(StatusCodes.Status200OK, "Success", typeof(DiscordPartialGuild[]))]
+    public async Task<ActionResult<DiscordPartialGuild[]>> GetAllGuilds()
     {
-        await InitDiscordClientAsync();
-        
-        IAsyncEnumerable<IReadOnlyCollection<RestUserGuild>>? guilds = Client?.GetGuildSummariesAsync();
-        List<RestUserGuild> managedGuilds = [];
+        List<DiscordPartialGuild> guilds = await GetUserGuilds();
 
-        if (guilds is not null)
-            await foreach (IReadOnlyCollection<RestUserGuild> guildCollection in guilds)
-            {
-                managedGuilds.AddRange(guildCollection.Where(g => g.Permissions.ManageGuild));
-            }
-
-        return Ok(managedGuilds);
+        return Ok(guilds);
     }
 }

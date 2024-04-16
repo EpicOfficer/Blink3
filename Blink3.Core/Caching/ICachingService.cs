@@ -16,7 +16,7 @@ public interface ICachingService
     /// </param>
     /// <param name="cancellationToken">Optional. The cancellation token to cancel the operation.</param>
     /// <returns>A task that represents the asynchronous operation.</returns>
-    Task SetAsync(string key, object value, TimeSpan? absoluteExpireTime = null,
+    Task SetAsync(string key, object? value, TimeSpan? absoluteExpireTime = null,
         CancellationToken cancellationToken = default);
 
     /// <summary>
@@ -30,6 +30,18 @@ public interface ICachingService
     /// </returns>
     Task<T?> GetAsync<T>(string key, CancellationToken cancellationToken = default);
 
+    /// <summary>
+    ///     Retrieves the value associated with the specified key, or adds it to the cache if not found.
+    /// </summary>
+    /// <typeparam name="T">The type of the value to retrieve.</typeparam>
+    /// <param name="key">The key of the value to retrieve.</param>
+    /// <param name="getter">The function to call to obtain the value if not found in the cache.</param>
+    /// <param name="absoluteExpireTime">Optional. The absolute expiration time for the cached value. If not specified, the default expiration time is 1 hour.</param>
+    /// <param name="cancellationToken">Optional. The cancellation token to cancel the operation.</param>
+    /// <returns>The value associated with the specified key, or the newly added value if not found in the cache.</returns>
+    public Task<T> GetOrAddAsync<T>(string key, Func<Task<T>> getter, TimeSpan? absoluteExpireTime = null,
+        CancellationToken cancellationToken = default);
+    
     /// <summary>
     ///     Removes the cached item with the specified key.
     /// </summary>
