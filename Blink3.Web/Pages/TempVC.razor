@@ -1,0 +1,11 @@
+@page "/guilds/{GuildId}/TempVC"
+
+<PageTitle>Temporary VC settings</PageTitle>
+
+<h1 class="border-bottom mb-2 pb-2">Temporary VC settings</h1>
+
+@GuildId
+
+@code {
+    [Parameter] public string GuildId { get; set; }
+}
