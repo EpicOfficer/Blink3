@@ -30,5 +30,6 @@ builder.Services.AddScoped<AuthenticationStateProvider, ApiAuthenticationStatePr
 builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
 
 builder.Services.AddScoped<ITodoHttpRepository, TodoHttpRepository>();
+builder.Services.AddScoped<IBlinkGuildHttpRepository, BlinkGuildHttpRepository>();
 
 await builder.Build().RunAsync();

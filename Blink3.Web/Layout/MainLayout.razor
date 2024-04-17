@@ -1,6 +1,8 @@
 ﻿@using System.Security.Claims
+@using Blink3.Core.Models
 @inherits LayoutComponentBase
 @inject NavigationManager Navigation;
+@inject HttpClient Client;
 
 <div class="page">
     <Sidebar2 @ref="_sidebar"
@@ -62,14 +64,51 @@
         AuthenticationState authState = await authenticationStateTask;
         ClaimsPrincipal user = authState.User;
 
-        if (user.Identity?.IsAuthenticated is true)
+        if (user.Identity?.IsAuthenticated is not true) return _navItems;
+        
+        _navItems.Add(new NavItem
+        {
+            Id = "2",
+            Href = "/todo",
+            IconName = IconName.PencilFill,
+            Text = "Todo list"
+        });
+        
+        IEnumerable<DiscordPartialGuild>? guilds = await Client.GetFromJsonAsync<IEnumerable<DiscordPartialGuild>>("api/guilds");
+
+        if (guilds == null) return _navItems;
+        
+        foreach (DiscordPartialGuild guild in guilds)
         {
             _navItems.Add(new NavItem
             {
-                Id = "2",
-                Href = "/todo",
-                IconName = IconName.PencilFill,
-                Text = "Todo list"
+                Id = guild.Id.ToString(),
+                IconName = IconName.GearFill,
+                Text = guild.Name
+            });
+            _navItems.Add(new NavItem
+            {
+                Id = $"{guild.Id}_1",
+                ParentId = guild.Id.ToString(),
+                IconName = IconName.AlphabetUppercase,
+                Text = "Wordle settings",
+                Href = $"/guilds/{guild.Id}/wordle"
+            });
+            _navItems.Add(new NavItem
+            {
+                Id = $"{guild.Id}_2",
+                ParentId = guild.Id.ToString(),
+                IconName = IconName.MicFill,
+                Text = "Temporary VC settings",
+                Href = $"/guilds/{guild.Id}/tempVC"
+            });
+            _navItems.Add(new NavItem
+            {
+                Id = $"{guild.Id}_3",
+                ParentId = guild.Id.ToString(),
+                IconName = IconName.ShieldFill,
+                Text = "Staff settings",
+                Href = $"/guilds/{guild.Id}/staff"
             });
         }
 

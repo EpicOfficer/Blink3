@@ -15,11 +15,11 @@ public interface ITodoHttpRepository
     public Task<IEnumerable<UserTodo>> GetAsync();
 
     /// <summary>
-    ///     Retrieves all UserTodo entities asynchronously.
+    ///     Retrieves a UserTodo entity by ID asynchronously.
     /// </summary>
+    /// <param name="id">The ID of the UserTodo entity to update.</param>
     /// <returns>
-    ///     A task representing the asynchronous operation. The task result contains a read-only collection of UserTodo
-    ///     entities.
+    ///     A task representing the asynchronous operation. The task result contains a UserTodo entity.
     /// </returns>
     public Task<UserTodo?> GetAsync(int id);
 
