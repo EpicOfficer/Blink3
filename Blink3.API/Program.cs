@@ -4,6 +4,7 @@ using Blink3.API.Services;
 using Blink3.Core.Caching.Extensions;
 using Blink3.Core.Configuration;
 using Blink3.Core.Configuration.Extensions;
+using Blink3.Core.Helpers;
 using Blink3.DataAccess.Extensions;
 using Discord;
 using Discord.Addons.Hosting;
@@ -30,7 +31,11 @@ try
     builder.Services.AddProblemDetails();
 
     // Controllers
-    builder.Services.AddControllers();
+    builder.Services.AddControllers()
+        .AddJsonOptions(options =>
+        {
+            options.JsonSerializerOptions.Converters.Add(new ULongToStringConverter());
+        });
 
     // Swagger docs
     builder.Services.AddEndpointsApiExplorer();

@@ -140,7 +140,7 @@ public abstract class ApiControllerBase(DiscordSocketClient discordSocketClient,
     protected async Task<ObjectResult?> CheckGuildAccessAsync(ulong guildId)
     {
         List<DiscordPartialGuild> guilds = await GetUserGuilds();
-        return guilds.All(g => g.Id != guildId) ? ProblemForUnauthorizedAccess() : null;
+        return guilds.Any(g => g.Id == guildId) ? null : ProblemForUnauthorizedAccess();
     }
     
     ~ApiControllerBase()
