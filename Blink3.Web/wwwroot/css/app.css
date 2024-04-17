@@ -75,5 +75,5 @@ h1:focus {
 :root {
     --bb-sidebar2-background-color: transparent;
     --bb-sidebar2-nav-item-text-color: var(--bs-nav-link-color);
-    --bb-sidebar2-content-border-color: transparent;
+    --bb-sidebar2-content-border-color: var(--bs-border-color);
 }
