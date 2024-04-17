@@ -3,7 +3,9 @@ using Blink3.Core.Caching;
 using Blink3.Core.DiscordAuth.Extensions;
 using Blink3.Core.Models;
 using Discord;
+using Discord.Addons.Hosting.Util;
 using Discord.Rest;
+using Discord.WebSocket;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
@@ -22,10 +24,11 @@ namespace Blink3.API.Controllers;
 [Route("api/[controller]")]
 [ApiController]
 [Authorize]
-public abstract class ApiControllerBase(ICachingService cachingService) : ControllerBase
+public abstract class ApiControllerBase(DiscordSocketClient discordSocketClient, ICachingService cachingService) : ControllerBase
 {
     protected readonly ICachingService CachingService = cachingService;
     protected DiscordRestClient? Client;
+    protected readonly DiscordSocketClient DiscordBotClient = discordSocketClient;
     
     /// <summary>
     ///     Represents an Unauthorized Access message.
@@ -89,6 +92,7 @@ public abstract class ApiControllerBase(ICachingService cachingService) : Contro
 
     protected async Task InitDiscordClientAsync()
     {
+        await DiscordBotClient.WaitForReadyAsync(CancellationToken.None);
         if (Client is not null) return;
         string? accessToken = await CachingService.GetAsync<string>($"token:{UserId}");
         if (accessToken is null) return;
@@ -122,7 +126,8 @@ public abstract class ApiControllerBase(ICachingService cachingService) : Contro
                 return manageable;
             }, TimeSpan.FromMinutes(5));
 
-        return managedGuilds;
+        List<ulong> discordGuildIds = DiscordBotClient.Guilds.Select(b => b.Id).ToList();
+        return managedGuilds.Where(g => discordGuildIds.Contains(g.Id)).ToList();
     }
     
     /// <summary>

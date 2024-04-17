@@ -5,7 +5,10 @@ using Blink3.Core.Caching.Extensions;
 using Blink3.Core.Configuration;
 using Blink3.Core.Configuration.Extensions;
 using Blink3.DataAccess.Extensions;
+using Discord;
+using Discord.Addons.Hosting;
 using Discord.Rest;
+using Discord.WebSocket;
 using Microsoft.AspNetCore.HttpOverrides;
 using Serilog;
 using Serilog.Events;
@@ -22,7 +25,7 @@ try
 
     // Logging
     builder.Host.UseSerilog();
-
+    
     // Problem details
     builder.Services.AddProblemDetails();
 
@@ -37,6 +40,19 @@ try
     builder.Services.AddAppConfiguration(builder.Configuration);
     BlinkConfiguration appConfig = builder.Services.GetAppConfiguration();
 
+    // Discord socket client
+    builder.Services.AddDiscordHost((config, _) =>
+    {
+        config.SocketConfig = new DiscordSocketConfig
+        {
+            LogLevel = LogSeverity.Verbose,
+            MessageCacheSize = 0,
+            GatewayIntents = GatewayIntents.Guilds
+        };
+
+        config.Token = appConfig.Discord.BotToken;
+    });
+    
     // Add forwarded headers
     builder.Services.Configure<ForwardedHeadersOptions>(options =>
     {
