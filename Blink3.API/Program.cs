@@ -8,7 +8,6 @@ using Blink3.Core.Helpers;
 using Blink3.DataAccess.Extensions;
 using Discord;
 using Discord.Addons.Hosting;
-using Discord.Rest;
 using Discord.WebSocket;
 using Microsoft.AspNetCore.HttpOverrides;
 using Serilog;
@@ -31,11 +30,10 @@ try
     builder.Services.AddProblemDetails();
 
     // Controllers
-    builder.Services.AddControllers()
-        .AddJsonOptions(options =>
-        {
-            options.JsonSerializerOptions.Converters.Add(new ULongToStringConverter());
-        });
+    builder.Services.AddControllers().AddNewtonsoftJson(options =>
+    {
+        options.SerializerSettings.Converters.Add(new ULongToStringConverter());
+    });
 
     // Swagger docs
     builder.Services.AddEndpointsApiExplorer();

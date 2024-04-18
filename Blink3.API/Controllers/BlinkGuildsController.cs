@@ -4,6 +4,7 @@ using Blink3.Core.Entities;
 using Blink3.Core.Models;
 using Blink3.Core.Repositories.Interfaces;
 using Discord.WebSocket;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 
@@ -81,6 +82,44 @@ public class BlinkGuildsController(DiscordSocketClient discordSocketClient, ICac
         blinkGuild.Id = id;
         await blinkGuildRepository.UpdateAsync(blinkGuild, cancellationToken);
         
+        return NoContent();
+    }
+
+    /// <summary>
+    ///     Patches a specific BlinkGuild item.
+    ///     Updates the content of a specific BlinkGuild item partially.
+    /// </summary>
+    /// <param name="id">The ID of the BlinkGuild item to patch.</param>
+    /// <param name="patchDoc">The <see cref="JsonPatchDocument{T}"/> containing the partial update.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>Returns 204 (No content) if the patch is successful.</returns>
+    [HttpPatch("{id}")]
+    [SwaggerOperation(
+        Summary = "Patches a specific BlinkGuild item",
+        Description = "Updates the content of a specific BlinkGuild item partially",
+        OperationId = "BlinkGuilds.Patch",
+        Tags = ["BlinkGuilds"]
+    )]
+    [SwaggerResponse(StatusCodes.Status204NoContent, "No content")]
+    public async Task<IActionResult> PatchBlinkGuild(ulong id, [FromBody] JsonPatchDocument<BlinkGuild> patchDoc,
+        CancellationToken cancellationToken)
+    {
+        ObjectResult? accessCheckResult = await CheckGuildAccessAsync(id);
+        if (accessCheckResult is not null) return accessCheckResult;
+
+        BlinkGuild? blinkGuild = await blinkGuildRepository.GetByIdAsync(id);
+        if (blinkGuild is null)
+        {
+            return NotFound();
+        }
+        patchDoc.ApplyTo(blinkGuild);
+        
+        if (!TryValidateModel(blinkGuild))
+        {
+            return BadRequest(ModelState);
+        }
+        
+        await blinkGuildRepository.UpdateAsync(blinkGuild, cancellationToken);
         return NoContent();
     }
 }
