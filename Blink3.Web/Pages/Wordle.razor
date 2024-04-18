@@ -3,6 +3,7 @@
 @using Microsoft.AspNetCore.JsonPatch
 @using Newtonsoft.Json
 @using System.Text
+@using Blink3.Core.Helpers
 @inject HttpClient HttpClient
 
 <PageTitle>Wordle settings</PageTitle>
@@ -48,10 +49,10 @@ else
         </div>
     </EditForm>
 
-    @if (!string.IsNullOrWhiteSpace(notificationMessage))
+    @if (!string.IsNullOrWhiteSpace(_notificationMessage))
     {
         <div class="alert alert-info mt-3">
-            @notificationMessage
+            @_notificationMessage
         </div>
     }
 }
@@ -61,7 +62,7 @@ else
     private BlinkGuild? _initialGuild;
     private BlinkGuild? _blinkGuild;
 
-    private string notificationMessage = string.Empty;
+    private string _notificationMessage = string.Empty;
 
     protected override async Task OnInitializedAsync()
     {
@@ -75,7 +76,7 @@ else
 
     private async Task GetGuild()
     {
-        notificationMessage = string.Empty;
+        _notificationMessage = string.Empty;
         _blinkGuild = await HttpClient.GetFromJsonAsync<BlinkGuild>($"api/BlinkGuilds/{GuildId}");
         
         SetInitialGuild();
@@ -115,9 +116,12 @@ else
         if (_initialGuild?.IncorrectTileColour != _blinkGuild?.IncorrectTileColour)
             patchDocument.Replace(x => x.IncorrectTileColour, _blinkGuild?.IncorrectTileColour);
 
+        JsonSerializerSettings options = new();
+        options.Converters.Add(new ULongToStringConverter());
+        
         HttpRequestMessage request = new(method, $"api/BlinkGuilds/{GuildId}")
         {
-            Content = new StringContent(JsonConvert.SerializeObject(patchDocument), Encoding.UTF8, "application/json-patch+json")
+            Content = new StringContent(JsonConvert.SerializeObject(patchDocument, options), Encoding.UTF8, "application/json-patch+json")
         };
 
         HttpResponseMessage httpResponseMessage = await HttpClient.SendAsync(request);
@@ -125,11 +129,11 @@ else
         if (httpResponseMessage.IsSuccessStatusCode)
         {
             SetInitialGuild();
-            notificationMessage = "Changes have been saved successfully.";
+            _notificationMessage = "Changes have been saved successfully.";
         }
         else
         {
-            notificationMessage = "Failed to save changes.";
+            _notificationMessage = "Failed to save changes.";
         }
     }
 
