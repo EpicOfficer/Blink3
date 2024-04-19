@@ -1,14 +1,19 @@
 @page "/guilds/{GuildId}/Wordle"
 @using Blink3.Core.Entities
 @using Microsoft.AspNetCore.JsonPatch
-@using Newtonsoft.Json
-@using System.Text
-@using Blink3.Core.Helpers
-@inject HttpClient HttpClient
+@using Blink3.Web.Interfaces
+@inject IBlinkGuildConfigService BlinkGuildConfig;
 
 <PageTitle>Wordle settings</PageTitle>
 
 <h1 class="mb-2 pb-2">Wordle settings</h1>
+
+@if (!string.IsNullOrWhiteSpace(_notificationMessage))
+{
+    <div class="alert alert-info mt-3">
+        @_notificationMessage
+    </div>
+}
 
 @if (_blinkGuild is null)
 {
@@ -48,13 +53,6 @@ else
             <button type="submit" class="btn btn-primary">Save changes</button>
         </div>
     </EditForm>
-
-    @if (!string.IsNullOrWhiteSpace(_notificationMessage))
-    {
-        <div class="alert alert-info mt-3">
-            @_notificationMessage
-        </div>
-    }
 }
 
 @code {
@@ -77,8 +75,7 @@ else
     private async Task GetGuild()
     {
         _notificationMessage = string.Empty;
-        _blinkGuild = await HttpClient.GetFromJsonAsync<BlinkGuild>($"api/BlinkGuilds/{GuildId}");
-        
+        _blinkGuild = await BlinkGuildConfig.GetByIdAsync(GuildId);
         SetInitialGuild();
     }
 
@@ -98,7 +95,6 @@ else
     
     private async Task HandleValidSubmit()
     {
-        HttpMethod method = new("PATCH");
         JsonPatchDocument<BlinkGuild> patchDocument = new();
 
         if (_initialGuild?.BackgroundColour != _blinkGuild?.BackgroundColour)
@@ -115,18 +111,8 @@ else
 
         if (_initialGuild?.IncorrectTileColour != _blinkGuild?.IncorrectTileColour)
             patchDocument.Replace(x => x.IncorrectTileColour, _blinkGuild?.IncorrectTileColour);
-
-        JsonSerializerSettings options = new();
-        options.Converters.Add(new ULongToStringConverter());
         
-        HttpRequestMessage request = new(method, $"api/BlinkGuilds/{GuildId}")
-        {
-            Content = new StringContent(JsonConvert.SerializeObject(patchDocument, options), Encoding.UTF8, "application/json-patch+json")
-        };
-
-        HttpResponseMessage httpResponseMessage = await HttpClient.SendAsync(request);
-
-        if (httpResponseMessage.IsSuccessStatusCode)
+        if (await BlinkGuildConfig.PatchAsync(GuildId, patchDocument))
         {
             SetInitialGuild();
             _notificationMessage = "Changes have been saved successfully.";
@@ -136,5 +122,4 @@ else
             _notificationMessage = "Failed to save changes.";
         }
     }
-
 }

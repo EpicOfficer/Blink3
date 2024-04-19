@@ -1,16 +1,22 @@
 @page "/guilds/{GuildId}/TempVC"
 @using Blink3.Core.Entities
 @using Microsoft.AspNetCore.JsonPatch
-@using Newtonsoft.Json
-@using System.Text
 @using Blink3.Core.Extensions
-@using Blink3.Core.Helpers
 @using Blink3.Core.Models
-@inject HttpClient HttpClient
+@using Blink3.Web.Interfaces
+@inject IBlinkGuildConfigService BlinkGuildConfig
+@inject IDiscordGuildService DiscordGuildService
 
 <PageTitle>Temporary VC settings</PageTitle>
 
 <h1 class="mb-2 pb-2">Temporary VC settings</h1>
+
+ @if (!string.IsNullOrWhiteSpace(_notificationMessage))
+{
+    <div class="alert alert-info mt-3">
+        @_notificationMessage
+    </div>
+}
 
 @if (_blinkGuild is null)
 {
@@ -40,13 +46,6 @@ else
             <button type="submit" class="btn btn-primary">Save changes</button>
         </div>
     </EditForm>
-
-    @if (!string.IsNullOrWhiteSpace(_notificationMessage))
-    {
-        <div class="alert alert-info mt-3">
-            @_notificationMessage
-        </div>
-    }
 }
 
 @code {
@@ -55,7 +54,7 @@ else
     private BlinkGuild? _initialGuild;
     private BlinkGuild? _blinkGuild;
     private IEnumerable<DiscordPartialChannel>? _categories;
-    private string? SelectedCategoryId { get; set; }
+    private string SelectedCategoryId { get; set; } = string.Empty;
 
     private string _notificationMessage = string.Empty;
     
@@ -74,20 +73,19 @@ else
     private async Task GetGuild()
     {
         _notificationMessage = string.Empty;
-        _blinkGuild = await HttpClient.GetFromJsonAsync<BlinkGuild>($"api/BlinkGuilds/{GuildId}");
-        SelectedCategoryId = _blinkGuild?.TemporaryVcCategoryId?.ToString();
-        
+        _blinkGuild = await BlinkGuildConfig.GetByIdAsync(GuildId);
         SetInitialGuild();
     }
 
     private async Task GetCategories()
     {
-        _categories = await HttpClient.GetFromJsonAsync<IEnumerable<DiscordPartialChannel>>($"/api/Guilds/{GuildId}/categories");
+        _categories = await DiscordGuildService.GetCategories(GuildId);
     } 
     
     private void SetInitialGuild()
     {
         if (_blinkGuild is null) return;
+        SelectedCategoryId = _blinkGuild.TemporaryVcCategoryId.ToString() ?? string.Empty;
         _initialGuild = new BlinkGuild
         {
             Id = _blinkGuild.Id,
@@ -97,31 +95,20 @@ else
 
     private async Task HandleValidSubmit()
     {
-        HttpMethod method = new("PATCH");
-        JsonPatchDocument<BlinkGuild> patchDocument = new();
-
         if (_blinkGuild is null)
         {
             _notificationMessage = "An error occurred submitting data";
             return;
         }
         
+        JsonPatchDocument<BlinkGuild> patchDocument = new();
+        
         _blinkGuild.TemporaryVcCategoryId = string.IsNullOrWhiteSpace(SelectedCategoryId) ? null : SelectedCategoryId?.ToUlong();
 
         if (_initialGuild?.TemporaryVcCategoryId != _blinkGuild?.TemporaryVcCategoryId)
             patchDocument.Replace(x => x.TemporaryVcCategoryId, _blinkGuild?.TemporaryVcCategoryId);
 
-        JsonSerializerSettings options = new();
-        options.Converters.Add(new ULongToStringConverter());
-        
-        HttpRequestMessage request = new(method, $"api/BlinkGuilds/{GuildId}")
-        {
-            Content = new StringContent(JsonConvert.SerializeObject(patchDocument, options), Encoding.UTF8, "application/json-patch+json")
-        };
-
-        HttpResponseMessage httpResponseMessage = await HttpClient.SendAsync(request);
-
-        if (httpResponseMessage.IsSuccessStatusCode)
+        if (await BlinkGuildConfig.PatchAsync(GuildId, patchDocument))
         {
             SetInitialGuild();
             _notificationMessage = "Changes have been saved successfully.";
