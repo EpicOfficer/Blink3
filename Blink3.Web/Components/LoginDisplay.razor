@@ -4,14 +4,14 @@
 <AuthorizeView>
     <Authorized>
         <Dropdown>
-            <DropdownToggleButton Color="ButtonColor.Secondary">@(context.User.GetDisplayName())</DropdownToggleButton>
+            <DropdownToggleButton Color="ButtonColor.Link">@(context.User.GetDisplayName())</DropdownToggleButton>
             <DropdownMenu>
                 <DropdownItem @onclick="Logout">Logout</DropdownItem>
             </DropdownMenu>
         </Dropdown>
     </Authorized>
     <NotAuthorized>
-        <Button Color="ButtonColor.Secondary" @onclick="Login">Login</Button>
+        <Button Color="ButtonColor.Link" @onclick="Login">Login</Button>
     </NotAuthorized>
 </AuthorizeView>
 
