@@ -45,10 +45,13 @@
     </EditForm>
 }
 
+<ConfirmDialog @ref="_dialog"/>
+
 @code {
     [Parameter] public string? GuildId { get; set; }
     [Inject] protected ToastService ToastService { get; set; } = default!;
     [Inject] protected PreloadService PreloadService { get; set; } = default!;
+    private ConfirmDialog _dialog = default!;
     private BlinkGuild? _initialGuild;
     private BlinkGuild? _blinkGuild;
 
@@ -118,6 +121,12 @@
 
     private async Task HandleReset()
     {
+        bool confirmation = await _dialog.ShowAsync(
+            "Are you sure?",
+            "This will reset all wordle colours to the defaults and cannot be undone.");
+
+        if (!confirmation) return;
+        
         JsonPatchDocument<BlinkGuild> patchDocument = new();
 
         patchDocument.Replace(b => b.BackgroundColour, string.Empty);
