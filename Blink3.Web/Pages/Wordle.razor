@@ -8,18 +8,7 @@
 
 <h1 class="mb-2 pb-2">Wordle settings</h1>
 
-@if (!string.IsNullOrWhiteSpace(_notificationMessage))
-{
-    <div class="alert alert-info mt-3">
-        @_notificationMessage
-    </div>
-}
-
-@if (_blinkGuild is null)
-{
-    <p>Loading...</p>
-}
-else
+@if (_blinkGuild is not null)
 {
     <EditForm Model="_blinkGuild" OnValidSubmit="HandleValidSubmit">
         <DataAnnotationsValidator/>
@@ -58,10 +47,10 @@ else
 
 @code {
     [Parameter] public string? GuildId { get; set; }
+    [Inject] protected ToastService ToastService { get; set; } = default!;
+    [Inject] protected PreloadService PreloadService { get; set; } = default!;
     private BlinkGuild? _initialGuild;
     private BlinkGuild? _blinkGuild;
-
-    private string _notificationMessage = string.Empty;
 
     protected override async Task OnInitializedAsync()
     {
@@ -75,9 +64,10 @@ else
 
     private async Task GetGuild()
     {
-        _notificationMessage = string.Empty;
+        PreloadService.Show();
         _blinkGuild = await BlinkGuildConfig.GetByIdAsync(GuildId);
         SetInitialGuild();
+        PreloadService.Hide();
     }
 
     private void SetInitialGuild()
@@ -113,15 +103,17 @@ else
         if (_initialGuild?.IncorrectTileColour != _blinkGuild?.IncorrectTileColour)
             patchDocument.Replace(x => x.IncorrectTileColour, _blinkGuild?.IncorrectTileColour);
         
+        PreloadService.Show();
         if (await BlinkGuildConfig.PatchAsync(GuildId, patchDocument))
         {
             SetInitialGuild();
-            _notificationMessage = "Changes have been saved successfully.";
+            ToastService.Notify(new ToastMessage(ToastType.Success, "Changes saved successfully."));
         }
         else
         {
-            _notificationMessage = "Failed to save changes.";
+            ToastService.Notify(new ToastMessage(ToastType.Danger, "An error occurred while attempting to save changes."));
         }
+        PreloadService.Hide();
     }
 
     private async Task HandleReset()
@@ -134,14 +126,16 @@ else
         patchDocument.Replace(b => b.MisplacedTileColour, string.Empty);
         patchDocument.Replace(b => b.IncorrectTileColour, string.Empty);
         
+        PreloadService.Show();
         if (await BlinkGuildConfig.PatchAsync(GuildId, patchDocument))
         {
-            _notificationMessage = "Settings have been reset to default.";
+            ToastService.Notify(new ToastMessage(ToastType.Success, "Settings have been reset to default."));
             await GetGuild();
         }
         else
         {
-            _notificationMessage = "Failed to save changes.";
+            ToastService.Notify(new ToastMessage(ToastType.Danger, "Unable to save changes."));
         }
+        PreloadService.Hide();
     }
 }

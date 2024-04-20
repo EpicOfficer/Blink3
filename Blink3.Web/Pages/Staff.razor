@@ -12,18 +12,7 @@
 
 <h1 class="mb-2 pb-2">Staff settings</h1>
 
- @if (!string.IsNullOrWhiteSpace(_notificationMessage))
-{
-    <div class="alert alert-info mt-3">
-        @_notificationMessage
-    </div>
-}
-
-@if (_blinkGuild is null)
-{
-    <p>Loading...</p>
-}
-else
+@if (_blinkGuild is not null)
 {
     <EditForm Model="_blinkGuild" OnValidSubmit="HandleValidSubmit">
         <DataAnnotationsValidator/>
@@ -51,29 +40,32 @@ else
 
 @code {
     [Parameter] public string? GuildId { get; set; }
+    [Inject] protected ToastService ToastService { get; set; } = default!;
+    [Inject] protected PreloadService PreloadService { get; set; } = default!;
     
     private BlinkGuild? _initialGuild;
     private BlinkGuild? _blinkGuild;
     private IEnumerable<DiscordPartialChannel>? _channels;
     private string SelectedLoggingChannelId { get; set; } = string.Empty;
-
-    private string _notificationMessage = string.Empty;
     
     protected override async Task OnInitializedAsync()
     {
+        PreloadService.Show();
         await GetChannels();
         await GetGuild();
+        PreloadService.Hide();
     }
 
     protected override async Task OnParametersSetAsync()
     {
+        PreloadService.Show();
         await GetChannels();
         await GetGuild();
+        PreloadService.Hide();
     }
 
     private async Task GetGuild()
     {
-        _notificationMessage = string.Empty;
         _blinkGuild = await BlinkGuildConfig.GetByIdAsync(GuildId);
         SetInitialGuild();
     }
@@ -98,7 +90,7 @@ else
     {
         if (_blinkGuild is null)
         {
-            _notificationMessage = "An error occurred submitting data";
+            ToastService.Notify(new ToastMessage(ToastType.Danger, "An error occurred submitting data"));
             return;
         }
         
@@ -109,14 +101,16 @@ else
         if (_initialGuild?.LoggingChannelId != _blinkGuild?.LoggingChannelId)
             patchDocument.Replace(x => x.LoggingChannelId, _blinkGuild?.LoggingChannelId);
 
+        PreloadService.Show();
         if (await BlinkGuildConfig.PatchAsync(GuildId, patchDocument))
         {
             SetInitialGuild();
-            _notificationMessage = "Changes have been saved successfully.";
+            ToastService.Notify(new ToastMessage(ToastType.Success, "Changes saved successfully."));
         }
         else
         {
-            _notificationMessage = "Failed to save changes.";
+            ToastService.Notify(new ToastMessage(ToastType.Danger, "An error occurred while attempting to save changes."));
         }
+        PreloadService.Hide();
     }
 }
