@@ -33,6 +33,7 @@ try
     builder.Services.AddControllers().AddNewtonsoftJson(options =>
     {
         options.SerializerSettings.Converters.Add(new ULongToStringConverter());
+        options.SerializerSettings.Converters.Add(new NullableULongToStringConverter());
     });
 
     // Swagger docs

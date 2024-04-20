@@ -3,6 +3,7 @@
 @inherits LayoutComponentBase
 @inject NavigationManager Navigation;
 @inject HttpClient Client;
+@inject AuthenticationStateProvider AuthStateProvider;
 
 <div class="page">
     <Sidebar2 @ref="_sidebar"
@@ -33,7 +34,7 @@
 
     protected override Task OnInitializedAsync()
     {
-        Navigation.LocationChanged += async (_, _) =>
+        AuthStateProvider.AuthenticationStateChanged += async _ =>
         {
             await GetNavItems();
             await _sidebar.RefreshDataAsync();

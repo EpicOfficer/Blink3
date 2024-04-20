@@ -23,6 +23,7 @@ public class BlinkGuildConfigService(HttpClient httpClient) : IBlinkGuildConfigS
         
         JsonSerializerSettings options = new();
         options.Converters.Add(new ULongToStringConverter());
+        options.Converters.Add(new NullableULongToStringConverter());
         
         HttpRequestMessage request = new(method, $"api/BlinkGuilds/{id}")
         {

@@ -55,11 +55,6 @@
     private BlinkGuild? _initialGuild;
     private BlinkGuild? _blinkGuild;
 
-    protected override async Task OnInitializedAsync()
-    {
-        await GetGuild();
-    }
-
     protected override async Task OnParametersSetAsync()
     {
         await GetGuild();

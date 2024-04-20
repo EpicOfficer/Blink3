@@ -48,14 +48,6 @@
     private IEnumerable<DiscordPartialChannel>? _channels;
     private string SelectedLoggingChannelId { get; set; } = string.Empty;
     
-    protected override async Task OnInitializedAsync()
-    {
-        PreloadService.Show();
-        await GetChannels();
-        await GetGuild();
-        PreloadService.Hide();
-    }
-
     protected override async Task OnParametersSetAsync()
     {
         PreloadService.Show();
