@@ -76,4 +76,6 @@ h1:focus {
     --bb-sidebar2-background-color: transparent;
     --bb-sidebar2-nav-item-text-color: var(--bs-nav-link-color);
     --bb-sidebar2-content-border-color: var(--bs-border-color);
+    --bb-sidebar2-brand-image-height: 2rem;
+    --bb-sidebar2-brand-image-width: auto;
 }

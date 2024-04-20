@@ -49,8 +49,9 @@ else
             <input id="incorrectColour" class="form-control form-control-color" type="color" @bind-value="_blinkGuild.IncorrectTileColour"/>
         </div>
 
-        <div>
+        <div class="d-flex">
             <button type="submit" class="btn btn-primary">Save changes</button>
+            <button type="button" class="btn btn-danger ms-3" @onclick="HandleReset">Reset</button>
         </div>
     </EditForm>
 }
@@ -116,6 +117,27 @@ else
         {
             SetInitialGuild();
             _notificationMessage = "Changes have been saved successfully.";
+        }
+        else
+        {
+            _notificationMessage = "Failed to save changes.";
+        }
+    }
+
+    private async Task HandleReset()
+    {
+        JsonPatchDocument<BlinkGuild> patchDocument = new();
+
+        patchDocument.Replace(b => b.BackgroundColour, string.Empty);
+        patchDocument.Replace(b => b.TextColour, string.Empty);
+        patchDocument.Replace(b => b.CorrectTileColour, string.Empty);
+        patchDocument.Replace(b => b.MisplacedTileColour, string.Empty);
+        patchDocument.Replace(b => b.IncorrectTileColour, string.Empty);
+        
+        if (await BlinkGuildConfig.PatchAsync(GuildId, patchDocument))
+        {
+            _notificationMessage = "Settings have been reset to default.";
+            await GetGuild();
         }
         else
         {
