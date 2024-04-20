@@ -1,5 +1,11 @@
 using System.Net.Mime;
+using Blink3.Core.Caching;
 using Blink3.Core.DiscordAuth.Extensions;
+using Blink3.Core.Models;
+using Discord;
+using Discord.Addons.Hosting.Util;
+using Discord.Rest;
+using Discord.WebSocket;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
@@ -18,8 +24,12 @@ namespace Blink3.API.Controllers;
 [Route("api/[controller]")]
 [ApiController]
 [Authorize]
-public abstract class ApiControllerBase : ControllerBase
+public abstract class ApiControllerBase(DiscordSocketClient discordSocketClient, ICachingService cachingService) : ControllerBase
 {
+    protected readonly ICachingService CachingService = cachingService;
+    protected DiscordRestClient? Client;
+    protected readonly DiscordSocketClient DiscordBotClient = discordSocketClient;
+    
     /// <summary>
     ///     Represents an Unauthorized Access message.
     /// </summary>
@@ -78,5 +88,64 @@ public abstract class ApiControllerBase : ControllerBase
     {
         if (userId is null) return ProblemForMissingItem();
         return userId != UserId ? ProblemForUnauthorizedAccess() : null;
+    }
+
+    protected async Task InitDiscordClientAsync()
+    {
+        await DiscordBotClient.WaitForReadyAsync(CancellationToken.None);
+        if (Client is not null) return;
+        string? accessToken = await CachingService.GetAsync<string>($"token:{UserId}");
+        if (accessToken is null) return;
+        
+        Client = new DiscordRestClient();
+        await Client.LoginAsync(TokenType.Bearer, accessToken);
+    }
+
+    protected async Task<List<DiscordPartialGuild>> GetUserGuilds()
+    {
+        await InitDiscordClientAsync();
+        
+        List<DiscordPartialGuild> managedGuilds = await CachingService.GetOrAddAsync($"discord:guilds:{UserId}",
+            async () =>
+            {
+                List<DiscordPartialGuild> manageable = [];
+                if (Client is null) return manageable;
+                
+                IAsyncEnumerable<IReadOnlyCollection<RestUserGuild>> guilds = Client.GetGuildSummariesAsync();
+                await foreach (IReadOnlyCollection<RestUserGuild> guildCollection in guilds)
+                {
+                    manageable.AddRange(guildCollection.Where(g => g.Permissions.ManageGuild).Select(g =>
+                        new DiscordPartialGuild
+                        {
+                            Id = g.Id,
+                            Name = g.Name,
+                            IconUrl = g.IconUrl
+                        }));
+                }
+
+                return manageable;
+            }, TimeSpan.FromMinutes(5));
+
+        List<ulong> discordGuildIds = DiscordBotClient.Guilds.Select(b => b.Id).ToList();
+        return managedGuilds.Where(g => discordGuildIds.Contains(g.Id)).ToList();
+    }
+    
+    /// <summary>
+    ///     Checks if the user has access to the specified guild.
+    /// </summary>
+    /// <param name="guildId">The ID of the guild to check access for.</param>
+    /// <returns>
+    /// Returns an <see cref="ObjectResult"/> representing a problem response if the user doesn't have access, or null if the user has access.
+    /// </returns>
+    protected async Task<ObjectResult?> CheckGuildAccessAsync(ulong guildId)
+    {
+        List<DiscordPartialGuild> guilds = await GetUserGuilds();
+        return guilds.Any(g => g.Id == guildId) ? null : ProblemForUnauthorizedAccess();
+    }
+    
+    ~ApiControllerBase()
+    {
+        Client?.Dispose();
+        Client = null;
     }
 }

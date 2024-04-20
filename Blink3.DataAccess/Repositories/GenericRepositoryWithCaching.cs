@@ -79,14 +79,8 @@ public class GenericRepositoryWithCaching<T>(BlinkDbContext dbContext, ICachingS
     {
         string cacheKey = GetCacheKey(keyValues);
 
-        T? entity = await cache.GetAsync<T>(cacheKey).ConfigureAwait(false);
-        if (entity is not null) return entity;
-
-        entity = await base.GetOrCreateByIdAsync(keyValues).ConfigureAwait(false);
-
-        await SetEntityInCache(entity);
-
-        return entity;
+        return await cache.GetOrAddAsync(cacheKey,
+            async () => await base.GetOrCreateByIdAsync(keyValues).ConfigureAwait(false));
     }
 
     public override async Task<T> AddAsync(T entity, CancellationToken cancellationToken = default)

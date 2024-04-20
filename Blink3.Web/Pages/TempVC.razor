@@ -1,0 +1,107 @@
+@page "/guilds/{GuildId}/TempVC"
+@using Blink3.Core.Entities
+@using Microsoft.AspNetCore.JsonPatch
+@using Blink3.Core.Extensions
+@using Blink3.Core.Models
+@using Blink3.Web.Interfaces
+@inject IBlinkGuildConfigService BlinkGuildConfig
+@inject IDiscordGuildService DiscordGuildService
+
+<PageTitle>Temporary VC settings</PageTitle>
+
+<h1 class="mb-2 pb-2">Temporary VC settings</h1>
+
+@if (_blinkGuild is not null)
+{
+    <EditForm Model="_blinkGuild" OnValidSubmit="HandleValidSubmit">
+        <DataAnnotationsValidator/>
+
+        @if (_categories is not null)
+        {
+            <div class="mb-3">
+                <label for="tempVcCategory" class="form-label">Temporary VC category</label>
+                <InputSelect id="tempVcCategory" class="form-select" @bind-value="SelectedCategoryId" TValue="string"
+                             ValueExpression="@(() => SelectedCategoryId)">
+                    <option value="" selected="selected">None</option>
+                    @foreach (DiscordPartialChannel category in _categories)
+                    {
+                        <option value="@category.Id.ToString()">@category.Name</option>
+                    }
+                </InputSelect>
+            </div>
+        }
+
+        <div>
+            <button type="submit" class="btn btn-primary">Save changes</button>
+        </div>
+    </EditForm>
+}
+
+@code {
+    [Parameter] public string? GuildId { get; set; }
+    [Inject] protected ToastService ToastService { get; set; } = default!;
+    [Inject] protected PreloadService PreloadService { get; set; } = default!;
+    
+    private BlinkGuild? _initialGuild;
+    private BlinkGuild? _blinkGuild;
+    private IEnumerable<DiscordPartialChannel>? _categories;
+    private string SelectedCategoryId { get; set; } = string.Empty;
+    
+    protected override async Task OnParametersSetAsync()
+    {
+        PreloadService.Show();
+        await GetCategories();
+        await GetGuild();
+        PreloadService.Hide();
+    }
+
+    private async Task GetGuild()
+    {
+        _blinkGuild = await BlinkGuildConfig.GetByIdAsync(GuildId);
+        SetInitialGuild();
+    }
+
+    private async Task GetCategories()
+    {
+        _categories = await DiscordGuildService.GetCategories(GuildId);
+    } 
+    
+    private void SetInitialGuild()
+    {
+        if (_blinkGuild is null) return;
+        SelectedCategoryId = _blinkGuild.TemporaryVcCategoryId.ToString() ?? string.Empty;
+        _initialGuild = new BlinkGuild
+        {
+            Id = _blinkGuild.Id,
+            TemporaryVcCategoryId = _blinkGuild.TemporaryVcCategoryId
+        };
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        if (_blinkGuild is null)
+        {
+            ToastService.Notify(new ToastMessage(ToastType.Danger, "An error occurred submitting data"));
+            return;
+        }
+        
+        JsonPatchDocument<BlinkGuild> patchDocument = new();
+        
+        _blinkGuild.TemporaryVcCategoryId = string.IsNullOrWhiteSpace(SelectedCategoryId) ? null : SelectedCategoryId?.ToUlong();
+
+        if (_initialGuild?.TemporaryVcCategoryId != _blinkGuild?.TemporaryVcCategoryId)
+            patchDocument.Replace(x => x.TemporaryVcCategoryId, _blinkGuild?.TemporaryVcCategoryId);
+
+        PreloadService.Show();
+        if (await BlinkGuildConfig.PatchAsync(GuildId, patchDocument))
+        {
+            SetInitialGuild();
+            ToastService.Notify(new ToastMessage(ToastType.Success, "Changes saved successfully."));
+        }
+        else
+        {
+            ToastService.Notify(new ToastMessage(ToastType.Danger, "An error occurred while attempting to save changes."));
+        }
+        PreloadService.Hide();
+    }
+}

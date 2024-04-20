@@ -34,9 +34,10 @@ public class BlinkGuild : ICacheKeyIdentifiable
     public string BackgroundColour
     {
         get => string.IsNullOrEmpty(_backgroundColour)
-            ? WordleImageConstants.BackgroundColour.ToHex()
-            : _backgroundColour;
-        set => _backgroundColour = string.IsNullOrEmpty(value) ? null : value;
+            ? string.Concat("#", WordleImageConstants.BackgroundColour.ToHex().AsSpan(0, 6))
+            : '#' + _backgroundColour;
+        set => _backgroundColour = string.IsNullOrEmpty(value) ? null :
+            value.StartsWith('#') ? value.Substring(1, 6) : value[..6];
     }
 
     /// <summary>
@@ -48,8 +49,11 @@ public class BlinkGuild : ICacheKeyIdentifiable
     /// </remarks>
     public string TextColour
     {
-        get => string.IsNullOrEmpty(_textColour) ? WordleImageConstants.TextColour.ToHex() : _textColour;
-        set => _textColour = string.IsNullOrEmpty(value) ? null : value;
+        get => string.IsNullOrEmpty(_textColour)
+            ? string.Concat("#", WordleImageConstants.TextColour.ToHex().AsSpan(0, 6))
+            : '#' + _textColour;
+        set => _textColour = string.IsNullOrEmpty(value) ? null :
+            value.StartsWith('#') ? value.Substring(1, 6) : value[..6];
     }
 
     /// <summary>
@@ -62,9 +66,10 @@ public class BlinkGuild : ICacheKeyIdentifiable
     public string CorrectTileColour
     {
         get => string.IsNullOrEmpty(_correctTileColour)
-            ? WordleImageConstants.CorrectTileColour.ToHex()
-            : _correctTileColour;
-        set => _correctTileColour = string.IsNullOrEmpty(value) ? null : value;
+            ? string.Concat("#", WordleImageConstants.CorrectTileColour.ToHex().AsSpan(0, 6))
+            : '#' + _correctTileColour;
+        set => _correctTileColour = string.IsNullOrEmpty(value) ? null :
+            value.StartsWith('#') ? value.Substring(1, 6) : value[..6];
     }
 
     /// <summary>
@@ -77,9 +82,10 @@ public class BlinkGuild : ICacheKeyIdentifiable
     public string MisplacedTileColour
     {
         get => string.IsNullOrEmpty(_misplacedTileColour)
-            ? WordleImageConstants.MisplacedTileColour.ToHex()
-            : _misplacedTileColour;
-        set => _misplacedTileColour = string.IsNullOrEmpty(value) ? null : value;
+            ? string.Concat("#", WordleImageConstants.MisplacedTileColour.ToHex().AsSpan(0, 6))
+            : '#' + _misplacedTileColour;
+        set => _misplacedTileColour = string.IsNullOrEmpty(value) ? null :
+            value.StartsWith('#') ? value.Substring(1, 6) : value[..6];
     }
 
     /// <summary>
@@ -92,9 +98,10 @@ public class BlinkGuild : ICacheKeyIdentifiable
     public string IncorrectTileColour
     {
         get => string.IsNullOrEmpty(_incorrectTileColour)
-            ? WordleImageConstants.IncorrectTileColour.ToHex()
-            : _incorrectTileColour;
-        set => _incorrectTileColour = string.IsNullOrEmpty(value) ? null : value;
+            ? string.Concat("#", WordleImageConstants.IncorrectTileColour.ToHex().AsSpan(0, 6))
+            : '#' + _incorrectTileColour;
+        set => _incorrectTileColour = string.IsNullOrEmpty(value) ? null :
+            value.StartsWith('#') ? value.Substring(1, 6) : value[..6];
     }
 
     /// <summary>

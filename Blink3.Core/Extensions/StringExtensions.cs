@@ -20,6 +20,17 @@ public static class StringExtensions
     }
 
     /// <summary>
+    ///     Tries to convert the input string to an unsigned long (ulong) value.
+    /// </summary>
+    /// <param name="input">The input string to convert.</param>
+    /// <param name="result">When this method returns, contains the converted ulong value if the conversion succeeded, or zero if the conversion failed.</param>
+    /// <returns>True if the conversion succeeded; otherwise, false.</returns>
+    public static bool TryToUlong(this string input, out ulong result)
+    {
+        return ulong.TryParse(input, out result);
+    }
+
+    /// <summary>
     ///     Converts a string to title case.
     /// </summary>
     /// <param name="str">The input string to convert.</param>

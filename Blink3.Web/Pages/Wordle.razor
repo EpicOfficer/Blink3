@@ -1,0 +1,145 @@
+@page "/guilds/{GuildId}/Wordle"
+@using Blink3.Core.Entities
+@using Microsoft.AspNetCore.JsonPatch
+@using Blink3.Web.Interfaces
+@inject IBlinkGuildConfigService BlinkGuildConfig;
+
+<PageTitle>Wordle settings</PageTitle>
+
+<h1 class="mb-2 pb-2">Wordle settings</h1>
+
+@if (_blinkGuild is not null)
+{
+    <EditForm Model="_blinkGuild" OnValidSubmit="HandleValidSubmit">
+        <DataAnnotationsValidator/>
+
+        <div class="mb-3">
+            <label for="bgColour" class="form-label">Background colour</label>
+            <input id="bgColour" class="form-control form-control-color" type="color" @bind-value="_blinkGuild.BackgroundColour"/>
+        </div>
+
+        <div class="mb-3">
+            <label for="textColour" class="form-label">Text colour</label>
+            <input id="textColour" class="form-control form-control-color" type="color" @bind-value="_blinkGuild.TextColour"/>
+        </div>
+
+        <div class="mb-3">
+            <label for="correctColour" class="form-label">Correct colour</label>
+            <input id="correctColour" class="form-control form-control-color" type="color" @bind-value="_blinkGuild.CorrectTileColour"/>
+        </div>
+
+        <div class="mb-3">
+            <label for="misplacedColour" class="form-label">Misplaced colour</label>
+            <input id="misplacedColour" class="form-control form-control-color" type="color" @bind-value="_blinkGuild.MisplacedTileColour"/>
+        </div>
+
+        <div class="mb-3">
+            <label for="incorrectColour" class="form-label">Incorrect colour</label>
+            <input id="incorrectColour" class="form-control form-control-color" type="color" @bind-value="_blinkGuild.IncorrectTileColour"/>
+        </div>
+
+        <div class="d-flex">
+            <button type="submit" class="btn btn-primary">Save changes</button>
+            <button type="button" class="btn btn-danger ms-3" @onclick="HandleReset">Reset</button>
+        </div>
+    </EditForm>
+}
+
+<ConfirmDialog @ref="_dialog"/>
+
+@code {
+    [Parameter] public string? GuildId { get; set; }
+    [Inject] protected ToastService ToastService { get; set; } = default!;
+    [Inject] protected PreloadService PreloadService { get; set; } = default!;
+    private ConfirmDialog _dialog = default!;
+    private BlinkGuild? _initialGuild;
+    private BlinkGuild? _blinkGuild;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await GetGuild();
+    }
+
+    private async Task GetGuild()
+    {
+        PreloadService.Show();
+        _blinkGuild = await BlinkGuildConfig.GetByIdAsync(GuildId);
+        SetInitialGuild();
+        PreloadService.Hide();
+    }
+
+    private void SetInitialGuild()
+    {
+        if (_blinkGuild is null) return;
+        _initialGuild = new BlinkGuild
+        {
+            Id = _blinkGuild.Id,
+            BackgroundColour = _blinkGuild.BackgroundColour,
+            TextColour = _blinkGuild.TextColour,
+            CorrectTileColour = _blinkGuild.CorrectTileColour,
+            MisplacedTileColour = _blinkGuild.MisplacedTileColour,
+            IncorrectTileColour = _blinkGuild.IncorrectTileColour
+        };
+    }
+    
+    private async Task HandleValidSubmit()
+    {
+        JsonPatchDocument<BlinkGuild> patchDocument = new();
+
+        if (_initialGuild?.BackgroundColour != _blinkGuild?.BackgroundColour)
+            patchDocument.Replace(x => x.BackgroundColour, _blinkGuild?.BackgroundColour);
+
+        if (_initialGuild?.TextColour != _blinkGuild?.TextColour)
+            patchDocument.Replace(x => x.TextColour, _blinkGuild?.TextColour);
+
+        if (_initialGuild?.CorrectTileColour != _blinkGuild?.CorrectTileColour)
+            patchDocument.Replace(x => x.CorrectTileColour, _blinkGuild?.CorrectTileColour);
+
+        if (_initialGuild?.MisplacedTileColour != _blinkGuild?.MisplacedTileColour)
+            patchDocument.Replace(x => x.MisplacedTileColour, _blinkGuild?.MisplacedTileColour);
+
+        if (_initialGuild?.IncorrectTileColour != _blinkGuild?.IncorrectTileColour)
+            patchDocument.Replace(x => x.IncorrectTileColour, _blinkGuild?.IncorrectTileColour);
+        
+        PreloadService.Show();
+        if (await BlinkGuildConfig.PatchAsync(GuildId, patchDocument))
+        {
+            SetInitialGuild();
+            ToastService.Notify(new ToastMessage(ToastType.Success, "Changes saved successfully."));
+        }
+        else
+        {
+            ToastService.Notify(new ToastMessage(ToastType.Danger, "An error occurred while attempting to save changes."));
+        }
+        PreloadService.Hide();
+    }
+
+    private async Task HandleReset()
+    {
+        bool confirmation = await _dialog.ShowAsync(
+            "Are you sure?",
+            "This will reset all wordle colours to the defaults and cannot be undone.");
+
+        if (!confirmation) return;
+        
+        JsonPatchDocument<BlinkGuild> patchDocument = new();
+
+        patchDocument.Replace(b => b.BackgroundColour, string.Empty);
+        patchDocument.Replace(b => b.TextColour, string.Empty);
+        patchDocument.Replace(b => b.CorrectTileColour, string.Empty);
+        patchDocument.Replace(b => b.MisplacedTileColour, string.Empty);
+        patchDocument.Replace(b => b.IncorrectTileColour, string.Empty);
+        
+        PreloadService.Show();
+        if (await BlinkGuildConfig.PatchAsync(GuildId, patchDocument))
+        {
+            ToastService.Notify(new ToastMessage(ToastType.Success, "Settings have been reset to default."));
+            await GetGuild();
+        }
+        else
+        {
+            ToastService.Notify(new ToastMessage(ToastType.Danger, "Unable to save changes."));
+        }
+        PreloadService.Hide();
+    }
+}

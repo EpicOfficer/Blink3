@@ -13,10 +13,13 @@
 @code {
     private IEnumerable<UserTodo> Todos { get; set; } = [];
     [Inject] private ITodoHttpRepository TodoHttpRepository { get; set; } = null!;
+    [Inject] protected PreloadService PreloadService { get; set; } = default!;
 
     protected override async Task OnInitializedAsync()
     {
+        PreloadService.Show();
         await UpdateTodosAsync();
+        PreloadService.Hide();
     }
 
     private async Task CreateTodoAsync(UserTodoDto userTodoDto)
@@ -42,5 +45,4 @@
     {
         await TodoHttpRepository.UpdateAsync(id, todo);
     }
-
 }

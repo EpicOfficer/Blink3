@@ -1,7 +1,7 @@
 @using Blink3.Web.Interfaces
 @using Blink3.Core.DTOs
 <EditForm Model="_todo" OnValidSubmit="@(CreateTodoAsync)">
-    <Modal @ref="_modal" OnHiding="OnModalHiding" Title="Create Todo">
+    <Modal @ref="_modal" OnHiding="OnModalHiding" Title="Create Todo" ModalType="ModalType.Dark">
         <BodyTemplate>
             <AntiforgeryToken/>
             <DataAnnotationsValidator/>

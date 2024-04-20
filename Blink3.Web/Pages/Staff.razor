@@ -1,0 +1,108 @@
+@page "/guilds/{GuildId}/Staff"
+
+@using Blink3.Core.Entities
+@using Microsoft.AspNetCore.JsonPatch
+@using Blink3.Core.Extensions
+@using Blink3.Core.Models
+@using Blink3.Web.Interfaces
+@inject IBlinkGuildConfigService BlinkGuildConfig
+@inject IDiscordGuildService DiscordGuildService
+
+<PageTitle>Staff settings</PageTitle>
+
+<h1 class="mb-2 pb-2">Staff settings</h1>
+
+@if (_blinkGuild is not null)
+{
+    <EditForm Model="_blinkGuild" OnValidSubmit="HandleValidSubmit">
+        <DataAnnotationsValidator/>
+
+        @if (_channels is not null)
+        {
+            <div class="mb-3">
+                <label for="loggingChannel" class="form-label">Logging channel</label>
+                <InputSelect id="loggingChannel" class="form-select" @bind-value="SelectedLoggingChannelId" TValue="string"
+                             ValueExpression="@(() => SelectedLoggingChannelId)">
+                    <option value="" selected="selected">None</option>
+                    @foreach (DiscordPartialChannel channel in _channels)
+                    {
+                        <option value="@channel.Id.ToString()">@channel.Name</option>
+                    }
+                </InputSelect>
+            </div>
+        }
+
+        <div>
+            <button type="submit" class="btn btn-primary">Save changes</button>
+        </div>
+    </EditForm>
+}
+
+@code {
+    [Parameter] public string? GuildId { get; set; }
+    [Inject] protected ToastService ToastService { get; set; } = default!;
+    [Inject] protected PreloadService PreloadService { get; set; } = default!;
+    
+    private BlinkGuild? _initialGuild;
+    private BlinkGuild? _blinkGuild;
+    private IEnumerable<DiscordPartialChannel>? _channels;
+    private string SelectedLoggingChannelId { get; set; } = string.Empty;
+    
+    protected override async Task OnParametersSetAsync()
+    {
+        PreloadService.Show();
+        await GetChannels();
+        await GetGuild();
+        PreloadService.Hide();
+    }
+
+    private async Task GetGuild()
+    {
+        _blinkGuild = await BlinkGuildConfig.GetByIdAsync(GuildId);
+        SetInitialGuild();
+    }
+
+    private async Task GetChannels()
+    {
+        _channels = await DiscordGuildService.GetChannels(GuildId);
+    } 
+    
+    private void SetInitialGuild()
+    {
+        if (_blinkGuild is null) return;
+        SelectedLoggingChannelId = _blinkGuild.LoggingChannelId.ToString() ?? string.Empty;
+        _initialGuild = new BlinkGuild
+        {
+            Id = _blinkGuild.Id,
+            LoggingChannelId = _blinkGuild.LoggingChannelId
+        };
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        if (_blinkGuild is null)
+        {
+            ToastService.Notify(new ToastMessage(ToastType.Danger, "An error occurred submitting data"));
+            return;
+        }
+        
+        JsonPatchDocument<BlinkGuild> patchDocument = new();
+        
+        _blinkGuild.LoggingChannelId = string.IsNullOrWhiteSpace(SelectedLoggingChannelId) ? null : SelectedLoggingChannelId?.ToUlong();
+
+        if (_initialGuild?.LoggingChannelId != _blinkGuild?.LoggingChannelId)
+            patchDocument.Replace(x => x.LoggingChannelId, _blinkGuild?.LoggingChannelId);
+
+        PreloadService.Show();
+        if (await BlinkGuildConfig.PatchAsync(GuildId, patchDocument))
+        {
+            SetInitialGuild();
+            ToastService.Notify(new ToastMessage(ToastType.Success, "Changes saved successfully."));
+        }
+        else
+        {
+            ToastService.Notify(new ToastMessage(ToastType.Danger, "An error occurred while attempting to save changes."));
+        }
+        PreloadService.Hide();
+    }
+}

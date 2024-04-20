@@ -15,8 +15,6 @@ public class AuthStatus
 
     public string? GlobalName { get; set; }
 
-    public string? Locale { get; set; }
-
     /// <summary>
     ///     Gets or sets the authentication status of the user.
     /// </summary>
@@ -58,9 +56,6 @@ public class AuthStatus
 
         if (!string.IsNullOrWhiteSpace(GlobalName))
             claims.Add(new Claim(ClaimTypes.GivenName, GlobalName));
-
-        if (!string.IsNullOrWhiteSpace(Locale))
-            claims.Add(new Claim(ClaimTypes.Locality, Locale));
 
         return claims;
     }

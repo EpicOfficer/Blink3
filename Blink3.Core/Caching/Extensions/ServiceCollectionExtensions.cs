@@ -1,5 +1,4 @@
-using Blink3.Core.Caching.Memory;
-using Blink3.Core.Caching.Redis;
+using Blink3.Core.Caching.Distributed;
 using Blink3.Core.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -20,14 +19,15 @@ public static class ServiceCollectionExtensions
     /// <param name="config">The <see cref="BlinkConfiguration" /> object that contains the Redis connection string.</param>
     public static void AddCaching(this IServiceCollection services, BlinkConfiguration config)
     {
-        if (!string.IsNullOrWhiteSpace(config.Redis?.ConnectionString))
+        if (string.IsNullOrWhiteSpace(config.Redis?.ConnectionString))
+        {
+            services.AddDistributedMemoryCache();
+        }
+        else
         {
             services.AddStackExchangeRedisCache(options => { options.Configuration = config.Redis.ConnectionString; });
-            services.AddSingleton<ICachingService, RedisCachingService>();
-            return;
         }
 
-        services.AddMemoryCache();
-        services.AddSingleton<ICachingService, MemoryCachingService>();
+        services.AddSingleton<ICachingService, DistributedCachingService>();
     }
 }

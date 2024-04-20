@@ -4,8 +4,11 @@ using Blink3.API.Services;
 using Blink3.Core.Caching.Extensions;
 using Blink3.Core.Configuration;
 using Blink3.Core.Configuration.Extensions;
+using Blink3.Core.Helpers;
 using Blink3.DataAccess.Extensions;
-using Discord.Rest;
+using Discord;
+using Discord.Addons.Hosting;
+using Discord.WebSocket;
 using Microsoft.AspNetCore.HttpOverrides;
 using Serilog;
 using Serilog.Events;
@@ -22,12 +25,16 @@ try
 
     // Logging
     builder.Host.UseSerilog();
-
+    
     // Problem details
     builder.Services.AddProblemDetails();
 
     // Controllers
-    builder.Services.AddControllers();
+    builder.Services.AddControllers().AddNewtonsoftJson(options =>
+    {
+        options.SerializerSettings.Converters.Add(new ULongToStringConverter());
+        options.SerializerSettings.Converters.Add(new NullableULongToStringConverter());
+    });
 
     // Swagger docs
     builder.Services.AddEndpointsApiExplorer();
@@ -37,6 +44,19 @@ try
     builder.Services.AddAppConfiguration(builder.Configuration);
     BlinkConfiguration appConfig = builder.Services.GetAppConfiguration();
 
+    // Discord socket client
+    builder.Services.AddDiscordHost((config, _) =>
+    {
+        config.SocketConfig = new DiscordSocketConfig
+        {
+            LogLevel = LogSeverity.Verbose,
+            MessageCacheSize = 0,
+            GatewayIntents = GatewayIntents.Guilds
+        };
+
+        config.Token = appConfig.Discord.BotToken;
+    });
+    
     // Add forwarded headers
     builder.Services.Configure<ForwardedHeadersOptions>(options =>
     {
@@ -62,10 +82,7 @@ try
     // Add Data Access layer and cache provider
     builder.Services.AddDataAccess(appConfig);
     builder.Services.AddCaching(appConfig);
-
-    // Add Discord Rest Client and startup service
-    builder.Services.AddSingleton<DiscordRestClient>();
-    builder.Services.AddHostedService<DiscordStartupService>();
+    builder.Services.AddSession();
 
     // For getting discord tokens
     builder.Services.AddHttpClient();
@@ -75,7 +92,7 @@ try
     builder.Services.AddDiscordAuth(appConfig);
 
     WebApplication app = builder.Build();
-
+    
     if (!app.Environment.IsDevelopment())
     {
         app.UseForwardedHeaders();
@@ -92,6 +109,8 @@ try
     // Use Cors
     app.UseCors("CorsPolicy");
 
+    app.UseSession();
+    
     // Add authentication / authorization middleware
     app.UseAuthentication();
     app.UseAuthorization();
