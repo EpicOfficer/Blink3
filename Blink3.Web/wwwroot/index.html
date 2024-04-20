@@ -35,10 +35,11 @@
     <div class="loading-progress-text"></div>
 </div>
 
-<div id="blazor-error-ui">
-    An unhandled error has occurred.
-    <a class="reload" href="">Reload</a>
-    <a class="dismiss">🗙</a>
+<div id="blazor-error-ui" class="position-fixed bottom-0 start-0 w-100">
+    <div class="alert alert-danger m-0 d-flex justify-content-between" role="alert">
+        <span>An unhandled error has occurred.  Please <a class="reload" href="">reload</a> the page.</span>
+        <a role="button" class="dismiss icon-link text-decoration-none">✖</a>
+    </div>
 </div>
 
 <!--suppress HtmlUnknownTarget -->
