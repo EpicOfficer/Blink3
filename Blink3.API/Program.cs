@@ -87,7 +87,11 @@ try
     // For getting discord tokens
     builder.Services.AddHttpClient();
     builder.Services.AddSingleton<IDiscordTokenService, DiscordTokenService>();
-
+    
+    // Encryption service
+    string? encryptionKey = Environment.GetEnvironmentVariable("ENCRYPTION_KEY");
+    builder.Services.AddSingleton<IEncryptionService>(_ => new EncryptionService(encryptionKey));
+    
     // Configure Authentication and Discord OAuth
     builder.Services.AddDiscordAuth(appConfig);
 

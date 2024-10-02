@@ -1,3 +1,4 @@
+using Blink3.API.Interfaces;
 using Blink3.Core.Caching;
 using Blink3.Core.DTOs;
 using Blink3.Core.Entities;
@@ -12,7 +13,8 @@ namespace Blink3.API.Controllers;
 ///     Controller for performing CRUD operations on userTodo items.
 /// </summary>
 [SwaggerTag("All CRUD operations for todo items")]
-public class TodoController(DiscordSocketClient discordSocketClient, ICachingService cachingService, IUserTodoRepository todoRepository) : ApiControllerBase(discordSocketClient, cachingService)
+public class TodoController(DiscordSocketClient discordSocketClient, ICachingService cachingService, IEncryptionService encryptionService, IUserTodoRepository todoRepository)
+    : ApiControllerBase(discordSocketClient, cachingService, encryptionService)
 {
     /// <summary>
     ///     Retrieves all userTodo items for the current user.

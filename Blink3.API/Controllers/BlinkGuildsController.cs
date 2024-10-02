@@ -1,3 +1,4 @@
+using Blink3.API.Interfaces;
 using Blink3.Core.Caching;
 using Blink3.Core.DTOs;
 using Blink3.Core.Entities;
@@ -14,7 +15,8 @@ namespace Blink3.API.Controllers;
 ///     Controller for performing CRUD operations on BlinkGuild items.
 /// </summary>
 [SwaggerTag("All CRUD operations for BlinkGuild items")]
-public class BlinkGuildsController(DiscordSocketClient discordSocketClient, ICachingService cachingService, IBlinkGuildRepository blinkGuildRepository) : ApiControllerBase(discordSocketClient, cachingService)
+public class BlinkGuildsController(DiscordSocketClient discordSocketClient, ICachingService cachingService, IEncryptionService encryptionService, IBlinkGuildRepository blinkGuildRepository)
+    : ApiControllerBase(discordSocketClient, cachingService, encryptionService)
 {
     /// <summary>
     ///     Retrieves all BlinkGuild items that are manageable by the logged in user.

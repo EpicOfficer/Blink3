@@ -1,3 +1,4 @@
+using Blink3.API.Interfaces;
 using Blink3.Core.Caching;
 using Blink3.Core.Models;
 using Discord.WebSocket;
@@ -7,8 +8,8 @@ using Swashbuckle.AspNetCore.Annotations;
 namespace Blink3.API.Controllers;
 
 [SwaggerTag("Endpoints for getting information on discord guilds")]
-public class GuildsController(DiscordSocketClient discordSocketClient, ICachingService cachingService)
-    : ApiControllerBase(discordSocketClient, cachingService)
+public class GuildsController(DiscordSocketClient discordSocketClient, ICachingService cachingService, IEncryptionService encryptionService)
+    : ApiControllerBase(discordSocketClient, cachingService, encryptionService)
 {
     [HttpGet]
     [SwaggerOperation(
@@ -51,7 +52,7 @@ public class GuildsController(DiscordSocketClient discordSocketClient, ICachingS
     
     [HttpGet("{id}/channels")]
     [SwaggerOperation(
-        Summary = "Returns all chanels for a guild",
+        Summary = "Returns all channels for a guild",
         Description = "Returns a list of all Discord channels for a given guild ID",
         OperationId = "Guilds.GetChannels",
         Tags = ["Guilds"]
