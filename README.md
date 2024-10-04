@@ -27,7 +27,6 @@ Currently, the bot provides several commands, including:
 Blink3 includes multiple Docker images for each of the solution's parts and Docker Compose files for orchestration. The Docker Compose files included are:
 - `docker-compose.yml` - The base Docker Compose file.
 - `docker-compose.development.yml` - Overwrites the base configuration for local development. References the images built in the local solution.
-- `docker-compose.production.yml` - Overwrites the base configuration for production environments. References the images hosted on GitHub Container Registry.
 
 To build and run the application using Docker Compose, you can execute the following commands:
 
@@ -37,7 +36,7 @@ For local development:
 
 For production:
 
-    docker-compose -f docker-compose.yml -f docker-compose.production.yml up -d
+    docker-compose up -d
 
 An `.env.example` file has been included in the repository. Rename or copy this file to `.env` and replace the sample values with your actual environment values to set up your environment.
 
