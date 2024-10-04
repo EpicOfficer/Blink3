@@ -1,8 +1,13 @@
-version: '3.8'
+---
+
+x-common-environment: &common-env
+  ConnectionStrings__DefaultConnection: Server=postgres;Port=5432;Database=${POSTGRES_USER};Userid=${POSTGRES_USER};Password=${POSTGRES_PASSWORD};SslMode=Prefer;TrustServerCertificate=true
+  Redis__ConnectionString: redis,ssl=false,name=${REDIS_NAME}
+  ASPNETCORE_ENVIRONMENT: Production
+  Discord__BotToken: ${DISCORD_BOT_TOKEN}
 
 services:
-  blink3.cache:
-    container_name: blink3_cache
+  redis:
     image: redis:7.2-alpine
     restart: always
     healthcheck:
@@ -13,8 +18,7 @@ services:
     environment:
       - REDIS_NAME=${REDIS_NAME}
 
-  blink3.db:
-    container_name: blink3_db
+  postgres:
     image: postgres:16.2-alpine
     restart: always
     environment:
@@ -24,7 +28,7 @@ services:
     volumes:
       - ./data:/var/lib/postgresql/data
     depends_on:
-      blink3.cache:
+      redis:
         condition: service_healthy
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER}" ]
@@ -32,41 +36,51 @@ services:
       timeout: 5s
       retries: 5
 
-  blink3.bot:
-    container_name: blink3_bot
+  bot:
     restart: always
     environment:
-      - Discord__DevGuildId=${DISCORD_DEV_GUILD}
-      - Discord__BotToken=${DISCORD_BOT_TOKEN}
-      - ConnectionStrings__DefaultConnection=Server=blink3.db;Port=5432;Database=${POSTGRES_USER};Userid=${POSTGRES_USER};Password=${POSTGRES_PASSWORD};SslMode=Prefer;TrustServerCertificate=true
-      - Redis__ConnectionString=blink3.cache,ssl=false,name=${REDIS_NAME}
-      - RunMigrations=${BLINK_RUN_MIGRATIONS}
-      - WordsApiKey=${WORDS_API_KEY}
+      <<: *common-env
+      Discord__DevGuildId: ${DISCORD_DEV_GUILD}
+      RunMigrations: ${BLINK_RUN_MIGRATIONS}
+      WordsApiKey: ${WORDS_API_KEY}
     depends_on:
-      blink3.db:
+      postgres:
         condition: service_healthy
+    image: ghcr.io/epicofficer/blink3.bot:latest
 
-  blink3.api:
-    container_name: blink3_api
+  api:
     restart: always
     environment:
-      - Discord__ClientId=${DISCORD_CLIENT_ID}
-      - Discord__ClientSecret=${DISCORD_CLIENT_SECRET}
-      - Discord__BotToken=${DISCORD_BOT_TOKEN}
-      - ConnectionStrings__DefaultConnection=Server=blink3.db;Port=5432;Database=${POSTGRES_USER};Userid=${POSTGRES_USER};Password=${POSTGRES_PASSWORD};SslMode=Prefer;TrustServerCertificate=true
-      - Redis__ConnectionString=blink3.cache,ssl=false,name=${REDIS_NAME}
-      - ApiAllowedOrigins__0=${API_ALLOWED_ORIGIN}
-      - ENCRYPTION_KEY=${ENCRYPTION_KEY}
+      <<: *common-env
+      Discord__ClientId: ${DISCORD_CLIENT_ID}
+      Discord__ClientSecret: ${DISCORD_CLIENT_SECRET}
+      ApiAllowedOrigins__0: ${API_ALLOWED_ORIGIN}
+      ENCRYPTION_KEY: ${ENCRYPTION_KEY}
     depends_on:
-      blink3.db:
+      postgres:
         condition: service_healthy
+    image: ghcr.io/epicofficer/blink3.api:latest
+    networks:
+      - default
+      - public
 
-  blink3.web:
-    container_name: blink3_web
+  web:
     restart: always
+    image: ghcr.io/epicofficer/blink3.web:latest
+    volumes:
+      - ./appsettings.json:/usr/share/nginx/html/appsettings.json
     depends_on:
-      - blink3.api
+      - api
+    networks:
+      - public
 
-  blink3.activity:
-    container_name: blink3_activity
-    restart: always
+  # Not implemented, yet...
+  #activity:
+  #  restart: always
+  #  image: ghcr.io/epicofficer/blink3.activity:latest
+  #  networks:
+  #    - public
+
+networks:
+  public:
+    driver: bridge
