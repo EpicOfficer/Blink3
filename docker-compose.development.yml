@@ -35,8 +35,9 @@ services:
     build:
       context: .
       dockerfile: Blink3.Web/Dockerfile
-    volumes:
-      - ./Blink3.Web/wwwroot/appsettings.json:/usr/share/nginx/html/appsettings.json
+    environment:
+      API_ADDRESS: "http://localhost:8288/"
+      CLIENT_ID: "1223292750766674080"
     ports:
       - "8280:80"
 

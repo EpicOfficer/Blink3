@@ -67,8 +67,9 @@ services:
   web:
     restart: always
     image: ghcr.io/epicofficer/blink3.web:latest
-    volumes:
-      - ./appsettings.json:/usr/share/nginx/html/appsettings.json
+    environment:
+      API_ADDRESS: "https://api.blinkbot.io/"
+      CLIENT_ID: "1223292750766674080"
     depends_on:
       - api
     networks:
