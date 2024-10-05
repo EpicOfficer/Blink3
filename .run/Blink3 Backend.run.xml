@@ -3,14 +3,6 @@
     <deployment type="docker-compose.yml">
       <settings>
         <option name="envFilePath" value="" />
-        <option name="envVars">
-          <list>
-            <DockerEnvVarImpl>
-              <option name="name" value="ENCRYPTION_KEY" />
-              <option name="value" value="gm0HDdrMutYhcGFoPyjc9OcO9rdmj+0k3q9j4ECcDWc=" />
-            </DockerEnvVarImpl>
-          </list>
-        </option>
         <option name="secondarySourceFiles">
           <list>
             <option value="docker-compose.development.yml" />
@@ -18,10 +10,10 @@
         </option>
         <option name="services">
           <list>
-            <option value="blink3.api" />
-            <option value="blink3.bot" />
-            <option value="blink3.cache" />
-            <option value="blink3.db" />
+            <option value="api" />
+            <option value="bot" />
+            <option value="redis" />
+            <option value="postgres" />
           </list>
         </option>
         <option name="sourceFilePath" value="docker-compose.yml" />
