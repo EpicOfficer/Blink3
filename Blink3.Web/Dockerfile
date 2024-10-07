@@ -18,3 +18,7 @@ FROM base AS final
 WORKDIR /usr/share/nginx/html
 COPY --from=publish /app/publish/wwwroot .
 COPY Blink3.Web/nginx.conf /etc/nginx/nginx.conf
+
+# Add and run the initialization script
+COPY Blink3.Web/05-configure.sh /docker-entrypoint.d/05-configure.sh
+RUN chmod +x /docker-entrypoint.d/05-configure.sh

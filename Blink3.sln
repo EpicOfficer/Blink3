@@ -13,13 +13,14 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Files", "Solution Files", "{DC0DA219-4EFC-4B51-9E12-A28199354461}"
 	ProjectSection(SolutionItems) = preProject
 		docker-compose.development.yml = docker-compose.development.yml
-		docker-compose.production.yml = docker-compose.production.yml
 		docker-compose.yml = docker-compose.yml
 		Configuration\appsettings.json = Configuration\appsettings.json
-		Configuration\appsettings.Development.json = Configuration\appsettings.Development.json
 		.github\workflows\build.yml = .github\workflows\build.yml
 		.github\workflows\docker-image.yml = .github\workflows\docker-image.yml
 		README.md = README.md
+		.dockerignore = .dockerignore
+		.env = .env
+		.env.example = .env.example
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Blink3.Tests", "Blink3.Tests\Blink3.Tests.csproj", "{D8F3BEB2-9D9B-49CD-8711-D1A4BA78C689}"

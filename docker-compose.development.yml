@@ -1,45 +1,46 @@
-version: '3.8'
+---
+
+x-common-environment: &common-env
+  ASPNETCORE_ENVIRONMENT: Development
 
 services:
-  blink3.db:
+  postgres:
     ports:
       - "5432:5432"
 
-  blink3.cache:
+  redis:
     ports:
       - "6379:6379"
 
-  blink3.bot:
+  bot:
     environment:
-      - ASPNETCORE_ENVIRONMENT=Development
-      - WordLists__en__SolutionWordsFile=/app/bin/Debug/net8.0/Words/en-solution.txt
-      - WordLists__en__GuessWordsFile=/app/bin/Debug/net8.0/Words/en-guess.txt
-      - WordLists__es__SolutionWordsFile=/app/bin/Debug/net8.0/Words/es-solution.txt
+      <<: *common-env
+      WordLists__en__SolutionWordsFile: /app/bin/Debug/net8.0/Words/en-solution.txt
+      WordLists__en__GuessWordsFile: /app/bin/Debug/net8.0/Words/en-guess.txt
+      WordLists__es__SolutionWordsFile: /app/bin/Debug/net8.0/Words/es-solution.txt
     build:
       context: .
       dockerfile: Blink3.Bot/Dockerfile
 
-  blink3.api:
+  api:
     environment:
-      - ASPNETCORE_ENVIRONMENT=Development
+      <<: *common-env
     build:
       context: .
       dockerfile: Blink3.API/Dockerfile
     ports:
       - "8288:8080"
   
-  blink3.web:
+  web:
     build:
       context: .
       dockerfile: Blink3.Web/Dockerfile
-    volumes:
-      - ./Blink3.Web/wwwroot/appsettings.json:/usr/share/nginx/html/appsettings.json
     ports:
       - "8280:80"
 
-  blink3.activity:
-    build:
-      context: .
-      dockerfile: Blink3.Activity/Dockerfile
-    ports:
-      - "8380:80"
+  #activity:
+  #  build:
+  #    context: .
+  #    dockerfile: Blink3.Activity/Dockerfile
+  #  ports:
+  #    - "8380:80"

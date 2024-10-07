@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using System.Text.Json;
 using AspNet.Security.OAuth.Discord;
+using Blink3.API.Interfaces;
 using Blink3.Core.Caching;
 using Blink3.Core.Configuration;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -59,10 +60,17 @@ public static class ServiceCollectionExtensions
     private static async Task SaveTokenAsync(OAuthCreatingTicketContext context)
     {
         ICachingService cachingService = context.HttpContext.RequestServices.GetRequiredService<ICachingService>();
+        IEncryptionService encryptionService = context.HttpContext.RequestServices.GetRequiredService<IEncryptionService>();
+        
         string? nameIdentifierClaim = context.Identity?.FindFirst(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
         if (nameIdentifierClaim is not null && context.AccessToken is not null) 
         {
-            await cachingService.SetAsync($"token:{nameIdentifierClaim}", context.AccessToken, context.ExpiresIn);
+            string encryptedToken = encryptionService.Encrypt(context.AccessToken, out string iv);
+            string tokenKey = $"token:{nameIdentifierClaim}";
+
+            // Store both the encrypted token and the IV
+            await cachingService.SetAsync(tokenKey, encryptedToken, context.ExpiresIn);
+            await cachingService.SetAsync($"{tokenKey}:iv", iv, context.ExpiresIn);
         }
     }
 }
