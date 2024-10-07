@@ -48,7 +48,7 @@ public class GuildsController(DiscordRestClient botClient,
         string cacheKey = $"guild_{id}_categories";
         IReadOnlyCollection<DiscordPartialChannel> categories = await _cachingService.GetOrAddAsync(cacheKey, async () =>
         {
-            RestGuild? guild = await _botClient.GetGuildAsync(id);
+            RestGuild guild = await _botClient.GetGuildAsync(id);
             IReadOnlyCollection<RestCategoryChannel>? categories = await guild.GetCategoryChannelsAsync();
             return categories
                 .OrderBy(c => c.Position)
@@ -80,7 +80,7 @@ public class GuildsController(DiscordRestClient botClient,
         string cacheKey = $"guild_{id}_channels";
         IReadOnlyCollection<DiscordPartialChannel> channels = await _cachingService.GetOrAddAsync(cacheKey, async () =>
         {
-            RestGuild? guild = await _botClient.GetGuildAsync(id);
+            RestGuild guild = await _botClient.GetGuildAsync(id);
             IReadOnlyCollection<RestTextChannel>? channels = await guild.GetTextChannelsAsync();
             return channels
                 .OrderBy(c => c.Position)
