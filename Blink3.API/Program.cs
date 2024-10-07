@@ -7,8 +7,7 @@ using Blink3.Core.Configuration.Extensions;
 using Blink3.Core.Helpers;
 using Blink3.DataAccess.Extensions;
 using Discord;
-using Discord.Addons.Hosting;
-using Discord.WebSocket;
+using Discord.Rest;
 using Microsoft.AspNetCore.HttpOverrides;
 using Serilog;
 using Serilog.Events;
@@ -44,17 +43,18 @@ try
     builder.Services.AddAppConfiguration(builder.Configuration);
     BlinkConfiguration appConfig = builder.Services.GetAppConfiguration();
 
-    // Discord socket client
-    builder.Services.AddDiscordHost((config, _) =>
+    // Discord bot client
+    builder.Services.AddSingleton<DiscordRestClient>(_ =>
     {
-        config.SocketConfig = new DiscordSocketConfig
-        {
-            LogLevel = LogSeverity.Verbose,
-            MessageCacheSize = 0,
-            GatewayIntents = GatewayIntents.Guilds
-        };
-
-        config.Token = appConfig.Discord.BotToken;
+        DiscordRestClient client = new();
+        client.LoginAsync(TokenType.Bot, appConfig.Discord.BotToken).Wait();
+        return client;
+    });
+    
+    // Discord user client
+    builder.Services.AddScoped<Func<DiscordRestClient>>(_ =>
+    {
+        return () => new DiscordRestClient();
     });
     
     // Add forwarded headers

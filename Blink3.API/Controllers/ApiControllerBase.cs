@@ -4,9 +4,7 @@ using Blink3.Core.Caching;
 using Blink3.Core.DiscordAuth.Extensions;
 using Blink3.Core.Models;
 using Discord;
-using Discord.Addons.Hosting.Util;
 using Discord.Rest;
-using Discord.WebSocket;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
@@ -25,10 +23,12 @@ namespace Blink3.API.Controllers;
 [Route("api/[controller]")]
 [ApiController]
 [Authorize]
-public abstract class ApiControllerBase(DiscordSocketClient discordSocketClient, ICachingService cachingService, IEncryptionService encryptionService) : ControllerBase
+public abstract class ApiControllerBase(DiscordRestClient botClient,
+    Func<DiscordRestClient> userClientFactory,
+    ICachingService cachingService,
+    IEncryptionService encryptionService) : ControllerBase
 {
-    private DiscordRestClient? _client;
-    protected readonly DiscordSocketClient DiscordBotClient = discordSocketClient;
+    private readonly DiscordRestClient _userClient = userClientFactory();
     
     /// <summary>
     ///     Represents an Unauthorized Access message.
@@ -90,32 +90,26 @@ public abstract class ApiControllerBase(DiscordSocketClient discordSocketClient,
         return userId != UserId ? ProblemForUnauthorizedAccess() : null;
     }
 
-    private async Task InitDiscordClientAsync()
+    private async Task AuthenticateUserClientAsync()
     {
-        await DiscordBotClient.WaitForReadyAsync(CancellationToken.None);
-        if (_client is not null) return;
-        
         string? encryptedToken = await cachingService.GetAsync<string>($"token:{UserId}");
         string? iv = await cachingService.GetAsync<string>($"token:{UserId}:iv");
         if (encryptedToken is null || iv is null) return;
 
         string accessToken = encryptionService.Decrypt(encryptedToken, iv);
-        
-        _client = new DiscordRestClient();
-        await _client.LoginAsync(TokenType.Bearer, accessToken);
+        await _userClient.LoginAsync(TokenType.Bearer, accessToken);
     }
 
     protected async Task<List<DiscordPartialGuild>> GetUserGuilds()
     {
-        await InitDiscordClientAsync();
+        await AuthenticateUserClientAsync();
         
         List<DiscordPartialGuild> managedGuilds = await cachingService.GetOrAddAsync($"discord:guilds:{UserId}",
             async () =>
             {
                 List<DiscordPartialGuild> manageable = [];
-                if (_client is null) return manageable;
                 
-                IAsyncEnumerable<IReadOnlyCollection<RestUserGuild>> guilds = _client.GetGuildSummariesAsync();
+                IAsyncEnumerable<IReadOnlyCollection<RestUserGuild>> guilds = _userClient.GetGuildSummariesAsync();
                 await foreach (IReadOnlyCollection<RestUserGuild> guildCollection in guilds)
                 {
                     manageable.AddRange(guildCollection.Where(g => g.Permissions.ManageGuild).Select(g =>
@@ -130,7 +124,10 @@ public abstract class ApiControllerBase(DiscordSocketClient discordSocketClient,
                 return manageable;
             }, TimeSpan.FromMinutes(5));
 
-        List<ulong> discordGuildIds = DiscordBotClient.Guilds.Select(b => b.Id).ToList();
+        List<ulong> discordGuildIds = await botClient.GetGuildSummariesAsync()
+            .SelectMany(guildCollection => guildCollection.ToAsyncEnumerable())
+            .Select(guild => guild.Id)
+            .ToListAsync();
         return managedGuilds.Where(g => discordGuildIds.Contains(g.Id)).ToList();
     }
     
@@ -149,7 +146,7 @@ public abstract class ApiControllerBase(DiscordSocketClient discordSocketClient,
     
     ~ApiControllerBase()
     {
-        _client?.Dispose();
-        _client = null;
+        _userClient.LogoutAsync().Wait();
+        _userClient.Dispose();
     }
 }

@@ -12,7 +12,6 @@
 
     <ItemGroup>
         <PackageReference Include="AspNet.Security.OAuth.Discord" Version="8.2.0" />
-        <PackageReference Include="Discord.Addons.Hosting" Version="6.1.0" />
         <PackageReference Include="Discord.Net" Version="3.16.0" />
         <PackageReference Include="Discord.Net.Rest" Version="3.16.0" />
         <PackageReference Include="Microsoft.AspNetCore.JsonPatch" Version="8.0.8" />

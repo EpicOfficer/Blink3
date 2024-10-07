@@ -1,10 +1,9 @@
 using Blink3.API.Interfaces;
 using Blink3.Core.Caching;
-using Blink3.Core.DTOs;
 using Blink3.Core.Entities;
 using Blink3.Core.Models;
 using Blink3.Core.Repositories.Interfaces;
-using Discord.WebSocket;
+using Discord.Rest;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
@@ -15,8 +14,12 @@ namespace Blink3.API.Controllers;
 ///     Controller for performing CRUD operations on BlinkGuild items.
 /// </summary>
 [SwaggerTag("All CRUD operations for BlinkGuild items")]
-public class BlinkGuildsController(DiscordSocketClient discordSocketClient, ICachingService cachingService, IEncryptionService encryptionService, IBlinkGuildRepository blinkGuildRepository)
-    : ApiControllerBase(discordSocketClient, cachingService, encryptionService)
+public class BlinkGuildsController(DiscordRestClient botClient,
+    Func<DiscordRestClient> userClientFactory,
+    ICachingService cachingService,
+    IEncryptionService encryptionService,
+    IBlinkGuildRepository blinkGuildRepository)
+    : ApiControllerBase(botClient, userClientFactory, cachingService, encryptionService)
 {
     /// <summary>
     ///     Retrieves all BlinkGuild items that are manageable by the logged in user.
@@ -64,6 +67,7 @@ public class BlinkGuildsController(DiscordSocketClient discordSocketClient, ICac
     /// </summary>
     /// <param name="id">The ID of the BlinkGuild item to update.</param>
     /// <param name="blinkGuild">The updated BlinkGuild item data.</param>
+    /// <param name="cancellationToken"></param>
     /// <returns>
     ///     No content.
     /// </returns>
