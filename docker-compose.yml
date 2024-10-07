@@ -1,6 +1,7 @@
 ---
 
 x-common-environment: &common-env
+  Discord__BotToken: ${DISCORD_BOT_TOKEN}
   ConnectionStrings__DefaultConnection: Server=postgres;Port=5432;Database=${POSTGRES_USER};Userid=${POSTGRES_USER};Password=${POSTGRES_PASSWORD};SslMode=Prefer;TrustServerCertificate=true
   Redis__ConnectionString: redis,ssl=false,name=${REDIS_NAME}
   ASPNETCORE_ENVIRONMENT: Production
@@ -39,7 +40,6 @@ services:
     restart: always
     environment:
       <<: *common-env
-      Discord__BotToken: ${DISCORD_BOT_TOKEN}
       Discord__DevGuildId: ${DISCORD_DEV_GUILD}
       RunMigrations: ${BLINK_RUN_MIGRATIONS}
       WordsApiKey: ${WORDS_API_KEY}
