@@ -20,8 +20,9 @@
         {
             <div class="mb-3">
                 <label for="tempVcCategory" class="form-label">Temporary VC category</label>
-                <InputSelect id="tempVcCategory" class="form-select" @bind-value="SelectedCategoryId" TValue="string"
-                             ValueExpression="@(() => SelectedCategoryId)">
+                <InputSelect id="tempVcCategory" class="form-select"
+                             @bind-value="SelectedCategoryId"
+                             TValue="string">
                     <option value="" selected="selected">None</option>
                     @foreach (DiscordPartialChannel category in _categories)
                     {

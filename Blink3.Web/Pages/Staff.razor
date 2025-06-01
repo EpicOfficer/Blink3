@@ -21,8 +21,9 @@
         {
             <div class="mb-3">
                 <label for="loggingChannel" class="form-label">Logging channel</label>
-                <InputSelect id="loggingChannel" class="form-select" @bind-value="SelectedLoggingChannelId" TValue="string"
-                             ValueExpression="@(() => SelectedLoggingChannelId)">
+                <InputSelect id="loggingChannel" class="form-select"
+                             @bind-value="SelectedLoggingChannelId"
+                             TValue="string">
                     <option value="" selected="selected">None</option>
                     @foreach (DiscordPartialChannel channel in _channels)
                     {

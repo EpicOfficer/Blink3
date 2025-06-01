@@ -8,16 +8,16 @@ services:
     command: []
     entrypoint:
     - "dotnet"
-    - "/app/bin/Debug/net8.0/Blink3.API.dll"
+    - "/app/bin/Debug/net9.0/Blink3.API.dll"
     environment:
       DOTNET_USE_POLLING_FILE_WATCHER: "true"
     image: "ghcr.io/epicofficer/blink3.api:dev"
     ports: []
     volumes:
-    - "/Users/joshua/.microsoft/usersecrets:/home/app/.microsoft/usersecrets"
-    - "/Users/joshua/.nuget/packages:/home/app/.nuget/packages"
     - "/Users/joshua/RiderProjects/Blink3/Blink3.API:/app:rw"
     - "/Users/joshua/RiderProjects/Blink3:/src:rw"
+    - "/Users/joshua/.microsoft/usersecrets:/home/app/.microsoft/usersecrets"
+    - "/Users/joshua/.nuget/packages:/home/app/.nuget/packages"
     working_dir: "/app"
   bot:
     build:
@@ -27,14 +27,33 @@ services:
     command: []
     entrypoint:
     - "dotnet"
-    - "/app/bin/Debug/net8.0/Blink3.Bot.dll"
+    - "/app/bin/Debug/net9.0/Blink3.Bot.dll"
     environment:
       DOTNET_USE_POLLING_FILE_WATCHER: "true"
     image: "ghcr.io/epicofficer/blink3.bot:dev"
     ports: []
     volumes:
-    - "/Users/joshua/.microsoft/usersecrets:/home/app/.microsoft/usersecrets"
-    - "/Users/joshua/.nuget/packages:/home/app/.nuget/packages"
     - "/Users/joshua/RiderProjects/Blink3/Blink3.Bot:/app:rw"
     - "/Users/joshua/RiderProjects/Blink3:/src:rw"
+    - "/Users/joshua/.microsoft/usersecrets:/home/app/.microsoft/usersecrets"
+    - "/Users/joshua/.nuget/packages:/home/app/.nuget/packages"
+    working_dir: "/app"
+  web:
+    build:
+      context: "/Users/joshua/RiderProjects/Blink3"
+      dockerfile: "Blink3.Web/Dockerfile"
+      target: "base"
+    command: []
+    entrypoint:
+    - "dotnet"
+    - "/app/../../../.nuget/packages/microsoft.aspnetcore.components.webassembly.devserver/9.0.5/tools/blazor-devserver.dll"
+    environment:
+      ASPNETCORE_ENVIRONMENT: "Development"
+      DOTNET_USE_POLLING_FILE_WATCHER: "true"
+    image: "ghcr.io/epicofficer/blink3.web:dev"
+    ports: []
+    volumes:
+    - "/Users/joshua/RiderProjects/Blink3/Blink3.Web:/app:rw"
+    - "/Users/joshua/RiderProjects/Blink3:/src:rw"
+    - "/Users/joshua/.nuget/packages:/root/.nuget/packages"
     working_dir: "/app"

@@ -1,9 +1,9 @@
-﻿FROM mcr.microsoft.com/dotnet/runtime:8.0-alpine AS base
+﻿FROM mcr.microsoft.com/dotnet/runtime:9.0-alpine AS base
 RUN apk add --no-cache curl icu-libs
 USER $APP_UID
 WORKDIR /app
 
-FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 COPY ["Blink3.Bot/Blink3.Bot.csproj", "Blink3.Bot/"]

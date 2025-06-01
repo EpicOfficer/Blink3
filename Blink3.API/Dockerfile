@@ -1,10 +1,10 @@
-﻿FROM mcr.microsoft.com/dotnet/aspnet:8.0-alpine AS base
+﻿FROM mcr.microsoft.com/dotnet/aspnet:9.0-alpine AS base
 RUN apk add --no-cache curl icu-libs
 USER $APP_UID
 WORKDIR /app
 EXPOSE 8080
 
-FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 COPY ["Blink3.API/Blink3.API.csproj", "Blink3.API/"]

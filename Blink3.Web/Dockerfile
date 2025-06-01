@@ -1,7 +1,7 @@
 ﻿FROM nginx:alpine AS base
 EXPOSE 80
 
-FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 COPY ["Blink3.Web/Blink3.Web.csproj", "Blink3.Web/"]

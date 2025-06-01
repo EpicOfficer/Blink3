@@ -19,8 +19,7 @@ namespace Blink3.API.Controllers;
 [Consumes(MediaTypeNames.Application.Json)]
 public class AuthController(
     IAuthenticationService authenticationService,
-    IDiscordTokenService discordTokenService,
-    ICachingService cachingService) : ControllerBase
+    IDiscordTokenService discordTokenService) : ControllerBase
 {
     [HttpGet("login")]
     [SwaggerOperation(
