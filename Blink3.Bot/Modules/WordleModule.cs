@@ -20,12 +20,14 @@ public class WordleModule(
     IBlinkUserRepository blinkUserRepository,
     IWordRepository wordRepository) : BlinkModuleBase<IInteractionContext>(blinkGuildRepository)
 {
+    private ulong GameId => Context.Interaction.ChannelId ?? Context.User.Id;
+
     [SlashCommand("wordle", "Start a new game of wordle")]
     public async Task Start(WordleLanguageEnum language = WordleLanguageEnum.English)
     {
         await DeferAsync();
 
-        if (await wordleGameService.IsGameInProgressAsync(Context.Channel.Id))
+        if (await wordleGameService.IsGameInProgressAsync(GameId))
         {
             await RespondInfoAsync("Game already in progress",
                 "A wordle is already in progress for this channel.  Type `/guess` to try and guess it");
@@ -41,15 +43,14 @@ public class WordleModule(
         string langString = language switch
         {
             WordleLanguageEnum.Spanish => "Spanish",
-            WordleLanguageEnum.English => "English",
             _ => "English"
         };
 
-        wordleGameService.StartNewGameAsync(Context.Channel.Id, lang, 5).Forget();
+        wordleGameService.StartNewGameAsync(GameId, lang, 5).Forget();
 
         List<EmbedFieldBuilder> fields =
         [
-            new EmbedFieldBuilder
+            new()
             {
                 Name = "Language",
                 Value = langString
@@ -65,7 +66,7 @@ public class WordleModule(
     {
         await DeferAsync();
 
-        Wordle? wordle = await wordleRepository.GetByChannelIdAsync(Context.Channel.Id);
+        Wordle? wordle = await wordleRepository.GetByChannelIdAsync(GameId);
         if (wordle is null)
         {
             await RespondErrorAsync("No game in progress",
