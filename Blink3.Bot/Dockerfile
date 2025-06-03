@@ -1,5 +1,4 @@
 ﻿FROM mcr.microsoft.com/dotnet/runtime:9.0 AS base
-RUN apk add --no-cache curl icu-libs
 USER $APP_UID
 WORKDIR /app
 
