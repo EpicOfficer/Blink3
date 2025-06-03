@@ -1,3 +1,5 @@
+using System.Globalization;
+using System.Text;
 using Blink3.Core.Entities;
 using Blink3.Core.Enums;
 
@@ -19,8 +21,9 @@ public static class WordleGuessExtensions
     /// <param name="correctIndices">The list to store the indices of correct letters.</param>
     public static void MarkCorrectLetters(this WordleGuess guess, Wordle wordle, ICollection<int> correctIndices)
     {
-        string word = guess.Word;
-        string wordToGuess = wordle.WordToGuess;
+        string word = NormalizeWord(guess.Word);
+        string wordToGuess = NormalizeWord(wordle.WordToGuess);
+
         for (int i = 0; i < wordToGuess.Length; i++)
         {
             if (wordToGuess[i] != word[i]) continue;
@@ -39,8 +42,8 @@ public static class WordleGuessExtensions
     public static void MarkMisplacedLetters(this WordleGuess guess, Wordle wordle,
         ICollection<int> correctIndices, ICollection<int> misplacedIndices)
     {
-        string word = guess.Word;
-        string wordToGuess = wordle.WordToGuess;
+        string word = NormalizeWord(guess.Word);
+        string wordToGuess = NormalizeWord(wordle.WordToGuess);
 
         Dictionary<char, int> checkedLettersCount = new();
         Dictionary<char, List<int>> charIndicesMap = GenerateCharIndicesMap(wordToGuess);
@@ -60,10 +63,11 @@ public static class WordleGuessExtensions
 
         for (int i = 0; i < wordToGuess.Length; i++)
         {
-            if (!charIndicesMap.TryGetValue(wordToGuess[i], out List<int>? value))
+            char normalizedChar = NormalizeChar(wordToGuess[i]);
+            if (!charIndicesMap.TryGetValue(normalizedChar, out List<int>? value))
             {
-                value = new List<int>();
-                charIndicesMap[wordToGuess[i]] = value;
+                value = [];
+                charIndicesMap[normalizedChar] = value;
             }
 
             value.Add(i);
@@ -86,7 +90,7 @@ public static class WordleGuessExtensions
         ICollection<int> misplacedIndices, Dictionary<char, int> checkedLettersCount,
         Dictionary<char, List<int>> charIndicesMap, int i)
     {
-        char letter = word[i];
+        char letter = NormalizeChar(word[i]);
         if (guess.Letters[i].State == WordleLetterStateEnum.Correct) return;
 
         checkedLettersCount.TryAdd(letter, 0);
@@ -103,5 +107,28 @@ public static class WordleGuessExtensions
         }
 
         if (checkedLettersCount[letter] >= value.Count) charIndicesMap.Remove(letter);
+    }
+
+    /// <summary>
+    ///     Normalizes a word by removing diacritical marks and converting it to lowercase.
+    /// </summary>
+    /// <param name="word">The word to normalize.</param>
+    /// <returns>A normalized string without diacritical marks and in lowercase.</returns>
+    private static string NormalizeWord(string word)
+    {
+        return string.Concat(word.Normalize(NormalizationForm.FormD)
+                .Where(c => CharUnicodeInfo.GetUnicodeCategory(c) != UnicodeCategory.NonSpacingMark))
+            .ToLowerInvariant();
+    }
+
+    /// <summary>
+    ///     Normalizes a character by removing any diacritical marks and converting it to lowercase.
+    /// </summary>
+    /// <param name="letter">The character to normalize.</param>
+    /// <returns>The normalized character.</returns>
+    private static char NormalizeChar(char letter)
+    {
+        string normalizedString = NormalizeWord(letter.ToString());
+        return normalizedString.Length > 0 ? normalizedString[0] : letter;
     }
 }
