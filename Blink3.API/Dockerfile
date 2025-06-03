@@ -1,4 +1,4 @@
-﻿FROM mcr.microsoft.com/dotnet/aspnet:9.0-alpine AS base
+﻿FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS base
 RUN apk add --no-cache curl icu-libs
 USER $APP_UID
 WORKDIR /app
