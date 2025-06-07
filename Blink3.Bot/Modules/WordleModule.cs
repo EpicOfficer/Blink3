@@ -24,11 +24,14 @@ public class WordleModule(
 {
     private ulong GameId => Context.Interaction.ChannelId ?? Context.User.Id;
 
-    private static GameStatistics UpdateStreak(GameStatistics stats)
+    private async Task<GameStatistics> UpdateStatsAsync(ulong userId)
     {
+        GameStatistics stats = await gameStatisticsRepository.GetOrCreateGameStatistics(userId, GameType.Wordle);
         DateTime time = DateTime.UtcNow;
+        
         if (time - stats.LastActivity < TimeSpan.FromDays(1))
         {
+            stats.LastActivity = time;
             return stats;
         }
 
@@ -36,11 +39,13 @@ public class WordleModule(
         {
             stats.CurrentStreak++;
             stats.MaxStreak = Math.Max(stats.MaxStreak, stats.CurrentStreak);
+            stats.LastActivity = time;
             return stats;
         }
         
         stats.CurrentStreak = 0;
         stats.MaxStreak = Math.Max(stats.MaxStreak, stats.CurrentStreak);
+        stats.LastActivity = time;
         return stats;
     }
     
@@ -69,9 +74,7 @@ public class WordleModule(
         };
 
         await wordleGameService.StartNewGameAsync(GameId, lang, 5);
-        GameStatistics stats = await gameStatisticsRepository.GetOrCreateGameStatistics(Context.User.Id, GameType.Wordle);
-        stats.LastActivity = DateTime.UtcNow;
-        stats = UpdateStreak(stats);
+        GameStatistics stats = await UpdateStatsAsync(Context.User.Id);
         await gameStatisticsRepository.UpdateAsync(stats);
         
         List<EmbedFieldBuilder> fields =
@@ -114,9 +117,7 @@ public class WordleModule(
             return;
         }
 
-        GameStatistics stats = await gameStatisticsRepository.GetOrCreateGameStatistics(Context.User.Id, GameType.Wordle);
-        stats.LastActivity = DateTime.UtcNow;
-        stats = UpdateStreak(stats);
+        GameStatistics stats = await UpdateStatsAsync(Context.User.Id);
 
         if (wordle.Players.Contains(Context.User.Id) is false)
         {
@@ -147,6 +148,10 @@ public class WordleModule(
             }
 
             await wordleRepository.DeleteAsync(wordle);
+        }
+        else
+        {
+            await wordleRepository.UpdateAsync(wordle);
         }
         
         await gameStatisticsRepository.UpdateAsync(stats);
