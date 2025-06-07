@@ -7,8 +7,7 @@
 
 <div class="page">
     <Sidebar2 @ref="_sidebar"
-              Title="Blink."
-              ImageSrc="img/blink.png"
+              Title="Blink"
               DataProvider="SidebarDataProvider"/>
 
     <main>
@@ -53,9 +52,9 @@
 
     private async Task<List<NavItem>> GetNavItems()
     {
-        _navItems = new List<NavItem>
-        {
-            new()
+        _navItems =
+        [
+            new NavItem
             {
                 Id = "1",
                 Href = "/",
@@ -63,7 +62,7 @@
                 Text = "Home",
                 Match = NavLinkMatch.All
             }
-        };
+        ];
 
         AuthenticationState authState = await authenticationStateTask;
         ClaimsPrincipal user = authState.User;
