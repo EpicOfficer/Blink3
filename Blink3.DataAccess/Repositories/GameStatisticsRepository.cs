@@ -16,7 +16,12 @@ public class GameStatisticsRepository(BlinkDbContext dbContext)
     {
         GameStatistics? entity = _dbContext.Set<GameStatistics>().FirstOrDefault(g => g.BlinkUserId == userId && g.Type == gameType);
         if (entity is not null) return entity;
-        Debug.Assert(entity != null, nameof(entity) + " != null");
+
+        entity = new GameStatistics
+        {
+            BlinkUserId = userId,
+            Type = gameType
+        };
         
         _dbContext.Entry(entity).State = EntityState.Detached;
 
