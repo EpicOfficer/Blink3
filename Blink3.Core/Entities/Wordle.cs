@@ -40,6 +40,11 @@ public class Wordle
     public string WordToGuess { get; set; } = string.Empty;
 
     /// <summary>
+    ///     Represents the players in the Wordle game.
+    /// </summary>
+    public ICollection<ulong> Players { get; set; } = [];
+    
+    /// <summary>
     ///     The total number of guesses in this wordle game.
     /// </summary>
     public int TotalAttempts => Guesses.Count;

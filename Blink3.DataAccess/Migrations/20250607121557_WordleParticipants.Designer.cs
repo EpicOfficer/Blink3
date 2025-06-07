@@ -3,6 +3,7 @@ using System;
 using Blink3.DataAccess;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Blink3.DataAccess.Migrations
 {
     [DbContext(typeof(BlinkDbContext))]
-    partial class BlinkDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250607121557_WordleParticipants")]
+    partial class WordleParticipants
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
