@@ -15,7 +15,7 @@ services:
     - "--mode=server"
     - "--frontend-port=57000"
     - "--backend-port=57200"
-    - "--roslyn-worker-port=57439"
+    - "--roslyn-worker-port=57403"
     - "--timeout=60"
     environment:
       DOTNET_USE_POLLING_FILE_WATCHER: "true"
@@ -23,9 +23,9 @@ services:
       RESHARPER_LOG_CONF: "/etc/opt/JetBrains/RiderDebuggerTools/backend-log.xml"
     image: "ghcr.io/epicofficer/blink3.api:dev"
     ports:
-    - "127.0.0.1:57039:57000"
-    - "127.0.0.1:57239:57200"
-    - "127.0.0.1:57439:57439"
+    - "127.0.0.1:57003:57000"
+    - "127.0.0.1:57203:57200"
+    - "127.0.0.1:57403:57403"
     volumes:
     - "/Users/joshua/RiderProjects/Blink3/Blink3.API:/app:rw"
     - "/Users/joshua/RiderProjects/Blink3:/src:rw"
@@ -33,7 +33,7 @@ services:
     - "/Users/joshua/.nuget/packages:/home/app/.nuget/packages"
     - "/Users/joshua/.local/share/JetBrains/RiderRemoteDebugger/2025.1.2/LinuxArm64:/opt/JetBrains/RiderDebuggerTools"
     - "/Applications/Rider.app/Contents/bin/backend-log.xml:/etc/opt/JetBrains/RiderDebuggerTools/backend-log.xml"
-    - "/Users/joshua/Library/Logs/JetBrains/Rider2025.1/DebuggerWorker/JetBrains.Debugger.Worker.2025_6_07_15_33_40:/var/opt/JetBrains/RiderDebuggerTools:rw"
+    - "/Users/joshua/Library/Logs/JetBrains/Rider2025.1/DebuggerWorker/JetBrains.Debugger.Worker.2025_6_07_17_47_19:/var/opt/JetBrains/RiderDebuggerTools:rw"
     working_dir: "/app"
   bot:
     build:
@@ -50,7 +50,7 @@ services:
     - "--mode=server"
     - "--frontend-port=57000"
     - "--backend-port=57200"
-    - "--roslyn-worker-port=57440"
+    - "--roslyn-worker-port=57404"
     - "--timeout=60"
     environment:
       DOTNET_USE_POLLING_FILE_WATCHER: "true"
@@ -58,9 +58,9 @@ services:
       RESHARPER_LOG_CONF: "/etc/opt/JetBrains/RiderDebuggerTools/backend-log.xml"
     image: "ghcr.io/epicofficer/blink3.bot:dev"
     ports:
-    - "127.0.0.1:57040:57000"
-    - "127.0.0.1:57240:57200"
-    - "127.0.0.1:57440:57440"
+    - "127.0.0.1:57004:57000"
+    - "127.0.0.1:57204:57200"
+    - "127.0.0.1:57404:57404"
     volumes:
     - "/Users/joshua/RiderProjects/Blink3/Blink3.Bot:/app:rw"
     - "/Users/joshua/RiderProjects/Blink3:/src:rw"
@@ -68,7 +68,7 @@ services:
     - "/Users/joshua/.nuget/packages:/home/app/.nuget/packages"
     - "/Users/joshua/.local/share/JetBrains/RiderRemoteDebugger/2025.1.2/LinuxArm64:/opt/JetBrains/RiderDebuggerTools"
     - "/Applications/Rider.app/Contents/bin/backend-log.xml:/etc/opt/JetBrains/RiderDebuggerTools/backend-log.xml"
-    - "/Users/joshua/Library/Logs/JetBrains/Rider2025.1/DebuggerWorker/JetBrains.Debugger.Worker.2025_6_07_15_33_40:/var/opt/JetBrains/RiderDebuggerTools:rw"
+    - "/Users/joshua/Library/Logs/JetBrains/Rider2025.1/DebuggerWorker/JetBrains.Debugger.Worker.2025_6_07_17_47_19:/var/opt/JetBrains/RiderDebuggerTools:rw"
     working_dir: "/app"
   web:
     build:
@@ -87,7 +87,7 @@ services:
     - "--mode=server"
     - "--frontend-port=57000"
     - "--backend-port=57200"
-    - "--roslyn-worker-port=57441"
+    - "--roslyn-worker-port=57405"
     - "--timeout=60"
     environment:
       ASPNETCORE_ENVIRONMENT: "Development"
@@ -96,14 +96,14 @@ services:
       RESHARPER_LOG_CONF: "/etc/opt/JetBrains/RiderDebuggerTools/backend-log.xml"
     image: "ghcr.io/epicofficer/blink3.web:dev"
     ports:
-    - "127.0.0.1:57041:57000"
-    - "127.0.0.1:57241:57200"
-    - "127.0.0.1:57441:57441"
+    - "127.0.0.1:57005:57000"
+    - "127.0.0.1:57205:57200"
+    - "127.0.0.1:57405:57405"
     volumes:
     - "/Users/joshua/RiderProjects/Blink3/Blink3.Web:/app:rw"
     - "/Users/joshua/RiderProjects/Blink3:/src:rw"
     - "/Users/joshua/.nuget/packages:/root/.nuget/packages"
     - "/Users/joshua/.local/share/JetBrains/RiderRemoteDebugger/2025.1.2/LinuxMuslArm64:/opt/JetBrains/RiderDebuggerTools"
     - "/Applications/Rider.app/Contents/bin/backend-log.xml:/etc/opt/JetBrains/RiderDebuggerTools/backend-log.xml"
-    - "/Users/joshua/Library/Logs/JetBrains/Rider2025.1/DebuggerWorker/JetBrains.Debugger.Worker.2025_6_07_15_33_40:/var/opt/JetBrains/RiderDebuggerTools:rw"
+    - "/Users/joshua/Library/Logs/JetBrains/Rider2025.1/DebuggerWorker/JetBrains.Debugger.Worker.2025_6_07_17_47_19:/var/opt/JetBrains/RiderDebuggerTools:rw"
     working_dir: "/app"

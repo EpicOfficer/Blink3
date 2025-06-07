@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using Blink3.Core.Entities;
 using Blink3.Core.Enums;
 using Blink3.Core.Repositories.Interfaces;
@@ -13,16 +14,14 @@ public class GameStatisticsRepository(BlinkDbContext dbContext)
     
     public async Task<GameStatistics> GetOrCreateGameStatistics(ulong userId, GameType gameType)
     {
-        GameStatistics? stats =
-            await _dbContext.GameStatistics.AsNoTracking()
-                .FirstOrDefaultAsync(s => s.BlinkUserId == userId && s.Type == gameType);
+        GameStatistics? entity = _dbContext.Set<GameStatistics>().FirstOrDefault(g => g.BlinkUserId == userId && g.Type == gameType);
+        if (entity is not null) return entity;
+        Debug.Assert(entity != null, nameof(entity) + " != null");
         
-        if (stats is not null) return stats;
-        
-        return await AddAsync(new GameStatistics
-        {
-            BlinkUserId = userId,
-            Type = gameType
-        });
+        _dbContext.Entry(entity).State = EntityState.Detached;
+
+        await AddAsync(entity).ConfigureAwait(false);
+
+        return entity;
     }
 }
