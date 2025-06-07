@@ -18,4 +18,6 @@ public class BlinkUser
     ///     Represents the number of points for a BlinkUser.
     /// </summary>
     public int Points { get; set; }
+    
+    public ICollection<GameStatistics> GameStatistics { get; set; } = [];
 }

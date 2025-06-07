@@ -30,6 +30,11 @@ public class BlinkDbContext : DbContext
     public DbSet<BlinkUser> BlinkUsers => Set<BlinkUser>();
 
     /// <summary>
+    ///     Represents a collection of game statistics entities in the BlinkDbContext.
+    /// </summary>
+    public DbSet<GameStatistics> GameStatistics => Set<GameStatistics>();
+
+    /// <summary>
     ///     Represents a user's "to do" items.
     /// </summary>
     public DbSet<UserTodo> UserTodos => Set<UserTodo>();
@@ -79,6 +84,14 @@ public class BlinkDbContext : DbContext
             entity.Property(p => p.CorrectTileColour).IsRequired(false);
             entity.Property(p => p.MisplacedTileColour).IsRequired(false);
             entity.Property(p => p.IncorrectTileColour).IsRequired(false);
+        });
+
+        modelBuilder.Entity<BlinkUser>(entity =>
+        {
+            entity.HasMany(b => b.GameStatistics)
+                .WithOne(g => g.BlinkUser)
+                .HasForeignKey(g => g.BlinkUserId)
+                .OnDelete(DeleteBehavior.Cascade);
         });
 
         modelBuilder.Entity<TempVc>(p => p.HasKey(t => new { t.GuildId, t.ChannelId }));
