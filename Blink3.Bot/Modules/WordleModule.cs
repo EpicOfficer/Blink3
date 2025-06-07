@@ -68,7 +68,7 @@ public class WordleModule(
             _ => "English"
         };
 
-        wordleGameService.StartNewGameAsync(GameId, lang, 5).Forget();
+        await wordleGameService.StartNewGameAsync(GameId, lang, 5);
         GameStatistics stats = await gameStatisticsRepository.GetOrCreateGameStatistics(Context.User.Id, GameType.Wordle);
         stats.LastActivity = DateTime.UtcNow;
         stats = UpdateStreak(stats);
