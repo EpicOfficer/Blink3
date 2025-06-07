@@ -1,6 +1,7 @@
 using Blink3.Bot.Enums;
 using Blink3.Bot.Extensions;
 using Blink3.Core.Entities;
+using Blink3.Core.Enums;
 using Blink3.Core.Extensions;
 using Blink3.Core.Interfaces;
 using Blink3.Core.Models;
@@ -18,10 +19,31 @@ public class WordleModule(
     IWordsClientService wordsClientService,
     IBlinkGuildRepository blinkGuildRepository,
     IBlinkUserRepository blinkUserRepository,
+    IGameStatisticsRepository gameStatisticsRepository,
     IWordRepository wordRepository) : BlinkModuleBase<IInteractionContext>(blinkGuildRepository)
 {
     private ulong GameId => Context.Interaction.ChannelId ?? Context.User.Id;
 
+    private static GameStatistics UpdateStreak(GameStatistics stats)
+    {
+        DateTime time = DateTime.UtcNow;
+        if (time - stats.LastActivity < TimeSpan.FromDays(1))
+        {
+            return stats;
+        }
+
+        if (time - stats.LastActivity < TimeSpan.FromDays(2))
+        {
+            stats.CurrentStreak++;
+            stats.MaxStreak = Math.Max(stats.MaxStreak, stats.CurrentStreak);
+            return stats;
+        }
+        
+        stats.CurrentStreak = 0;
+        stats.MaxStreak = Math.Max(stats.MaxStreak, stats.CurrentStreak);
+        return stats;
+    }
+    
     [SlashCommand("wordle", "Start a new game of wordle")]
     public async Task Start(WordleLanguageEnum language = WordleLanguageEnum.English)
     {
@@ -46,8 +68,12 @@ public class WordleModule(
             _ => "English"
         };
 
-        wordleGameService.StartNewGameAsync(GameId, lang, 5).Forget();
-
+        await wordleGameService.StartNewGameAsync(GameId, lang, 5);
+        GameStatistics stats = await gameStatisticsRepository.GetOrCreateGameStatistics(Context.User.Id, GameType.Wordle);
+        stats.LastActivity = DateTime.UtcNow;
+        stats = UpdateStreak(stats);
+        await gameStatisticsRepository.UpdateAsync(stats);
+        
         List<EmbedFieldBuilder> fields =
         [
             new()
@@ -88,10 +114,21 @@ public class WordleModule(
             return;
         }
 
+        GameStatistics stats = await gameStatisticsRepository.GetOrCreateGameStatistics(Context.User.Id, GameType.Wordle);
+        stats.LastActivity = DateTime.UtcNow;
+        stats = UpdateStreak(stats);
+
+        if (wordle.Players.Contains(Context.User.Id) is false)
+        {
+            wordle.Players.Add(Context.User.Id);
+        }
+        
         WordleGuess guess = guessResult.SafeValue();
         string text = string.Empty;
         if (guess.IsCorrect)
         {
+            stats.GamesWon++;
+            stats.GamesPlayed++;
             text = $"**Correct!** You got it in {wordle.TotalAttempts} tries.  ";
             int pointsToAdd = 11 - wordle.TotalAttempts;
             if (pointsToAdd > 0)
@@ -101,9 +138,18 @@ public class WordleModule(
                 await blinkUserRepository.UpdateAsync(user);
                 text += $"You have been awarded {pointsToAdd} points";
             }
+            
+            foreach (ulong player in wordle.Players.ToHashSet().Where(u => u != Context.User.Id))
+            {
+                GameStatistics playerStats = await gameStatisticsRepository.GetOrCreateGameStatistics(player, GameType.Wordle);
+                playerStats.GamesPlayed++;
+                await gameStatisticsRepository.UpdateAsync(playerStats);
+            }
 
             await wordleRepository.DeleteAsync(wordle);
         }
+        
+        await gameStatisticsRepository.UpdateAsync(stats);
 
         using MemoryStream image = new();
         await wordleGameService.GenerateImageAsync(guess, image, await FetchConfig());
@@ -163,6 +209,56 @@ public class WordleModule(
         await RespondPlainAsync($"You currently have {points} point{(points != 1 ? "s" : null)}.", ephemeral: false);
     }
 
+    [SlashCommand("statistics", "View your Wordle game statistics")]
+    public async Task Statistics()
+    {
+        await DeferAsync();
+
+        // Retrieve the user's game statistics
+        GameStatistics stats = await gameStatisticsRepository.GetOrCreateGameStatistics(Context.User.Id, GameType.Wordle);
+
+        // Calculate the win percentage
+        double winPercentage = stats.GamesPlayed > 0
+            ? Math.Round((double)stats.GamesWon / stats.GamesPlayed * 100, 2)
+            : 0;
+
+        // Build an embed response
+        EmbedFieldBuilder[] fields =
+        [
+            new()
+            {
+                Name = "Games Played",
+                Value = $"{stats.GamesPlayed}"
+            },
+            new()
+            {
+                Name = "Games Won",
+                Value = $"{stats.GamesWon}"
+            },
+            new()
+            {
+                Name = "Win Percentage",
+                Value = $"{winPercentage}%"
+            },
+            new()
+            {
+                Name = "Current Streak",
+                Value = $"{stats.CurrentStreak}"
+            },
+            new()
+            {
+                Name = "Max Streak",
+                Value = $"{stats.MaxStreak}"
+            }
+        ];
+
+        await RespondPlainAsync(
+            "Your Wordle Statistics",
+            embedFields: fields,
+            ephemeral: false
+        );
+    }
+    
     [SlashCommand("leaderboard", "Display points leaderboard")]
     public async Task Leaderboard()
     {

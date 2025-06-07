@@ -20,11 +20,13 @@ public static class ServiceCollectionExtensions
     {
         if (!string.IsNullOrWhiteSpace(configuration.ConnectionStrings.DefaultConnection))
             services.AddDbContext<BlinkDbContext>(options =>
-                options.UseNpgsql(configuration.ConnectionStrings.DefaultConnection));
+                options.UseNpgsql(configuration.ConnectionStrings.DefaultConnection,
+                    b => b.MigrationsAssembly("Blink3.DataAccess")));
 
         services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
         services.AddScoped<IBlinkGuildRepository, BlinkGuildRepository>();
         services.AddScoped<IBlinkUserRepository, BlinkUserRepository>();
+        services.AddScoped<IGameStatisticsRepository, GameStatisticsRepository>();
         services.AddScoped<IUserTodoRepository, UserTodoRepository>();
         services.AddScoped<IWordRepository, WordRepository>();
         services.AddScoped<IWordleRepository, WordleRepository>();
