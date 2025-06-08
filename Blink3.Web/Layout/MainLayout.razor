@@ -1,14 +1,13 @@
 ﻿@using System.Security.Claims
 @using Blink3.Core.Models
 @inherits LayoutComponentBase
-@inject NavigationManager Navigation;
 @inject HttpClient Client;
 @inject AuthenticationStateProvider AuthStateProvider;
 
-<BlazorBootstrapLayout StickyHeader="true" Class="page">
+<BlazorBootstrapLayout StickyHeader="true">
     <HeaderSection>
         <LoginDisplay/>
-        <ThemeSwitcher Class="ps-3 ps-lg-2"/>
+        <ThemeSwitcher Class="ps-3 ps-lg-2" Position="DropdownMenuPosition.End" />
     </HeaderSection>
 
     <SidebarSection>
