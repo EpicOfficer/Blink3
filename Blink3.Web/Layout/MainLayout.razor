@@ -5,21 +5,35 @@
 @inject HttpClient Client;
 @inject AuthenticationStateProvider AuthStateProvider;
 
-<div class="page">
-    <Sidebar2 @ref="_sidebar"
-              Title="Blink"
-              DataProvider="SidebarDataProvider"/>
+<BlazorBootstrapLayout StickyHeader="true" Class="page">
+    <HeaderSection>
+        <LoginDisplay/>
+        <ThemeSwitcher Class="ps-3 ps-lg-2"/>
+    </HeaderSection>
 
-    <main>
-        <div class="top-row px-3 border-bottom bg-dark">
-            <LoginDisplay/>
-        </div>
+    <SidebarSection>
+        <Sidebar2 @ref="_sidebar"
+                  Title="Blink"
+                  DataProvider="SidebarDataProvider"/>
+    </SidebarSection>
 
-        <article class="p-4">
-            @Body
-        </article>
-    </main>
-</div>
+    <ContentSection>
+        @Body
+    </ContentSection>
+
+    <FooterSection>
+        <Button Type="@ButtonType.Link"
+                Color="@ButtonColor.Link"
+                To="/Terms">
+            Terms of Service
+        </Button>
+        <Button Type="@ButtonType.Link"
+                Color="@ButtonColor.Link"
+                To="/Privacy">
+            Privacy Policy
+        </Button>
+    </FooterSection>
+</BlazorBootstrapLayout>
 
 <Toasts class="p-3" AutoHide="true" Delay="4000" Placement="ToastsPlacement.TopCenter" />
 <Preload LoadingText="Loading..." />
