@@ -2,20 +2,70 @@
 @using Blink3.Web.Configuration
 @using Microsoft.Extensions.Options
 
-<PageTitle>Home</PageTitle>
+<PageTitle>Blink - Welcome</PageTitle>
 
-<h1>Blink3</h1>
+<div class="container mt-5">
+    <!-- Hero Section -->
+    <div class="text-center">
+        <h1 class="display-4 font-weight-bold">Blink</h1>
+        <p class="lead">Everything you need, in a Blink.</p>
+        <Button Type="@ButtonType.Link"
+                Color="@ButtonColor.Primary"
+                Class="btn-lg"
+                To="@InstallUrl">
+            🚀 Install Blink Now
+        </Button>
+    </div>
 
-Very early preview of Blink3
+    <hr class="my-5" />
 
-<Button Type="ButtonType.Link"
-        Color="ButtonColor.Primary"
-        class="d-block mt-3"
-        To="@InstallUrl">
-    Install
-</Button>
+    <!-- Features Section -->
+    <div class="row text-center">
+        <div class="col-md-3 col-sm-6 mb-4">
+            <div class="card shadow">
+                <div class="card-body">
+                    <h5 class="card-title">🎮 Wordle</h5>
+                    <p class="card-text">Enjoy a clean, daily Wordle game with leaderboards in English or Spanish.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6 mb-4">
+            <div class="card shadow">
+                <div class="card-body">
+                    <h5 class="card-title">🔊 Temporary Voice Channels</h5>
+                    <p class="card-text">Easily create and manage private voice channels.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6 mb-4">
+            <div class="card shadow">
+                <div class="card-body">
+                    <h5 class="card-title">🛠️ Useful Utilities</h5>
+                    <p class="card-text">Various features to help keep your community running smoothly.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6 mb-4">
+            <div class="card shadow">
+                <div class="card-body">
+                    <h5 class="card-title">🌐 Dashboard</h5>
+                    <p class="card-text">Configure functionality from <b>blinkbot.io</b></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <hr class="my-5" />
+
+    <!-- Why Blink Section -->
+    <div class="text-center">
+        <h2>Why Blink?</h2>
+        <p class="lead">Most bots try to do everything — and end up doing nothing well. Blink focuses on
+        quality features that just work — fast, reliable, and focused.</p>
+    </div>
+</div>
 
 @code {
-    [Inject] private IOptions<AppOptions> Config { get; set; } = default!;
-    private string InstallUrl => $"https://discord.com/oauth2/authorize?client_id={Config.Value.ClientId}";
+    [Inject] private IOptions<AppOptions> Config { get; set; } = null!;
+    private string InstallUrl => $"https://discord.com/discovery/applications/{Config.Value.ClientId}";
 }
