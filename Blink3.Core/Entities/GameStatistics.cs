@@ -14,6 +14,8 @@ public class GameStatistics
     
     public GameType Type { get; set; }
     
+    public int Points { get; set; }
+    
     public int GamesPlayed { get; set; }
     public int GamesWon { get; set; }
     public int CurrentStreak { get; set; }
