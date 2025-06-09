@@ -53,7 +53,6 @@ public class StreakResetService(
             // If it's been more than 1 day, reset the streak
             stat.MaxStreak = Math.Max(stat.MaxStreak, stat.CurrentStreak); // Update max streak before resetting
             stat.CurrentStreak = 0; // Reset current streak
-            stat.LastActivity = time; // Update the last activity
             await gameStatisticsRepository.UpdateAsync(stat);
         }
     }
