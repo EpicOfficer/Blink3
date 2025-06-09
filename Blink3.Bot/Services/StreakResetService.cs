@@ -16,44 +16,61 @@ public class StreakResetService(
     : DiscordClientService(client, logger)
 {
     private readonly ILogger<DiscordClientService> _logger = logger;
+    private const int DaysInactiveThreshold = 2; // Threshold for inactivity in days
+    private const int TimerInterval = 6; // Interval in hours for the timer to execute
     private Timer? _timer;
-    
+
+    /// <summary>
+    ///     Executes the asynchronous operation for the StreakResetService when the service is starting.
+    /// </summary>
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         await Client.WaitForReadyAsync(stoppingToken);
         _logger.LogInformation("Streak reset service is starting...");
-        _timer = new Timer(DoWork, null, TimeSpan.Zero, TimeSpan.FromHours(1));
+        _timer = new Timer(ExecuteStreakReset, null, TimeSpan.Zero, TimeSpan.FromHours(TimerInterval));
     }
-    
-    private void DoWork(object? state)
+
+    /// <summary>
+    ///     Handles periodic execution for resetting user streaks.
+    /// </summary>
+    private void ExecuteStreakReset(object? state)
     {
         try
         {
-            DoWorkAsync().Forget();
+            ProcessStreakResetsAsync().Forget();
         }
         catch (Exception e)
         {
-            _logger.LogError(e, "An error occured during streak reset timer");
+            _logger.LogError(e, "An error occurred during streak reset execution.");
         }
     }
-    
-    private async Task DoWorkAsync()
+
+    /// <summary>
+    ///     Processes streak resets asynchronously by iterating over user statistics.
+    /// </summary>
+    private async Task ProcessStreakResetsAsync()
     {
         using IServiceScope scope = scopeFactory.CreateScope();
-        DateTime time = DateTime.UtcNow;
-        
-        IGameStatisticsRepository gameStatisticsRepository = scope.ServiceProvider.GetRequiredService<IGameStatisticsRepository>();
-        IReadOnlyCollection<GameStatistics> stats = await gameStatisticsRepository.GetAllAsync();
-        foreach (GameStatistics stat in stats)
-        {
-            if (stat.LastActivity?.Date.AddDays(2) > time) continue;
+        IGameStatisticsRepository gameStatisticsRepository =
+            scope.ServiceProvider.GetRequiredService<IGameStatisticsRepository>();
+        IReadOnlyCollection<GameStatistics> gameStats = await gameStatisticsRepository.GetAllAsync();
+        DateTime now = DateTime.UtcNow;
 
-            _logger.LogInformation("Resetting streak for {StatBlinkUserId}...", stat.BlinkUserId);
+        foreach (GameStatistics gameStat in gameStats)
+            await ResetUserStreakAsync(gameStat, gameStatisticsRepository, now);
+    }
 
-            // If it's been more than 1 day, reset the streak
-            stat.MaxStreak = Math.Max(stat.MaxStreak, stat.CurrentStreak); // Update max streak before resetting
-            stat.CurrentStreak = 0; // Reset current streak
-            await gameStatisticsRepository.UpdateAsync(stat);
-        }
+    /// <summary>
+    ///     Resets a user's streak based on inactivity and updates their record.
+    /// </summary>
+    private async Task ResetUserStreakAsync(GameStatistics gameStat, IGameStatisticsRepository repository, DateTime now)
+    {
+        if (gameStat.CurrentStreak <= 0 || gameStat.LastActivity?.Date.AddDays(DaysInactiveThreshold) > now) return;
+
+        _logger.LogInformation("Resetting streak for user {BlinkUserId}...", gameStat.BlinkUserId);
+        gameStat.MaxStreak = Math.Max(gameStat.MaxStreak, gameStat.CurrentStreak);
+        gameStat.CurrentStreak = 0;
+
+        await repository.UpdateAsync(gameStat);
     }
 }
