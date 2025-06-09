@@ -235,12 +235,16 @@ public class WordleModule(
 
         TimestampTag? lastActivity = null;
         TimestampTag? streakReset = null;
+        TimestampTag? streakExpires = null;
         if (stats.LastActivity.HasValue)
         {
             lastActivity = TimestampTag.FromDateTime(stats.LastActivity.Value, TimestampTagStyles.ShortDateTime);
             
             DateTime nextDayStart = stats.LastActivity.Value.Date.AddDays(1);
             streakReset = TimestampTag.FromDateTime(nextDayStart, TimestampTagStyles.Relative);
+            
+            DateTime streakExpiresDate = stats.LastActivity.Value.Date.AddDays(2);
+            streakExpires = TimestampTag.FromDateTime(streakExpiresDate, TimestampTagStyles.Relative);
         }
 
         EmbedFieldBuilder[] fields = [
@@ -257,7 +261,8 @@ public class WordleModule(
                 Value = $"- **Current Streak**: {stats.CurrentStreak}\n" +
                         $"- **Max Streak**: {stats.MaxStreak}\n" +
                         $"- **Last Streak Update**: {lastActivity?.ToString() ?? "N/A"}\n" +
-                        $"- **Streak Expires In**: {streakReset?.ToString() ?? "N/A"}"
+                        $"- **Next Streak Day**: {streakReset?.ToString() ?? "N/A"} \n" +
+                        $"- **Streak Expires**: {streakExpires?.ToString() ?? "N/A"}"
             }
         ];
         
