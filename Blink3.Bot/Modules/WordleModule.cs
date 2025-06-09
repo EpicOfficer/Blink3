@@ -28,24 +28,29 @@ public class WordleModule(
     {
         GameStatistics stats = await gameStatisticsRepository.GetOrCreateGameStatistics(userId, GameType.Wordle);
         DateTime time = DateTime.UtcNow;
-        
-        if (time - stats.LastActivity < TimeSpan.FromDays(1))
+
+        // If the last activity is on the same date, no need to update the streak
+        if (stats.LastActivity?.Date == time.Date)
         {
-            stats.LastActivity = time;
+            return stats; // Do nothing except return the stats (they already participated today)
+        }
+
+        // If activity is on the next consecutive UTC day, increment the streak
+        if (stats.LastActivity?.Date.AddDays(1) == time.Date)
+        {
+            stats.CurrentStreak++; // Increment the streak
+            stats.MaxStreak = Math.Max(stats.MaxStreak, stats.CurrentStreak); // Update max streak if needed
+            stats.LastActivity = time; // Update the last activity to today
+            await gameStatisticsRepository.UpdateAsync(stats);
             return stats;
         }
 
-        if (time - stats.LastActivity < TimeSpan.FromDays(2))
-        {
-            stats.CurrentStreak++;
-            stats.MaxStreak = Math.Max(stats.MaxStreak, stats.CurrentStreak);
-            stats.LastActivity = time;
-            return stats;
-        }
-        
-        stats.CurrentStreak = 0;
-        stats.MaxStreak = Math.Max(stats.MaxStreak, stats.CurrentStreak);
-        stats.LastActivity = time;
+        // If it's been more than 1 day, reset the streak
+        stats.MaxStreak = Math.Max(stats.MaxStreak, stats.CurrentStreak); // Update max streak before resetting
+        stats.CurrentStreak = 0; // Reset current streak
+        stats.LastActivity = time; // Update the last activity
+        await gameStatisticsRepository.UpdateAsync(stats);
+
         return stats;
     }
     
@@ -220,45 +225,45 @@ public class WordleModule(
         await DeferAsync();
 
         // Retrieve the user's game statistics
-        GameStatistics stats = await gameStatisticsRepository.GetOrCreateGameStatistics(Context.User.Id, GameType.Wordle);
+        GameStatistics stats =
+            await gameStatisticsRepository.GetOrCreateGameStatistics(Context.User.Id, GameType.Wordle);
 
         // Calculate the win percentage
         double winPercentage = stats.GamesPlayed > 0
             ? Math.Round((double)stats.GamesWon / stats.GamesPlayed * 100, 2)
             : 0;
 
-        // Build an embed response
-        EmbedFieldBuilder[] fields =
-        [
+        TimestampTag? lastActivity = null;
+        TimestampTag? streakReset = null;
+        if (stats.LastActivity.HasValue)
+        {
+            lastActivity = TimestampTag.FromDateTime(stats.LastActivity.Value, TimestampTagStyles.ShortDateTime);
+            
+            DateTime nextDayStart = stats.LastActivity.Value.Date.AddDays(1);
+            streakReset = TimestampTag.FromDateTime(nextDayStart, TimestampTagStyles.Relative);
+        }
+
+        EmbedFieldBuilder[] fields = [
             new()
             {
-                Name = "Games Played",
-                Value = $"{stats.GamesPlayed}"
+                Name = "🎮 **General Stats**",
+                Value = $"- **Games Played**: {stats.GamesPlayed}\n" +
+                        $"- **Games Won**: {stats.GamesWon}\n" +
+                        $"- **Win Percentage**: {winPercentage}%"
             },
             new()
             {
-                Name = "Games Won",
-                Value = $"{stats.GamesWon}"
-            },
-            new()
-            {
-                Name = "Win Percentage",
-                Value = $"{winPercentage}%"
-            },
-            new()
-            {
-                Name = "Current Streak",
-                Value = $"{stats.CurrentStreak}"
-            },
-            new()
-            {
-                Name = "Max Streak",
-                Value = $"{stats.MaxStreak}"
+                Name = "🔥 **Streak Stats**",
+                Value = $"- **Current Streak**: {stats.CurrentStreak}\n" +
+                        $"- **Max Streak**: {stats.MaxStreak}\n" +
+                        $"- **Last Streak Update**: {lastActivity?.ToString() ?? "N/A"}\n" +
+                        $"- **Streak Expires In**: {streakReset?.ToString() ?? "N/A"}"
             }
         ];
-
+        
         await RespondPlainAsync(
-            "Your Wordle Statistics",
+            "📊 Your Wordle Statistics",
+            message: "Here is your progress in Wordle games:",
             embedFields: fields,
             ephemeral: false
         );
