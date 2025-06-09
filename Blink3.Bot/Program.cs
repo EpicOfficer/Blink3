@@ -74,6 +74,7 @@ try
     builder.Services.AddHostedService<InteractionHandler>();
     builder.Services.AddHostedService<BotStatusService>();
     builder.Services.AddHostedService<TempVcCleanService>();
+    builder.Services.AddHostedService<StreakResetService>();
 
     IHost host = builder.Build();
 
