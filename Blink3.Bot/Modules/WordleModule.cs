@@ -209,13 +209,6 @@ public class WordleModule(
             ephemeral: false);
     }
 
-    [SlashCommand("points", "Show off your points!")]
-    public async Task Points()
-    {
-        GameStatistics stats = await gameStatisticsRepository.GetOrCreateGameStatistics(Context.User.Id, GameType.Wordle);
-        await RespondPlainAsync($"You currently have {stats.Points} point{(stats.Points != 1 ? "s" : null)}.", ephemeral: false);
-    }
-
     [SlashCommand("statistics", "View your Wordle game statistics")]
     public async Task Statistics()
     {
@@ -250,7 +243,8 @@ public class WordleModule(
                 Name = "🎮 **General Stats**",
                 Value = $"- **Games Played**: {stats.GamesPlayed}\n" +
                         $"- **Games Won**: {stats.GamesWon}\n" +
-                        $"- **Win Percentage**: {winPercentage}%"
+                        $"- **Win Percentage**: {winPercentage}%\n" +
+                        $"- **Points**: {stats.Points}"
             },
             new()
             {
@@ -291,7 +285,7 @@ public class WordleModule(
 
         EmbedFieldBuilder[] embedFieldBuilder = await Task.WhenAll(embedFieldBuilderTasks);
 
-        await RespondPlainAsync("Points Leaderboard",
+        await RespondPlainAsync("Wordle Leaderboard",
             embedFields: embedFieldBuilder,
             ephemeral: false);
     }
