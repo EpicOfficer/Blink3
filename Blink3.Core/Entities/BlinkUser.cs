@@ -14,10 +14,5 @@ public class BlinkUser
     [Required]
     public ulong Id { get; set; }
 
-    /// <summary>
-    ///     Represents the number of points for a BlinkUser.
-    /// </summary>
-    public int Points { get; set; }
-    
     public ICollection<GameStatistics> GameStatistics { get; set; } = [];
 }

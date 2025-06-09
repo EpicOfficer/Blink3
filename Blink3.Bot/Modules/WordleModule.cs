@@ -18,7 +18,6 @@ public class WordleModule(
     IWordleGameService wordleGameService,
     IWordsClientService wordsClientService,
     IBlinkGuildRepository blinkGuildRepository,
-    IBlinkUserRepository blinkUserRepository,
     IGameStatisticsRepository gameStatisticsRepository,
     IWordRepository wordRepository) : BlinkModuleBase<IInteractionContext>(blinkGuildRepository)
 {
@@ -135,15 +134,12 @@ public class WordleModule(
         {
             stats.GamesWon++;
             stats.GamesPlayed++;
-            text = $"**Correct!** You got it in {wordle.TotalAttempts} tries.  ";
+            
             int pointsToAdd = 11 - wordle.TotalAttempts;
-            if (pointsToAdd > 0)
-            {
-                BlinkUser user = await blinkUserRepository.GetOrCreateByIdAsync(Context.User.Id);
-                user.Points += pointsToAdd;
-                await blinkUserRepository.UpdateAsync(user);
-                text += $"You have been awarded {pointsToAdd} points";
-            }
+            stats.Points += Math.Max(pointsToAdd, 0);
+
+            text = $"🎉 **Correct!** You solved it in **{wordle.TotalAttempts} attempt{(wordle.TotalAttempts > 1 ? "s" : "")}**.\n" +
+                   $"You earned **{pointsToAdd} point{(pointsToAdd != 1 ? "s" : "")}**, and now have a total of **{stats.Points} point{(stats.Points != 1 ? "s" : "")}**. 🎯";
             
             foreach (ulong player in wordle.Players.ToHashSet().Where(u => u != Context.User.Id))
             {
@@ -212,13 +208,6 @@ public class WordleModule(
             ephemeral: false);
     }
 
-    [SlashCommand("points", "Show off your points!")]
-    public async Task Points()
-    {
-        int points = (await blinkUserRepository.GetByIdAsync(Context.User.Id))?.Points ?? 0;
-        await RespondPlainAsync($"You currently have {points} point{(points != 1 ? "s" : null)}.", ephemeral: false);
-    }
-
     [SlashCommand("statistics", "View your Wordle game statistics")]
     public async Task Statistics()
     {
@@ -253,7 +242,8 @@ public class WordleModule(
                 Name = "🎮 **General Stats**",
                 Value = $"- **Games Played**: {stats.GamesPlayed}\n" +
                         $"- **Games Won**: {stats.GamesWon}\n" +
-                        $"- **Win Percentage**: {winPercentage}%"
+                        $"- **Win Percentage**: {winPercentage}%\n" +
+                        $"- **Points**: {stats.Points}"
             },
             new()
             {
@@ -277,16 +267,16 @@ public class WordleModule(
     [SlashCommand("leaderboard", "Display points leaderboard")]
     public async Task Leaderboard()
     {
-        IEnumerable<BlinkUser> leaderboard = await blinkUserRepository.GetLeaderboardAsync();
+        IEnumerable<GameStatistics> leaderboard = await gameStatisticsRepository.GetLeaderboardAsync(GameType.Wordle);
 
-        IEnumerable<Task<EmbedFieldBuilder>> embedFieldBuilderTasks = leaderboard.Select(async (blinkUser, ix) =>
+        IEnumerable<Task<EmbedFieldBuilder>> embedFieldBuilderTasks = leaderboard.Select(async (stats, ix) =>
         {
-            IUser? discordUser = await Context.Client.GetUserAsync(blinkUser.Id);
+            IUser? discordUser = await Context.Client.GetUserAsync(stats.BlinkUserId);
             string name = discordUser.GetFriendlyName();
             EmbedFieldBuilder field = new()
             {
                 Name = $"{ix + 1}. {name}",
-                Value = $"{blinkUser.Points} Point{(blinkUser.Points != 1 ? "s" : null)}",
+                Value = $"{stats.Points} Point{(stats.Points != 1 ? "s" : null)}",
                 IsInline = false
             };
             return field;
@@ -294,7 +284,7 @@ public class WordleModule(
 
         EmbedFieldBuilder[] embedFieldBuilder = await Task.WhenAll(embedFieldBuilderTasks);
 
-        await RespondPlainAsync("Points Leaderboard",
+        await RespondPlainAsync("Wordle Leaderboard",
             embedFields: embedFieldBuilder,
             ephemeral: false);
     }
