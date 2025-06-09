@@ -2,6 +2,11 @@ html, body {
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
 }
 
+.bb-page > .bb-scollbar {
+    display: flex;
+    flex-direction: column;
+}
+
 #blazor-error-ui {
     display: none;
 }
