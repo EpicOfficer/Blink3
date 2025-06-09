@@ -134,13 +134,12 @@ public class WordleModule(
         {
             stats.GamesWon++;
             stats.GamesPlayed++;
-            text = $"**Correct!** You got it in {wordle.TotalAttempts} tries.  ";
+            
             int pointsToAdd = 11 - wordle.TotalAttempts;
-            if (pointsToAdd > 0)
-            {
-                stats.Points += pointsToAdd;
-                text += $"You have been awarded {pointsToAdd} points";
-            }
+            stats.Points += Math.Max(pointsToAdd, 0);
+
+            text = $"🎉 **Correct!** You solved it in **{wordle.TotalAttempts} attempt{(wordle.TotalAttempts > 1 ? "s" : "")}**.\n" +
+                   $"You earned **{pointsToAdd} point{(pointsToAdd != 1 ? "s" : "")}**, and now have a total of **{stats.Points} point{(stats.Points != 1 ? "s" : "")}**. 🎯";
             
             foreach (ulong player in wordle.Players.ToHashSet().Where(u => u != Context.User.Id))
             {
