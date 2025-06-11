@@ -290,12 +290,14 @@ public class WordleModule(
         int i = 1;
         foreach (GameStatistics stats in leaderboard.Take(3))
         {
+            IUser? discordUser = await Context.Client.GetUserAsync(stats.BlinkUserId);
+
             containerBuilder.WithSeparator(SeparatorSpacingSize.Large)
                 .WithTextDisplay($"### {i}. <@{stats.BlinkUserId}> {stats.CurrentStreak.GetStreakText()}")
                 .WithSection(new SectionBuilder()
                     .WithAccessory(new ThumbnailBuilder().WithMedia(new UnfurledMediaItemProperties
                     {
-                        Url = Context.User.GetDisplayAvatarUrl(size: 240)
+                        Url = discordUser.GetDisplayAvatarUrl(size: 240)
                     }))
                     .WithTextDisplay($"""
                                       - **Points**: {stats.Points}
