@@ -17,11 +17,11 @@ public class BlinkModuleBase<T>(IBlinkGuildRepository? blinkGuildRepository = nu
     /// <param name="ephemeral">Whether the response should be ephemeral</param>
     /// <param name="components">Optional message components to include</param>
     /// <returns>A task representing the asynchronous operation</returns>
-    private Task RespondOrFollowUpAsync(Embed embed, bool ephemeral, MessageComponent? components)
+    protected Task RespondOrFollowUpAsync(Embed? embed = null, bool ephemeral = false, MessageComponent? components = null)
     {
         return Context.Interaction.HasResponded
-            ? FollowupAsync("", embed: embed, ephemeral: ephemeral, components: components)
-            : RespondAsync("", embed: embed, ephemeral: ephemeral, components: components);
+            ? FollowupAsync(embed: embed, ephemeral: ephemeral, components: components)
+            : RespondAsync(embed: embed, ephemeral: ephemeral, components: components);
     }
 
     /// <summary>

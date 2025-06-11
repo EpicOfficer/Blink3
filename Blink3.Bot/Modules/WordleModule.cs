@@ -1,5 +1,6 @@
 using Blink3.Bot.Enums;
 using Blink3.Bot.Extensions;
+using Blink3.Bot.MessageStyles;
 using Blink3.Core.Entities;
 using Blink3.Core.Enums;
 using Blink3.Core.Extensions;
@@ -29,10 +30,8 @@ public class WordleModule(
         DateTime time = DateTime.UtcNow;
 
         // If the last activity is on the same date, no need to update the streak
-        if (stats.LastActivity?.Date == time.Date)
-        {
-            return stats; // Do nothing except return the stats (they already participated today)
-        }
+        if (stats.LastActivity?.Date ==
+            time.Date) return stats; // Do nothing except return the stats (they already participated today)
 
         // If activity is on the next consecutive UTC day, increment the streak
         if (stats.LastActivity?.Date.AddDays(1) == time.Date)
@@ -52,7 +51,7 @@ public class WordleModule(
 
         return stats;
     }
-    
+
     [SlashCommand("wordle", "Start a new game of wordle")]
     public async Task Start(WordleLanguageEnum language = WordleLanguageEnum.English)
     {
@@ -80,7 +79,7 @@ public class WordleModule(
         await wordleGameService.StartNewGameAsync(GameId, lang, 5);
         GameStatistics stats = await UpdateStatsAsync(Context.User.Id);
         await gameStatisticsRepository.UpdateAsync(stats);
-        
+
         List<EmbedFieldBuilder> fields =
         [
             new()
@@ -123,27 +122,26 @@ public class WordleModule(
 
         GameStatistics stats = await UpdateStatsAsync(Context.User.Id);
 
-        if (wordle.Players.Contains(Context.User.Id) is false)
-        {
-            wordle.Players.Add(Context.User.Id);
-        }
-        
+        if (wordle.Players.Contains(Context.User.Id) is false) wordle.Players.Add(Context.User.Id);
+
         WordleGuess guess = guessResult.SafeValue();
         string text = string.Empty;
         if (guess.IsCorrect)
         {
             stats.GamesWon++;
             stats.GamesPlayed++;
-            
+
             int pointsToAdd = 11 - wordle.TotalAttempts;
             stats.Points += Math.Max(pointsToAdd, 0);
 
-            text = $"🎉 **Correct!** You solved it in **{wordle.TotalAttempts} attempt{(wordle.TotalAttempts > 1 ? "s" : "")}**.\n" +
-                   $"You earned **{pointsToAdd} point{(pointsToAdd != 1 ? "s" : "")}**, and now have a total of **{stats.Points} point{(stats.Points != 1 ? "s" : "")}**. 🎯";
-            
+            text =
+                $"🎉 **Correct!** You solved it in **{wordle.TotalAttempts} attempt{(wordle.TotalAttempts > 1 ? "s" : "")}**.\n" +
+                $"You earned **{pointsToAdd} point{(pointsToAdd != 1 ? "s" : "")}**, and now have a total of **{stats.Points} point{(stats.Points != 1 ? "s" : "")}**. 🎯";
+
             foreach (ulong player in wordle.Players.ToHashSet().Where(u => u != Context.User.Id))
             {
-                GameStatistics playerStats = await gameStatisticsRepository.GetOrCreateGameStatistics(player, GameType.Wordle);
+                GameStatistics playerStats =
+                    await gameStatisticsRepository.GetOrCreateGameStatistics(player, GameType.Wordle);
                 playerStats.GamesPlayed++;
                 await gameStatisticsRepository.UpdateAsync(playerStats);
             }
@@ -154,7 +152,7 @@ public class WordleModule(
         {
             await wordleRepository.UpdateAsync(wordle);
         }
-        
+
         await gameStatisticsRepository.UpdateAsync(stats);
 
         using MemoryStream image = new();
@@ -228,42 +226,53 @@ public class WordleModule(
         if (stats.LastActivity.HasValue)
         {
             lastActivity = TimestampTag.FromDateTime(stats.LastActivity.Value, TimestampTagStyles.Relative);
-            
+
             DateTime nextDayStart = stats.LastActivity.Value.Date.AddDays(1);
             streakReset = TimestampTag.FromDateTime(nextDayStart, TimestampTagStyles.Relative);
-            
+
             DateTime streakExpiresDate = stats.LastActivity.Value.Date.AddDays(2);
             streakExpires = TimestampTag.FromDateTime(streakExpiresDate, TimestampTagStyles.Relative);
         }
 
-        EmbedFieldBuilder[] fields = [
-            new()
-            {
-                Name = "🎮 **General Stats**",
-                Value = $"- **Games Played**: {stats.GamesPlayed}\n" +
-                        $"- **Games Won**: {stats.GamesWon}\n" +
-                        $"- **Win Percentage**: {winPercentage}%\n" +
-                        $"- **Points**: {stats.Points}"
-            },
-            new()
-            {
-                Name = "🔥 **Streak Stats**",
-                Value = $"- **Current Streak**: {stats.CurrentStreak}\n" +
-                        $"- **Max Streak**: {stats.MaxStreak}\n" +
-                        $"- **Last Streak Update**: {lastActivity?.ToString() ?? "N/A"}\n" +
-                        $"- **Next Streak Day**: {streakReset?.ToString() ?? "N/A"} \n" +
-                        $"- **Streak Expires**: {streakExpires?.ToString() ?? "N/A"}"
-            }
-        ];
-        
-        await RespondPlainAsync(
-            "📊 Your Wordle Statistics",
-            message: "Here is your progress in Wordle games:",
-            embedFields: fields,
-            ephemeral: false
-        );
+        ComponentBuilderV2 builder = new ComponentBuilderV2()
+            .WithContainer(new ContainerBuilder()
+                .WithAccentColor(Colours.Info)
+                .WithSection(new SectionBuilder()
+                    .WithAccessory(new ThumbnailBuilder().WithMedia(new UnfurledMediaItemProperties
+                    {
+                        Url = Context.User.GetDisplayAvatarUrl(size: 240)
+                    }))
+                    .WithTextDisplay($"""
+                                      ## Wordle Statistics
+                                      Here are your Wordle statistics, {Context.User.Mention}
+                                      """))
+                .WithSeparator(SeparatorSpacingSize.Large)
+                .WithTextDisplay("""
+                                 ### 🎮 General Stats
+                                 """)
+                .WithSeparator(isDivider: false)
+                .WithTextDisplay($"""
+                                  - **Games Played**: {stats.GamesPlayed}
+                                  - **Games Won**: {stats.GamesWon}
+                                  - **Win Percentage**: {winPercentage}%
+                                  - **Points**: {stats.Points}
+                                  """)
+                .WithSeparator(SeparatorSpacingSize.Large)
+                .WithTextDisplay("""
+                                 ### 🔥 Streak Stats
+                                 """)
+                .WithSeparator(isDivider: false)
+                .WithTextDisplay($"""
+                                  - **Current Streak**: {stats.CurrentStreak}
+                                  - **Max Streak**: {stats.MaxStreak}
+                                  - **Last Streak Update**: {lastActivity?.ToString() ?? "N/A"}
+                                  - **Next Streak Day**: {streakReset?.ToString() ?? "N/A"}
+                                  - **Streak Expires**: {streakExpires?.ToString() ?? "N/A"}
+                                  """));
+
+        await RespondOrFollowUpAsync(components: builder.Build());
     }
-    
+
     [SlashCommand("leaderboard", "Display points leaderboard")]
     public async Task Leaderboard()
     {
