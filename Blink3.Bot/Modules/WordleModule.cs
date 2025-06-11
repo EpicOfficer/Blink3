@@ -7,6 +7,7 @@ using Blink3.Core.Extensions;
 using Blink3.Core.Interfaces;
 using Blink3.Core.Models;
 using Blink3.Core.Repositories.Interfaces;
+using Blink3.DataAccess.Repositories;
 using Discord;
 using Discord.Interactions;
 
@@ -15,18 +16,20 @@ namespace Blink3.Bot.Modules;
 [CommandContextType(InteractionContextType.Guild, InteractionContextType.BotDm, InteractionContextType.PrivateChannel)]
 [IntegrationType(ApplicationIntegrationType.GuildInstall, ApplicationIntegrationType.UserInstall)]
 public class WordleModule(
-    IWordleRepository wordleRepository,
     IWordleGameService wordleGameService,
     IWordsClientService wordsClientService,
     IBlinkGuildRepository blinkGuildRepository,
-    IGameStatisticsRepository gameStatisticsRepository,
-    IWordRepository wordRepository) : BlinkModuleBase<IInteractionContext>(blinkGuildRepository)
+    IUnitOfWork unitOfWork) : BlinkModuleBase<IInteractionContext>(blinkGuildRepository)
 {
     private ulong GameId => Context.Interaction.ChannelId ?? Context.User.Id;
 
+    private IWordleRepository WordleRepository => unitOfWork.WordleRepository;
+    private IWordRepository WordRepository => unitOfWork.WordRepository;
+    private IGameStatisticsRepository GameStatisticsRepository => unitOfWork.GameStatisticsRepository;
+
     private async Task<GameStatistics> UpdateStatsAsync(ulong userId)
     {
-        GameStatistics stats = await gameStatisticsRepository.GetOrCreateGameStatistics(userId, GameType.Wordle);
+        GameStatistics stats = await GameStatisticsRepository.GetOrCreateGameStatistics(userId, GameType.Wordle);
         DateTime time = DateTime.UtcNow;
 
         // If the last activity is on the same date, no need to update the streak
@@ -39,7 +42,6 @@ public class WordleModule(
             stats.CurrentStreak++; // Increment the streak
             stats.MaxStreak = Math.Max(stats.MaxStreak, stats.CurrentStreak); // Update max streak if needed
             stats.LastActivity = time; // Update the last activity to today
-            await gameStatisticsRepository.UpdateAsync(stats);
             return stats;
         }
 
@@ -47,7 +49,6 @@ public class WordleModule(
         stats.MaxStreak = Math.Max(stats.MaxStreak, stats.CurrentStreak); // Update max streak before resetting
         stats.CurrentStreak = 0; // Reset current streak
         stats.LastActivity = time; // Update the last activity
-        await gameStatisticsRepository.UpdateAsync(stats);
 
         return stats;
     }
@@ -78,7 +79,7 @@ public class WordleModule(
 
         await wordleGameService.StartNewGameAsync(GameId, lang, 5);
         GameStatistics stats = await UpdateStatsAsync(Context.User.Id);
-        await gameStatisticsRepository.UpdateAsync(stats);
+        await GameStatisticsRepository.UpdateAsync(stats);
 
         List<EmbedFieldBuilder> fields =
         [
@@ -91,6 +92,8 @@ public class WordleModule(
 
         await RespondSuccessAsync("Wordle started", "A new wordle has started.  Type `/guess` guess it.", false,
             embedFields: fields.ToArray());
+        
+        await unitOfWork.SaveChangesAsync();
     }
 
     [SlashCommand("guess", "Try to guess the wordle")]
@@ -98,7 +101,7 @@ public class WordleModule(
     {
         await DeferAsync();
 
-        Wordle? wordle = await wordleRepository.GetByChannelIdAsync(GameId);
+        Wordle? wordle = await WordleRepository.GetByChannelIdAsync(GameId);
         if (wordle is null)
         {
             await RespondErrorAsync("No game in progress",
@@ -106,7 +109,7 @@ public class WordleModule(
             return;
         }
 
-        bool isGuessable = await wordRepository.IsGuessableAsync(word, wordle.Language);
+        bool isGuessable = await WordRepository.IsGuessableAsync(word, wordle.Language);
         if (!isGuessable)
         {
             await RespondErrorAsync("Invalid guess", "The word you entered is not a valid guess.");
@@ -138,22 +141,20 @@ public class WordleModule(
                 $"🎉 **Correct!** You solved it in **{wordle.TotalAttempts} attempt{(wordle.TotalAttempts > 1 ? "s" : "")}**.\n" +
                 $"You earned **{pointsToAdd} point{(pointsToAdd != 1 ? "s" : "")}**, and now have a total of **{stats.Points} point{(stats.Points != 1 ? "s" : "")}**. 🎯";
 
-            foreach (ulong player in wordle.Players.ToHashSet().Where(u => u != Context.User.Id))
+            foreach (GameStatistics player in await WordleRepository.GetOtherParticipantStatsAsync(wordle, Context.User.Id))
             {
-                GameStatistics playerStats =
-                    await gameStatisticsRepository.GetOrCreateGameStatistics(player, GameType.Wordle);
-                playerStats.GamesPlayed++;
-                await gameStatisticsRepository.UpdateAsync(playerStats);
+                player.GamesPlayed++;
+                await GameStatisticsRepository.UpdateAsync(player);
             }
 
-            await wordleRepository.DeleteAsync(wordle);
+            await WordleRepository.DeleteAsync(wordle);
         }
         else
         {
-            await wordleRepository.UpdateAsync(wordle);
+            await WordleRepository.UpdateAsync(wordle);
         }
 
-        await gameStatisticsRepository.UpdateAsync(stats);
+        await GameStatisticsRepository.UpdateAsync(stats);
 
         using MemoryStream image = new();
         await wordleGameService.GenerateImageAsync(guess, image, await FetchConfig());
@@ -165,6 +166,8 @@ public class WordleModule(
 
         await FollowupWithFileAsync(text: text, attachment: attachment, ephemeral: false,
             components: component?.Build());
+        
+        await unitOfWork.SaveChangesAsync();
     }
 
     [SlashCommand("define", "Get the definition of a word")]
@@ -213,7 +216,7 @@ public class WordleModule(
 
         // Retrieve the user's game statistics
         GameStatistics stats =
-            await gameStatisticsRepository.GetOrCreateGameStatistics(Context.User.Id, GameType.Wordle);
+            await GameStatisticsRepository.GetOrCreateGameStatistics(Context.User.Id, GameType.Wordle);
 
         // Calculate the win percentage
         double winPercentage = stats.GamesPlayed > 0
@@ -276,7 +279,7 @@ public class WordleModule(
     [SlashCommand("leaderboard", "Display points leaderboard")]
     public async Task Leaderboard()
     {
-        IEnumerable<GameStatistics> leaderboard = await gameStatisticsRepository.GetLeaderboardAsync(GameType.Wordle);
+        IEnumerable<GameStatistics> leaderboard = await GameStatisticsRepository.GetLeaderboardAsync(GameType.Wordle);
 
         IEnumerable<Task<EmbedFieldBuilder>> embedFieldBuilderTasks = leaderboard.Select(async (stats, ix) =>
         {

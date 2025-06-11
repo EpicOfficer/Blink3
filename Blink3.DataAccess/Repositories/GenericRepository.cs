@@ -39,7 +39,6 @@ public class GenericRepository<T>(BlinkDbContext dbContext)
     public virtual async Task<T> AddAsync(T entity, CancellationToken cancellationToken = default)
     {
         await dbContext.Set<T>().AddAsync(entity, cancellationToken).ConfigureAwait(false);
-        await dbContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
         return entity;
     }
@@ -47,26 +46,23 @@ public class GenericRepository<T>(BlinkDbContext dbContext)
     public virtual async Task<T> UpdateAsync(T entity, CancellationToken cancellationToken = default)
     {
         dbContext.Entry(entity).State = EntityState.Modified;
-        await dbContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
         return entity;
     }
 
-    public virtual async Task<T> UpdatePropertiesAsync(T entity, params Action<T>[] updatedProperties)
+    public virtual Task<T> UpdatePropertiesAsync(T entity, params Action<T>[] updatedProperties)
     {
-        EntityEntry<T> dbEntity = dbContext.Set<T>().Attach(entity);
+        dbContext.Set<T>().Attach(entity);
         foreach (Action<T> property in updatedProperties) property(entity);
-
-        await dbContext.SaveChangesAsync().ConfigureAwait(false);
-
-        return entity;
+        
+        return Task.FromResult(entity);
     }
 
-    public virtual async Task DeleteAsync(T entity, CancellationToken cancellationToken = default)
+    public virtual Task DeleteAsync(T entity, CancellationToken cancellationToken = default)
     {
         dbContext.Set<T>().Attach(entity);
         dbContext.Set<T>().Remove(entity);
-        await dbContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+        return Task.CompletedTask;
     }
 
     public virtual async Task DeleteByIdAsync(params object[] keyValues)
