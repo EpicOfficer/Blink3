@@ -272,29 +272,53 @@ public class WordleModule(
 
         await RespondOrFollowUpAsync(components: builder.Build());
     }
-
+    
     [SlashCommand("leaderboard", "Display points leaderboard")]
     public async Task Leaderboard()
     {
+        await DeferAsync();
+        
         IEnumerable<GameStatistics> leaderboard = await gameStatisticsRepository.GetLeaderboardAsync(GameType.Wordle);
+        
+        ContainerBuilder? containerBuilder = new ContainerBuilder()
+            .WithAccentColor(Colours.Info)
+            .WithTextDisplay("""
+                             ## Wordle Leaderboard
+                             These are the top Blink Wordle players — how do your stats compare?
+                             """);
 
-        IEnumerable<Task<EmbedFieldBuilder>> embedFieldBuilderTasks = leaderboard.Select(async (stats, ix) =>
+        int i = 1;
+        foreach (GameStatistics stats in leaderboard.Take(3))
         {
-            IUser? discordUser = await Context.Client.GetUserAsync(stats.BlinkUserId);
-            string name = discordUser.GetFriendlyName();
-            EmbedFieldBuilder field = new()
-            {
-                Name = $"{ix + 1}. {name}",
-                Value = $"{stats.Points} Point{(stats.Points != 1 ? "s" : null)}",
-                IsInline = false
-            };
-            return field;
-        });
+            containerBuilder.WithSeparator(SeparatorSpacingSize.Large)
+                .WithTextDisplay($"### {i}. <@{stats.BlinkUserId}> {stats.CurrentStreak.GetStreakText()}")
+                .WithSection(new SectionBuilder()
+                    .WithAccessory(new ThumbnailBuilder().WithMedia(new UnfurledMediaItemProperties
+                    {
+                        Url = Context.User.GetDisplayAvatarUrl(size: 240)
+                    }))
+                    .WithTextDisplay($"""
+                                      - **Points**: {stats.Points}
+                                      - **Games Played**: {stats.GamesPlayed}
+                                      - **Games Won**: {stats.GamesWon}
+                                      """)
+                );
+            i++;
+        }
 
-        EmbedFieldBuilder[] embedFieldBuilder = await Task.WhenAll(embedFieldBuilderTasks);
-
-        await RespondPlainAsync("Wordle Leaderboard",
-            embedFields: embedFieldBuilder,
-            ephemeral: false);
+        containerBuilder.WithSeparator();
+        
+        foreach (GameStatistics stats in leaderboard.Skip(3))
+        {
+            containerBuilder.WithTextDisplay($"""
+                                              ### {i}. <@{stats.BlinkUserId}> {stats.CurrentStreak.GetStreakText()}
+                                              - **Points** {stats.Points}
+                                              """);
+            i++;
+        }
+        
+        ComponentBuilderV2 builder = new ComponentBuilderV2().WithContainer(containerBuilder);
+        
+        await RespondOrFollowUpAsync(components: builder.Build());
     }
 }
