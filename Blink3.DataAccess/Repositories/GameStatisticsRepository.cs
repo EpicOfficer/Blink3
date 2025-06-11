@@ -9,7 +9,7 @@ namespace Blink3.DataAccess.Repositories;
 public class GameStatisticsRepository(BlinkDbContext dbContext)
     : GenericRepository<GameStatistics>(dbContext), IGameStatisticsRepository
 {
-    private const int LeaderboardSize = 5;
+    private const int LeaderboardSize = 10;
     private readonly BlinkDbContext _dbContext = dbContext;
 
     public async Task<GameStatistics> GetOrCreateGameStatistics(ulong userId, GameType gameType)
