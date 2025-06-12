@@ -23,9 +23,7 @@ public class GameStatisticsRepository(BlinkDbContext dbContext)
             BlinkUserId = userId,
             Type = gameType
         };
-
-        _dbContext.Entry(entity).State = EntityState.Detached;
-
+        
         await AddAsync(entity).ConfigureAwait(false);
 
         return entity;

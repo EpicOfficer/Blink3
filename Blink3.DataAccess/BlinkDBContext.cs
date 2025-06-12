@@ -8,17 +8,8 @@ namespace Blink3.DataAccess;
 ///     Represents the database context for Blink3 application.
 /// </summary>
 [SuppressMessage("ReSharper", "ReturnTypeCanBeEnumerable.Global")]
-public class BlinkDbContext : DbContext
+public class BlinkDbContext(DbContextOptions<BlinkDbContext> options) : DbContext(options)
 {
-    /// <summary>
-    ///     Represents the database context for Blink3 application.
-    /// </summary>
-    public BlinkDbContext(DbContextOptions<BlinkDbContext> options) : base(options)
-    {
-        // ReSharper disable once VirtualMemberCallInConstructor
-        ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
-    }
-
     /// <summary>
     ///     Represents a collection of BlinkGuild entities in the BlinkDbContext.
     /// </summary>
