@@ -1,4 +1,5 @@
 using Blink3.Core.Entities;
+using Blink3.Core.Interfaces;
 using Blink3.Core.Repositories.Interfaces;
 using Discord;
 using Discord.Interactions;
@@ -11,9 +12,11 @@ namespace Blink3.Bot.Modules;
 [CommandContextType(InteractionContextType.Guild)]
 [IntegrationType(ApplicationIntegrationType.GuildInstall)]
 [Group("config", "Configure the bot for this server")]
-public class ConfigModule(IBlinkGuildRepository blinkGuildRepository)
-    : BlinkModuleBase<IInteractionContext>(blinkGuildRepository)
+public class ConfigModule(IUnitOfWork unitOfWork)
+    : BlinkModuleBase<IInteractionContext>(unitOfWork)
 {
+    private readonly IUnitOfWork _unitOfWork = unitOfWork;
+    
     public enum SettingsEnum
     {
         [ChoiceDisplay("Wordle Background Colour")]
@@ -36,9 +39,7 @@ public class ConfigModule(IBlinkGuildRepository blinkGuildRepository)
         [ChoiceDisplay("Temporary VC Category")]
         TempVcCategory
     }
-
-    private readonly IBlinkGuildRepository _blinkGuildRepository = blinkGuildRepository;
-
+    
     [SlashCommand("set", "Change or reset config values")]
     public async Task Set(SettingsEnum setting, string? value = null)
     {
@@ -91,16 +92,18 @@ public class ConfigModule(IBlinkGuildRepository blinkGuildRepository)
     {
         if (value is null)
         {
-            await _blinkGuildRepository.UpdatePropertiesAsync(guild,
+            await _unitOfWork.BlinkGuildRepository.UpdatePropertiesAsync(guild,
                 entity => setUlong(entity, null));
+            await _unitOfWork.SaveChangesAsync();
             await RespondSuccessAsync("Value reset", "The ID has been reset to default");
             return;
         }
 
         if (ulong.TryParse(value, out ulong channelId))
         {
-            await _blinkGuildRepository.UpdatePropertiesAsync(guild,
+            await _unitOfWork.BlinkGuildRepository.UpdatePropertiesAsync(guild,
                 entity => setUlong(entity, channelId));
+            await _unitOfWork.SaveChangesAsync();
             await RespondSuccessAsync("Value updated", "The ID has been updated successfully");
             return;
         }
@@ -118,8 +121,9 @@ public class ConfigModule(IBlinkGuildRepository blinkGuildRepository)
     {
         if (string.IsNullOrEmpty(value))
         {
-            await _blinkGuildRepository.UpdatePropertiesAsync(guild,
+            await _unitOfWork.BlinkGuildRepository.UpdatePropertiesAsync(guild,
                 entity => setColor(entity, null));
+            await _unitOfWork.SaveChangesAsync();
             await RespondSuccessAsync("Colour reset", "Colour has been reset to default");
             return;
         }
@@ -130,8 +134,9 @@ public class ConfigModule(IBlinkGuildRepository blinkGuildRepository)
             return;
         }
 
-        await _blinkGuildRepository.UpdatePropertiesAsync(guild, entity =>
+        await _unitOfWork.BlinkGuildRepository.UpdatePropertiesAsync(guild, entity =>
             setColor(entity, color));
+        await _unitOfWork.SaveChangesAsync();
         await RespondSuccessAsync("Colour updated", $"Colour has been changed to {value.ToUpper()}");
     }
 }

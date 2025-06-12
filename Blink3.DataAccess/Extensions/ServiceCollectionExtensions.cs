@@ -1,4 +1,5 @@
 using Blink3.Core.Configuration;
+using Blink3.Core.Interfaces;
 using Blink3.Core.Repositories.Interfaces;
 using Blink3.DataAccess.Repositories;
 using Microsoft.EntityFrameworkCore;
@@ -24,6 +25,8 @@ public static class ServiceCollectionExtensions
                     b => b.MigrationsAssembly("Blink3.DataAccess")));
 
         services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+        services.AddScoped<IUnitOfWork, UnitOfWork>();
+
         services.AddScoped<IBlinkGuildRepository, BlinkGuildRepository>();
         services.AddScoped<IBlinkUserRepository, BlinkUserRepository>();
         services.AddScoped<IGameStatisticsRepository, GameStatisticsRepository>();

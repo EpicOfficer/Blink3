@@ -15,12 +15,21 @@ public class WordleGameServiceTests
     [SetUp]
     public void Setup()
     {
+        // Configure UnitOfWorkMock to return the repository mocks
+        _unitOfWorkMock
+            .Setup(x => x.WordRepository)
+            .Returns(_wordRepositoryMock.Object);
+
+        _unitOfWorkMock
+            .Setup(x => x.WordleRepository)
+            .Returns(_wordleRepositoryMock.Object);
+
         _wordleGameService = new WordleGameService(
-            _wordRepositoryMock.Object,
-            _wordleRepositoryMock.Object,
+            _unitOfWorkMock.Object,
             _guessImageGeneratorMock.Object);
     }
 
+    private readonly Mock<IUnitOfWork> _unitOfWorkMock = new();
     private readonly Mock<IWordRepository> _wordRepositoryMock = new();
     private readonly Mock<IWordleRepository> _wordleRepositoryMock = new();
     private readonly Mock<IWordleGuessImageGenerator> _guessImageGeneratorMock = new();
@@ -31,8 +40,8 @@ public class WordleGameServiceTests
     public async Task Test_IsGameInProgressAsync()
     {
         // Arrange
-        _wordleRepositoryMock
-            .Setup(x => x.GetByChannelIdAsync(ChannelId, It.IsAny<CancellationToken>()))
+        _unitOfWorkMock
+            .Setup(x => x.WordleRepository.GetByChannelIdAsync(ChannelId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new Wordle());
 
         // Act
@@ -47,8 +56,8 @@ public class WordleGameServiceTests
     public async Task Test_IsGameInProgressAsync_NoGameInProgress()
     {
         // Arrange
-        _wordleRepositoryMock
-            .Setup(x => x.GetByChannelIdAsync(ChannelId, It.IsAny<CancellationToken>()))
+        _unitOfWorkMock
+            .Setup(x => x.WordleRepository.GetByChannelIdAsync(ChannelId, It.IsAny<CancellationToken>()))
             .ReturnsAsync((Wordle?)null);
 
         // Act
@@ -66,15 +75,15 @@ public class WordleGameServiceTests
         const int length = 5;
         const string word = "guess";
 
-        // Setup mock to return word when GetRandomSolutionAsync is called
-        _wordRepositoryMock
-            .Setup(x => x.GetRandomSolutionAsync(language, length, It.IsAny<CancellationToken>()))
+        // Setup mocks to return word when GetRandomSolutionAsync is called
+        _unitOfWorkMock
+            .Setup(x => x.WordRepository.GetRandomSolutionAsync(language, length, It.IsAny<CancellationToken>()))
             .ReturnsAsync(word);
 
-        // Setup mock to not do anything when AddAsync is called 
+        // Setup mocks to not do anything when AddAsync is called 
         // (since we're testing StartNewGameAsync, not AddAsync)
-        _wordleRepositoryMock
-            .Setup(x => x.AddAsync(It.IsAny<Wordle>(), It.IsAny<CancellationToken>()))
+        _unitOfWorkMock
+            .Setup(x => x.WordleRepository.AddAsync(It.IsAny<Wordle>(), It.IsAny<CancellationToken>()))
             .Returns<Wordle, CancellationToken>((wordle, _) => Task.FromResult(wordle));
 
         // Call the method under test
@@ -90,8 +99,8 @@ public class WordleGameServiceTests
         });
 
         // Verify that AddAsync was called with the correct Wordle
-        _wordleRepositoryMock.Verify(x =>
-            x.AddAsync(It.Is<Wordle>(w =>
+        _unitOfWorkMock.Verify(x =>
+            x.WordleRepository.AddAsync(It.Is<Wordle>(w =>
                 w.ChannelId == ChannelId &&
                 w.Language == language &&
                 w.WordToGuess == word), It.IsAny<CancellationToken>()));
@@ -104,9 +113,9 @@ public class WordleGameServiceTests
         const ulong userId = 123;
         Wordle wordle = new() { WordToGuess = word };
 
-        // Setup mock to not do anything when AddGuessAsync is called
-        _wordleRepositoryMock.Setup(x =>
-                x.AddGuessAsync(It.IsAny<Wordle>(), It.IsAny<WordleGuess>(), It.IsAny<CancellationToken>()))
+        // Setup mocks to not do anything when AddGuessAsync is called
+        _unitOfWorkMock
+            .Setup(x => x.WordleRepository.AddGuessAsync(It.IsAny<Wordle>(), It.IsAny<WordleGuess>(), It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
         // Call the method under test
@@ -124,8 +133,8 @@ public class WordleGameServiceTests
         });
 
         // Verify that AddGuessAsync was called with the correct Wordle and WordleGuess
-        _wordleRepositoryMock.Verify(x =>
-            x.AddGuessAsync(It.Is<Wordle>(w => w.WordToGuess == word),
+        _unitOfWorkMock.Verify(x =>
+            x.WordleRepository.AddGuessAsync(It.Is<Wordle>(w => w.WordToGuess == word),
                 It.Is<WordleGuess>(g => g.Word == word),
                 It.IsAny<CancellationToken>()));
     }

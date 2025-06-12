@@ -1,12 +1,13 @@
 using Blink3.Bot.MessageStyles.Helpers;
 using Blink3.Core.Entities;
+using Blink3.Core.Interfaces;
 using Blink3.Core.Repositories.Interfaces;
 using Discord;
 using Discord.Interactions;
 
 namespace Blink3.Bot.Modules;
 
-public class BlinkModuleBase<T>(IBlinkGuildRepository? blinkGuildRepository = null)
+public class BlinkModuleBase<T>(IUnitOfWork? unitOfWork = null)
     : InteractionModuleBase<T> where T : class, IInteractionContext
 {
     /// <summary>
@@ -17,11 +18,11 @@ public class BlinkModuleBase<T>(IBlinkGuildRepository? blinkGuildRepository = nu
     /// <param name="ephemeral">Whether the response should be ephemeral</param>
     /// <param name="components">Optional message components to include</param>
     /// <returns>A task representing the asynchronous operation</returns>
-    protected Task RespondOrFollowUpAsync(Embed? embed = null, bool ephemeral = false, MessageComponent? components = null)
+    protected Task RespondOrFollowUpAsync(Embed? embed = null, bool ephemeral = false, MessageComponent? components = null, AllowedMentions? allowedMentions = null)
     {
         return Context.Interaction.HasResponded
-            ? FollowupAsync(embed: embed, ephemeral: ephemeral, components: components)
-            : RespondAsync(embed: embed, ephemeral: ephemeral, components: components);
+            ? FollowupAsync(embed: embed, ephemeral: ephemeral, components: components, allowedMentions: allowedMentions)
+            : RespondAsync(embed: embed, ephemeral: ephemeral, components: components, allowedMentions: allowedMentions);
     }
 
     /// <summary>
@@ -82,8 +83,8 @@ public class BlinkModuleBase<T>(IBlinkGuildRepository? blinkGuildRepository = nu
 
     protected async Task<BlinkGuild> FetchConfig()
     {
-        if (blinkGuildRepository is not null && Context.Interaction.GuildId is not null)
-            return await blinkGuildRepository.GetOrCreateByIdAsync(Context.Interaction.GuildId);
+        if (unitOfWork is not null && Context.Interaction.GuildId is not null)
+            return await unitOfWork.BlinkGuildRepository.GetOrCreateByIdAsync(Context.Interaction.GuildId);
 
         return new BlinkGuild();
     }

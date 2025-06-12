@@ -11,12 +11,10 @@ namespace Blink3.Bot.Modules;
 [CommandContextType(InteractionContextType.Guild)]
 [IntegrationType(ApplicationIntegrationType.GuildInstall)]
 public class DeleteMessageModule(
-    IBlinkGuildRepository blinkGuildRepository,
+    IUnitOfWork unitOfWork,
     IDiscordAttachmentService discordAttachmentService)
-    : BlinkModuleBase<IInteractionContext>(blinkGuildRepository)
+    : BlinkModuleBase<IInteractionContext>(unitOfWork)
 {
-    private readonly IBlinkGuildRepository _blinkGuildRepository = blinkGuildRepository;
-
     [MessageCommand("Delete & log")]
     public async Task DeleteAndLogMessage(IMessage message)
     {

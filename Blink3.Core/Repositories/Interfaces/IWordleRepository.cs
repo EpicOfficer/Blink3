@@ -28,6 +28,19 @@ public interface IWordleRepository : IGenericRepository<Wordle>
     public Task<Wordle?> GetByChannelIdAsync(ulong id, CancellationToken cancellationToken = default);
 
     /// <summary>
+    ///     Retrieves the game statistics of participants in a Wordle game excluding the specified user.
+    /// </summary>
+    /// <param name="wordle">The Wordle game entity containing the participant data.</param>
+    /// <param name="userId">The ID of the user to exclude from the retrieved statistics.</param>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+    /// <returns>
+    ///     A task representing the asynchronous operation.
+    ///     The task result is a set of game statistics for the other participants in the Wordle game.
+    /// </returns>
+    public Task<HashSet<GameStatistics>> GetOtherParticipantStatsAsync(Wordle wordle, ulong userId,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
     ///     Adds a Wordle guess to the repository asynchronously.
     /// </summary>
     /// <param name="wordle">The Wordle game entity containing the guess to be added.</param>

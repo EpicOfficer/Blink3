@@ -2,6 +2,7 @@ using Blink3.API.Interfaces;
 using Blink3.Core.Caching;
 using Blink3.Core.DTOs;
 using Blink3.Core.Entities;
+using Blink3.Core.Interfaces;
 using Blink3.Core.Repositories.Interfaces;
 using Discord.Rest;
 using Microsoft.AspNetCore.Mvc;
@@ -17,7 +18,7 @@ public class TodoController(DiscordRestClient botClient,
     Func<DiscordRestClient> userClientFactory,
     ICachingService cachingService,
     IEncryptionService encryptionService,
-    IUserTodoRepository todoRepository)
+    IUnitOfWork unitOfWork)
     : ApiControllerBase(botClient, userClientFactory, cachingService, encryptionService)
 {
     /// <summary>
@@ -34,7 +35,7 @@ public class TodoController(DiscordRestClient botClient,
     [SwaggerResponse(StatusCodes.Status200OK, "Success", typeof(IEnumerable<UserTodo>))]
     public async Task<ActionResult<IEnumerable<UserTodo>>> GetAllTodos(CancellationToken cancellationToken)
     {
-        IReadOnlyCollection<UserTodo> todos = await todoRepository.GetByUserIdAsync(UserId, cancellationToken);
+        IReadOnlyCollection<UserTodo> todos = await unitOfWork.UserTodoRepository.GetByUserIdAsync(UserId, cancellationToken);
         return Ok(todos);
     }
 
@@ -54,7 +55,7 @@ public class TodoController(DiscordRestClient botClient,
     [SwaggerResponse(StatusCodes.Status404NotFound, "Todo not found", typeof(ProblemDetails))]
     public async Task<ActionResult<UserTodo>> GetTodo(int id)
     {
-        UserTodo? todo = await todoRepository.GetByIdAsync(id);
+        UserTodo? todo = await unitOfWork.UserTodoRepository.GetByIdAsync(id);
         ObjectResult? accessCheckResult = CheckAccess(todo?.UserId);
         return accessCheckResult ?? Ok(todo);
     }
@@ -75,7 +76,8 @@ public class TodoController(DiscordRestClient botClient,
     public async Task<ActionResult<UserTodo>> CreateTodo([FromBody] UserTodoDto userTodoDto,
         CancellationToken cancellationToken)
     {
-        UserTodo createdTodo = await todoRepository.AddAsync(userTodoDto.ToEntity(UserId), cancellationToken);
+        UserTodo createdTodo = await unitOfWork.UserTodoRepository.AddAsync(userTodoDto.ToEntity(UserId), cancellationToken);
+        await unitOfWork.SaveChangesAsync(cancellationToken);
 
         return CreatedAtAction(nameof(GetTodo), new { id = createdTodo.Id }, createdTodo);
     }
@@ -99,11 +101,12 @@ public class TodoController(DiscordRestClient botClient,
     public async Task<ActionResult> UpdateTodo(int id, [FromBody] UserTodoDto todoDto,
         CancellationToken cancellationToken)
     {
-        UserTodo? todo = await todoRepository.GetByIdAsync(id);
+        UserTodo? todo = await unitOfWork.UserTodoRepository.GetByIdAsync(id);
         ObjectResult? accessCheckResult = CheckAccess(todo?.UserId);
         if (accessCheckResult is not null) return accessCheckResult;
 
-        await todoRepository.UpdateAsync(todoDto.ToEntity(UserId, id), cancellationToken);
+        await unitOfWork.UserTodoRepository.UpdateAsync(todoDto.ToEntity(UserId, id), cancellationToken);
+        await unitOfWork.SaveChangesAsync(cancellationToken);
 
         return NoContent();
     }
@@ -124,11 +127,12 @@ public class TodoController(DiscordRestClient botClient,
     [SwaggerResponse(StatusCodes.Status404NotFound, "Todo not found", typeof(ProblemDetails))]
     public async Task<ActionResult> DeleteTodo(int id, CancellationToken cancellationToken)
     {
-        UserTodo? todo = await todoRepository.GetByIdAsync(id);
+        UserTodo? todo = await unitOfWork.UserTodoRepository.GetByIdAsync(id);
         ObjectResult? accessCheckResult = CheckAccess(todo?.UserId);
         if (accessCheckResult is not null) return accessCheckResult;
 
-        await todoRepository.DeleteAsync(todo!, cancellationToken);
+        await unitOfWork.UserTodoRepository.DeleteAsync(todo!, cancellationToken);
+        await unitOfWork.SaveChangesAsync(cancellationToken);
 
         return NoContent();
     }

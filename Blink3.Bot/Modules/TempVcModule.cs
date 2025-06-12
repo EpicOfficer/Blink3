@@ -1,5 +1,6 @@
 using Blink3.Bot.Extensions;
 using Blink3.Core.Entities;
+using Blink3.Core.Interfaces;
 using Blink3.Core.Repositories.Interfaces;
 using Discord;
 using Discord.Interactions;
@@ -13,11 +14,11 @@ namespace Blink3.Bot.Modules;
 [CommandContextType(InteractionContextType.Guild)]
 [IntegrationType(ApplicationIntegrationType.GuildInstall)]
 public class TempVcModule(
-    IBlinkGuildRepository blinkGuildRepository,
-    ITempVcRepository tempVcRepository,
+    IUnitOfWork unitOfWork,
     ILogger<TempVcModule> logger)
-    : BlinkModuleBase<IInteractionContext>(blinkGuildRepository)
+    : BlinkModuleBase<IInteractionContext>(unitOfWork)
 {
+    private readonly IUnitOfWork _unitOfWork = unitOfWork;
     private const string CamOnlyIcon = "\ud83d\udcf7";
 
     [SlashCommand("create", "Create")]
@@ -30,7 +31,7 @@ public class TempVcModule(
             return;
         }
 
-        if (await tempVcRepository.GetByUserIdAsync(Context.Guild.Id, Context.User.Id) is not null)
+        if (await _unitOfWork.TempVcRepository.GetByUserIdAsync(Context.Guild.Id, Context.User.Id) is not null)
         {
             await RespondErrorAsync("Temporary VC limit reached", "You already have a temporary VC in this server.");
             return;
@@ -47,12 +48,13 @@ public class TempVcModule(
             return;
         }
 
-        await tempVcRepository.AddAsync(new TempVc
+        await _unitOfWork.TempVcRepository.AddAsync(new TempVc
         {
             GuildId = Context.Guild.Id,
             UserId = Context.User.Id,
             ChannelId = voiceChannel.Id
         });
+        await _unitOfWork.SaveChangesAsync();
 
         await RespondSuccessAsync("Channel created", $"Temporary VC {voiceChannel.Mention} created successfully.");
     }
@@ -104,8 +106,9 @@ public class TempVcModule(
         if (tempVc is null || voiceChannel is null)
             return;
 
-        await tempVcRepository.UpdatePropertiesAsync(tempVc, vc => vc.CamOnly = !vc.CamOnly);
-
+        await _unitOfWork.TempVcRepository.UpdatePropertiesAsync(tempVc, vc => vc.CamOnly = !vc.CamOnly);
+        await _unitOfWork.SaveChangesAsync();
+        
         try
         {
             switch (tempVc.CamOnly)
@@ -137,13 +140,14 @@ public class TempVcModule(
         if (await Context.Guild.GetVoiceChannelAsync(tempVc.ChannelId) is { } voiceChannel)
             await voiceChannel.DeleteAsync();
 
-        await tempVcRepository.DeleteAsync(tempVc);
+        await _unitOfWork.TempVcRepository.DeleteAsync(tempVc);
+        await _unitOfWork.SaveChangesAsync();
         await RespondSuccessAsync("Channel deleted", "Your temporary VC has been successfully deleted.");
     }
 
     private async Task<TempVc?> GetTempVcAsync()
     {
-        TempVc? tempVc = await tempVcRepository.GetByUserIdAsync(Context.Guild.Id, Context.User.Id);
+        TempVc? tempVc = await _unitOfWork.TempVcRepository.GetByUserIdAsync(Context.Guild.Id, Context.User.Id);
         if (tempVc is not null) return tempVc;
 
         await RespondErrorAsync("No Temporary VC", "You do not have a temporary VC in this server.");

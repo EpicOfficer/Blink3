@@ -1,5 +1,6 @@
 using Blink3.Core.Entities;
 using Blink3.Core.Extensions;
+using Blink3.Core.Interfaces;
 using Blink3.Core.Repositories.Interfaces;
 using Discord;
 using Discord.Addons.Hosting;
@@ -41,8 +42,8 @@ public class TempVcCleanService(
     private async Task DoWorkAsync()
     {
         using IServiceScope scope = scopeFactory.CreateScope();
-        ITempVcRepository tempVcRepository = scope.ServiceProvider.GetRequiredService<ITempVcRepository>();
-        IReadOnlyCollection<TempVc> tempVcs = await tempVcRepository.GetAllAsync();
+        IUnitOfWork unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
+        IReadOnlyCollection<TempVc> tempVcs = await unitOfWork.TempVcRepository.GetAllAsync();
 
         Dictionary<ulong, List<TempVc>> guilds = tempVcs.GroupBy(tempVc => tempVc.GuildId)
             .ToDictionary(group => group.Key, group => group.ToList());
@@ -51,17 +52,17 @@ public class TempVcCleanService(
             tempVcs.Count, guilds.Count);
 
         foreach (KeyValuePair<ulong, List<TempVc>> guild in guilds)
-            await HandleGuild(guild.Key, guild.Value, tempVcRepository);
+            await HandleGuild(guild.Key, guild.Value, unitOfWork);
     }
 
-    private async Task HandleGuild(ulong guildId, List<TempVc> tempVcs, ITempVcRepository tempVcRepository)
+    private async Task HandleGuild(ulong guildId, List<TempVc> tempVcs, IUnitOfWork unitOfWork)
     {
         if (Client.GetGuild(guildId) is not { } guild) return;
 
-        foreach (TempVc tempVc in tempVcs) await HandleChannel(guild, tempVc, tempVcRepository);
+        foreach (TempVc tempVc in tempVcs) await HandleChannel(guild, tempVc, unitOfWork);
     }
 
-    private async Task HandleChannel(SocketGuild guild, TempVc tempVc, ITempVcRepository tempVcRepository)
+    private async Task HandleChannel(SocketGuild guild, TempVc tempVc, IUnitOfWork unitOfWork)
     {
         // If the VC was created less than 2 minutes ago, skip it
         if (tempVc.CreatedAt.AddMinutes(2) > DateTime.UtcNow) return;
@@ -72,15 +73,16 @@ public class TempVcCleanService(
             _logger.LogInformation(
                 "Deleting temp VC {channelId} in guild {guildId} from database as the channel is missing",
                 tempVc.ChannelId, guild.Id);
-            await tempVcRepository.DeleteAsync(tempVc);
+            await unitOfWork.TempVcRepository.DeleteAsync(tempVc);
+            await unitOfWork.SaveChangesAsync();
             return;
         }
 
-        await HandleChannelUsers(guild, channel, tempVc, tempVcRepository);
+        await HandleChannelUsers(guild, channel, tempVc, unitOfWork);
     }
 
     private async Task HandleChannelUsers(SocketGuild guild, SocketVoiceChannel channel, TempVc tempVc,
-        ITempVcRepository tempVcRepository)
+        IUnitOfWork unitOfWork)
     {
         IReadOnlyCollection<SocketGuildUser>? connectedUsers = channel.ConnectedUsers;
 
@@ -115,7 +117,8 @@ public class TempVcCleanService(
         _logger.LogInformation("Automatically deleting stale VC {@Channel} in {@Guild}",
             tempVc, new { guild.Id, guild.Name });
         await channel.DeleteAsync();
-        await tempVcRepository.DeleteAsync(tempVc);
+        await unitOfWork.TempVcRepository.DeleteAsync(tempVc);
+        await unitOfWork.SaveChangesAsync();
     }
 
     public override async Task StopAsync(CancellationToken stoppingToken)

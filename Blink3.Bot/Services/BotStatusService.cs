@@ -22,6 +22,6 @@ public class BotStatusService(DiscordSocketClient client, ILogger<DiscordClientS
         await Client.WaitForReadyAsync(stoppingToken);
         Logger.LogInformation("Client is ready!");
 
-        await Client.SetActivityAsync(new Game("Blink 3.0"));
+        await Client.SetActivityAsync(new Game("blinkbot.io"));
     }
 }
