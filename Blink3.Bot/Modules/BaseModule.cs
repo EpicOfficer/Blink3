@@ -1,12 +1,13 @@
 using Blink3.Bot.MessageStyles.Helpers;
 using Blink3.Core.Entities;
+using Blink3.Core.Interfaces;
 using Blink3.Core.Repositories.Interfaces;
 using Discord;
 using Discord.Interactions;
 
 namespace Blink3.Bot.Modules;
 
-public class BlinkModuleBase<T>(IBlinkGuildRepository? blinkGuildRepository = null)
+public class BlinkModuleBase<T>(IUnitOfWork? unitOfWork = null)
     : InteractionModuleBase<T> where T : class, IInteractionContext
 {
     /// <summary>
@@ -82,8 +83,8 @@ public class BlinkModuleBase<T>(IBlinkGuildRepository? blinkGuildRepository = nu
 
     protected async Task<BlinkGuild> FetchConfig()
     {
-        if (blinkGuildRepository is not null && Context.Interaction.GuildId is not null)
-            return await blinkGuildRepository.GetOrCreateByIdAsync(Context.Interaction.GuildId);
+        if (unitOfWork is not null && Context.Interaction.GuildId is not null)
+            return await unitOfWork.BlinkGuildRepository.GetOrCreateByIdAsync(Context.Interaction.GuildId);
 
         return new BlinkGuild();
     }

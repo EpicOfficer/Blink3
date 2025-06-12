@@ -4,6 +4,7 @@ using Blink3.Bot.Extensions;
 using Blink3.Bot.MessageStyles;
 using Blink3.Bot.Modals;
 using Blink3.Core.Entities;
+using Blink3.Core.Interfaces;
 using Blink3.Core.Repositories.Interfaces;
 using Discord;
 using Discord.Interactions;
@@ -16,8 +17,10 @@ namespace Blink3.Bot.Modules;
 [CommandContextType(InteractionContextType.Guild, InteractionContextType.BotDm, InteractionContextType.PrivateChannel)]
 [IntegrationType(ApplicationIntegrationType.GuildInstall, ApplicationIntegrationType.UserInstall)]
 [Group("todo", "Simple todo list")]
-public class TodoModule(IUserTodoRepository todoRepository) : BlinkModuleBase<IInteractionContext>
+public class TodoModule(IUnitOfWork unitOfWork) : BlinkModuleBase<IInteractionContext>(unitOfWork)
 {
+    private readonly IUnitOfWork _unitOfWork = unitOfWork;
+    
     [ComponentInteraction("todo:addButton", true)]
     public async Task AddButton()
     {
@@ -39,7 +42,7 @@ public class TodoModule(IUserTodoRepository todoRepository) : BlinkModuleBase<II
         [MaxLength(50)] [Description("A longer description for the todo list item.  Max 50 characters")]
         string? description = null)
     {
-        int count = await todoRepository.GetCountByUserIdAsync(Context.User.Id);
+        int count = await _unitOfWork.UserTodoRepository.GetCountByUserIdAsync(Context.User.Id);
         if (count >= 25)
         {
             await RespondErrorAsync("Too many todo items!",
@@ -47,13 +50,14 @@ public class TodoModule(IUserTodoRepository todoRepository) : BlinkModuleBase<II
             return;
         }
 
-        await todoRepository.AddAsync(new UserTodo
+        await _unitOfWork.UserTodoRepository.AddAsync(new UserTodo
         {
             UserId = Context.User.Id,
             Label = label,
             Description = description,
             Complete = false
         });
+        await _unitOfWork.SaveChangesAsync();
 
         await RespondSuccessAsync($"Created todo item \"{label}\"");
     }
@@ -68,7 +72,7 @@ public class TodoModule(IUserTodoRepository todoRepository) : BlinkModuleBase<II
             .WithButton("Complete", "todo:completeButton", ButtonStyle.Secondary)
             .WithButton("Remove", "todo:removeButton", ButtonStyle.Danger);
 
-        IReadOnlyCollection<UserTodo> todos = await todoRepository.GetByUserIdAsync(Context.User.Id);
+        IReadOnlyCollection<UserTodo> todos = await _unitOfWork.UserTodoRepository.GetByUserIdAsync(Context.User.Id);
         if (todos.Count < 1)
         {
             await RespondInfoAsync("You don't have any todo items!", components: builder.Build());
@@ -124,7 +128,8 @@ public class TodoModule(IUserTodoRepository todoRepository) : BlinkModuleBase<II
     {
         int key = GetId(id);
 
-        await todoRepository.CompleteByIdAsync(key);
+        await _unitOfWork.UserTodoRepository.CompleteByIdAsync(key);
+        await _unitOfWork.SaveChangesAsync();
 
         await RespondSuccessAsync("Marked todo as complete");
     }
@@ -134,7 +139,8 @@ public class TodoModule(IUserTodoRepository todoRepository) : BlinkModuleBase<II
     {
         int key = GetId(id);
 
-        await todoRepository.DeleteByIdAsync(key);
+        await _unitOfWork.UserTodoRepository.DeleteByIdAsync(key);
+        await _unitOfWork.SaveChangesAsync();
 
         await RespondSuccessAsync("Todo item removed");
     }
@@ -148,7 +154,7 @@ public class TodoModule(IUserTodoRepository todoRepository) : BlinkModuleBase<II
 
     private async Task<MessageComponent?> BuildSelectMenuWithTodos(string customId)
     {
-        IReadOnlyCollection<UserTodo> todos = await todoRepository.GetByUserIdAsync(Context.User.Id);
+        IReadOnlyCollection<UserTodo> todos = await _unitOfWork.UserTodoRepository.GetByUserIdAsync(Context.User.Id);
         if (todos.Count < 1) return null;
 
         SelectMenuBuilder menuBuilder = new SelectMenuBuilder()

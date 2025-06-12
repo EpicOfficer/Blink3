@@ -27,6 +27,7 @@ public class GenericRepository<T>(BlinkDbContext dbContext)
         dbContext.Entry(entity).State = EntityState.Detached;
 
         await AddAsync(entity).ConfigureAwait(false);
+        await dbContext.SaveChangesAsync().ConfigureAwait(false);
 
         return entity;
     }
@@ -43,11 +44,11 @@ public class GenericRepository<T>(BlinkDbContext dbContext)
         return entity;
     }
 
-    public virtual async Task<T> UpdateAsync(T entity, CancellationToken cancellationToken = default)
+    public virtual Task<T> UpdateAsync(T entity, CancellationToken cancellationToken = default)
     {
         dbContext.Entry(entity).State = EntityState.Modified;
 
-        return entity;
+        return Task.FromResult(entity);
     }
 
     public virtual Task<T> UpdatePropertiesAsync(T entity, params Action<T>[] updatedProperties)
