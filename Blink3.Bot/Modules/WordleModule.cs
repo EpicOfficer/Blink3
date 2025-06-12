@@ -77,17 +77,23 @@ public class WordleModule(
         await _unitOfWork.GameStatisticsRepository.UpdateAsync(stats);
         await _unitOfWork.SaveChangesAsync();
 
-        List<EmbedFieldBuilder> fields =
-        [
-            new()
-            {
-                Name = "Language",
-                Value = langString
-            }
-        ];
-
-        await RespondSuccessAsync("Wordle started", "A new wordle has started.  Type `/guess` guess it.", false,
-            embedFields: fields.ToArray());
+        ComponentBuilderV2 builder = new ComponentBuilderV2()
+            .WithContainer(new ContainerBuilder()
+                .WithAccentColor(Colours.Success)
+                .WithTextDisplay($"""
+                                  ## Wordle Started
+                                  A new Wordle game has started! Use `/guess` to make your guesses.
+                                  """)
+                .WithSeparator(isDivider: false)
+                .WithTextDisplay($"""
+                                  ### 🌐 Game Details
+                                  - **Language:** {langString}
+                                  - **Word Length:** 5 letters
+                                  """)
+                .WithSeparator(isDivider: false)
+                .WithTextDisplay("***Good luck, and have fun!***"));
+        
+        await RespondOrFollowUpAsync(components: builder.Build(), allowedMentions: AllowedMentions.None);
     }
 
     [SlashCommand("guess", "Try to guess the wordle")]
