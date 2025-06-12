@@ -27,7 +27,9 @@ public class WordRepository(BlinkDbContext dbContext, ICachingService cache) : I
     public async Task<Dictionary<WordKey, Word>> GetAllAsync(CancellationToken cancellationToken = new())
     {
         Dictionary<WordKey, Word> existingWords =
-            await dbContext.Words.ToDictionaryAsync(w => new WordKey(w.Language, w.Text), cancellationToken)
+            await dbContext.Words
+                .AsNoTracking()
+                .ToDictionaryAsync(w => new WordKey(w.Language, w.Text), cancellationToken)
                 .ConfigureAwait(false);
 
         return existingWords;
@@ -54,7 +56,9 @@ public class WordRepository(BlinkDbContext dbContext, ICachingService cache) : I
 
         int randomIndex = _random.Next(0, solutionCount);
 
-        return await dbContext.Words.Where(w => w.Language == lang && w.Length == length)
+        return await dbContext.Words
+            .AsNoTracking()
+            .Where(w => w.Language == lang && w.Length == length)
             .Select(w => w.Text)
             .Skip(randomIndex)
             .Take(1)
