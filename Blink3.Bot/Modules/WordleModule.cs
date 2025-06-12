@@ -130,8 +130,8 @@ public class WordleModule(
             stats.GamesWon++;
             stats.GamesPlayed++;
 
-            int pointsToAdd = 11 - wordle.TotalAttempts;
-            stats.Points += Math.Max(pointsToAdd, 0);
+            int pointsToAdd = Math.Max(11 - wordle.TotalAttempts, 0);
+            stats.Points += pointsToAdd;
 
             text = $"""
                      🎉 **Congratulations, <@{stats.BlinkUserId}>!** You solved the Wordle in **{wordle.TotalAttempts} attempt{(wordle.TotalAttempts == 1 ? "" : "s")}**!  
