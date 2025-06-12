@@ -2,7 +2,7 @@ namespace Blink3.Bot.Extensions;
 
 public static class IntExtensions
 {
-    public static string GetStreakText(this int currentStreak) => currentStreak > 1 ? $"🔥 {currentStreak.ToSuperscript()}" : string.Empty;
+    public static string GetStreakText(this int currentStreak) => currentStreak > 0 ? $"🔥 {currentStreak.ToSuperscript()}" : string.Empty;
 
     private static string ToSuperscript(this int number)
     {

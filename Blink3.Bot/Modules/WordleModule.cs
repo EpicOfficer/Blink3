@@ -210,7 +210,7 @@ public class WordleModule(
             ephemeral: false);
     }
 
-    [SlashCommand("statistics", "View your Wordle game statistics")]
+    [SlashCommand("statistics", "View game statistics")]
     public async Task Statistics(IUser? user = null)
     {
         await DeferAsync();
@@ -249,7 +249,7 @@ public class WordleModule(
                     }))
                     .WithTextDisplay($"""
                                       ## Wordle Statistics
-                                      Here are your Wordle statistics, {targetUser.Mention}
+                                      Here are the Wordle statistics for {targetUser.Mention} {stats.CurrentStreak.GetStreakText()}
                                       """))
                 .WithSeparator(SeparatorSpacingSize.Large)
                 .WithTextDisplay("""
@@ -275,7 +275,7 @@ public class WordleModule(
                                   - **Streak Expires**: {streakExpires?.ToString() ?? "N/A"}
                                   """));
 
-        await RespondOrFollowUpAsync(components: builder.Build());
+        await RespondOrFollowUpAsync(components: builder.Build(), allowedMentions: AllowedMentions.None);
     }
     
     [SlashCommand("leaderboard", "Display points leaderboard")]
@@ -326,6 +326,6 @@ public class WordleModule(
         
         ComponentBuilderV2 builder = new ComponentBuilderV2().WithContainer(containerBuilder);
         
-        await RespondOrFollowUpAsync(components: builder.Build());
+        await RespondOrFollowUpAsync(components: builder.Build(), allowedMentions: AllowedMentions.None);
     }
 }
