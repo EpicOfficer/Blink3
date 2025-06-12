@@ -14,8 +14,16 @@ public class GameStatisticsRepository(BlinkDbContext dbContext)
 
     public async Task<GameStatistics> GetOrCreateGameStatistics(ulong userId, GameType gameType)
     {
-        GameStatistics? entity = _dbContext.Set<GameStatistics>()
-            .FirstOrDefault(g => g.BlinkUserId == userId && g.Type == gameType);
+        if (!_dbContext.BlinkUsers.Any(b => b.Id == userId))
+        {
+            await _dbContext.AddAsync(new BlinkUser
+            {
+                Id = userId
+            });
+        }
+        
+        GameStatistics? entity = await _dbContext.Set<GameStatistics>()
+            .FirstOrDefaultAsync(g => g.BlinkUserId == userId && g.Type == gameType);
         if (entity is not null) return entity;
 
         entity = new GameStatistics
