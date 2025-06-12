@@ -1,6 +1,7 @@
 using Blink3.API.Interfaces;
 using Blink3.Core.Caching;
 using Blink3.Core.Entities;
+using Blink3.Core.Interfaces;
 using Blink3.Core.Models;
 using Blink3.Core.Repositories.Interfaces;
 using Discord.Rest;
@@ -18,7 +19,7 @@ public class BlinkGuildsController(DiscordRestClient botClient,
     Func<DiscordRestClient> userClientFactory,
     ICachingService cachingService,
     IEncryptionService encryptionService,
-    IBlinkGuildRepository blinkGuildRepository)
+    IUnitOfWork unitOfWork)
     : ApiControllerBase(botClient, userClientFactory, cachingService, encryptionService)
 {
     /// <summary>
@@ -36,7 +37,7 @@ public class BlinkGuildsController(DiscordRestClient botClient,
     public async Task<ActionResult<IEnumerable<BlinkGuild>>> GetAllBlinkGuilds(CancellationToken cancellationToken)
     {
         List<DiscordPartialGuild> guilds = await GetUserGuilds();
-        IReadOnlyCollection<BlinkGuild> blinkGuilds = await blinkGuildRepository.FindByIdsAsync(guilds.Select(g => g.Id).ToHashSet());
+        IReadOnlyCollection<BlinkGuild> blinkGuilds = await unitOfWork.BlinkGuildRepository.FindByIdsAsync(guilds.Select(g => g.Id).ToHashSet());
         return Ok(blinkGuilds);
     }
 
@@ -58,7 +59,7 @@ public class BlinkGuildsController(DiscordRestClient botClient,
         ObjectResult? accessCheckResult = await CheckGuildAccessAsync(id);
         if (accessCheckResult is not null) return accessCheckResult;
         
-        BlinkGuild blinkGuild = await blinkGuildRepository.GetOrCreateByIdAsync(id);
+        BlinkGuild blinkGuild = await unitOfWork.BlinkGuildRepository.GetOrCreateByIdAsync(id);
         return Ok(blinkGuild);
     }
 
@@ -86,7 +87,8 @@ public class BlinkGuildsController(DiscordRestClient botClient,
         if (accessCheckResult is not null) return accessCheckResult;
 
         blinkGuild.Id = id;
-        await blinkGuildRepository.UpdateAsync(blinkGuild, cancellationToken);
+        await unitOfWork.BlinkGuildRepository.UpdateAsync(blinkGuild, cancellationToken);
+        await unitOfWork.SaveChangesAsync(cancellationToken);
         
         return NoContent();
     }
@@ -113,7 +115,7 @@ public class BlinkGuildsController(DiscordRestClient botClient,
         ObjectResult? accessCheckResult = await CheckGuildAccessAsync(id);
         if (accessCheckResult is not null) return accessCheckResult;
 
-        BlinkGuild? blinkGuild = await blinkGuildRepository.GetByIdAsync(id);
+        BlinkGuild? blinkGuild = await unitOfWork.BlinkGuildRepository.GetByIdAsync(id);
         if (blinkGuild is null)
         {
             return NotFound();
@@ -125,7 +127,8 @@ public class BlinkGuildsController(DiscordRestClient botClient,
             return BadRequest(ModelState);
         }
         
-        await blinkGuildRepository.UpdateAsync(blinkGuild, cancellationToken);
+        await unitOfWork.BlinkGuildRepository.UpdateAsync(blinkGuild, cancellationToken);
+        await unitOfWork.SaveChangesAsync(cancellationToken);
         return NoContent();
     }
 }

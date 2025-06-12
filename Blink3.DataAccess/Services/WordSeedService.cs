@@ -1,5 +1,6 @@
 using Blink3.Core.Configuration;
 using Blink3.Core.Entities;
+using Blink3.Core.Interfaces;
 using Blink3.Core.Models;
 using Blink3.Core.Repositories.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
@@ -23,9 +24,9 @@ public class WordSeedService(
     {
         logger.LogInformation("Starting word seed service, this could take a while...");
         using IServiceScope scope = scopeFactory.CreateScope();
-        IWordRepository words = scope.ServiceProvider.GetRequiredService<IWordRepository>();
+        IUnitOfWork unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
 
-        Dictionary<WordKey, Word> existingWords = await words.GetAllAsync(cancellationToken).ConfigureAwait(false);
+        Dictionary<WordKey, Word> existingWords = await unitOfWork.WordRepository.GetAllAsync(cancellationToken).ConfigureAwait(false);
         logger.LogInformation("Got {count} existing words from database", existingWords.Count);
 
         List<Word> newWords = [];
@@ -80,10 +81,10 @@ public class WordSeedService(
         }
 
         logger.LogInformation("Adding {count} new words to database...", newWords.Count);
-        await words.BulkAddAsync(newWords, cancellationToken).ConfigureAwait(false);
+        await unitOfWork.WordRepository.BulkAddAsync(newWords, cancellationToken).ConfigureAwait(false);
 
         logger.LogInformation("Updating {count} existing words in database...", wordsToUpdate.Count);
-        await words.BulkUpdateAsync(wordsToUpdate, cancellationToken).ConfigureAwait(false);
+        await unitOfWork.WordRepository.BulkUpdateAsync(wordsToUpdate, cancellationToken).ConfigureAwait(false);
 
         logger.LogInformation("Word seed service complete!");
     }

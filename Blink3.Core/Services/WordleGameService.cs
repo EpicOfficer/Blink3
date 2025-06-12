@@ -13,13 +13,12 @@ namespace Blink3.Core.Services;
 ///     Represents a service for playing the Wordle game.
 /// </summary>
 public class WordleGameService(
-    IWordRepository wordRepository,
-    IWordleRepository wordleRepository,
+    IUnitOfWork unitOfWork,
     IWordleGuessImageGenerator guessImageGenerator) : IWordleGameService
 {
     public async Task<bool> IsGameInProgressAsync(ulong channelId, CancellationToken cancellationToken = default)
     {
-        return await wordleRepository.GetByChannelIdAsync(channelId, cancellationToken).ConfigureAwait(false) is not
+        return await unitOfWork.WordleRepository.GetByChannelIdAsync(channelId, cancellationToken).ConfigureAwait(false) is not
             null;
     }
 
@@ -37,7 +36,8 @@ public class WordleGameService(
 
         wordle.ProcessGuess(guess);
 
-        await wordleRepository.AddGuessAsync(wordle, guess, cancellationToken).ConfigureAwait(false);
+        await unitOfWork.WordleRepository.AddGuessAsync(wordle, guess, cancellationToken).ConfigureAwait(false);
+        await unitOfWork.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
         return Result<WordleGuess>.Ok(guess);
     }
 
@@ -59,7 +59,7 @@ public class WordleGameService(
     public async Task<Wordle> StartNewGameAsync(ulong channelId, string language, int length,
         CancellationToken cancellationToken = default)
     {
-        string word = await wordRepository.GetRandomSolutionAsync(language, length, cancellationToken)
+        string word = await unitOfWork.WordRepository.GetRandomSolutionAsync(language, length, cancellationToken)
             .ConfigureAwait(false);
         Wordle newWordle = new()
         {
@@ -67,7 +67,8 @@ public class WordleGameService(
             Language = language,
             WordToGuess = word
         };
-        await wordleRepository.AddAsync(newWordle, cancellationToken).ConfigureAwait(false);
+        await unitOfWork.WordleRepository.AddAsync(newWordle, cancellationToken).ConfigureAwait(false);
+        await unitOfWork.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
         return newWordle;
     }
 }

@@ -5,7 +5,6 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Blink3.DataAccess.Repositories;
 
-/// <inheritdoc cref="IBlinkUserRepository" />
 public class GameStatisticsRepository(BlinkDbContext dbContext)
     : GenericRepository<GameStatistics>(dbContext), IGameStatisticsRepository
 {
