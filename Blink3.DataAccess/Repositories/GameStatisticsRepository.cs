@@ -8,7 +8,7 @@ namespace Blink3.DataAccess.Repositories;
 public class GameStatisticsRepository(BlinkDbContext dbContext)
     : GenericRepository<GameStatistics>(dbContext), IGameStatisticsRepository
 {
-    private const int LeaderboardSize = 10;
+    private const int LeaderboardSize = 8;
     private readonly BlinkDbContext _dbContext = dbContext;
 
     public async Task<GameStatistics> GetOrCreateGameStatistics(ulong userId, GameType gameType)
@@ -40,11 +40,14 @@ public class GameStatisticsRepository(BlinkDbContext dbContext)
     {
         return gameType is null
             ? await _dbContext.GameStatistics
+                .AsNoTracking()
+                .Where(g => g.Points > 0)
                 .OrderByDescending(u => u.Points)
                 .Take(LeaderboardSize)
                 .ToArrayAsync()
             : await _dbContext.GameStatistics
-                .Where(g => g.Type == gameType)
+                .AsNoTracking()
+                .Where(g => g.Type == gameType && g.Points > 0)
                 .OrderByDescending(u => u.Points)
                 .Take(LeaderboardSize)
                 .ToArrayAsync();

@@ -24,8 +24,6 @@ public class GenericRepository<T>(BlinkDbContext dbContext)
         (IEntityType? entityType, IKey? key) = GetEntityTypeAndKey();
         entity = CreateEntityWithKeys(key, keyValues);
 
-        dbContext.Entry(entity).State = EntityState.Detached;
-
         await AddAsync(entity).ConfigureAwait(false);
         await dbContext.SaveChangesAsync().ConfigureAwait(false);
 
