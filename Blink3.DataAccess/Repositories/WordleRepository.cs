@@ -44,6 +44,7 @@ public class WordleRepository(BlinkDbContext dbContext) :
     {
         HashSet<ulong> players = new(wordle.Players);
         List<GameStatistics> stats = await _dbContext.GameStatistics
+            .AsNoTracking()
             .Where(s => players.Contains(s.BlinkUserId) &&
                         s.Type == GameType.Wordle &&
                         s.BlinkUserId != userId)
