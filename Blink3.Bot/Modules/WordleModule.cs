@@ -196,28 +196,34 @@ public class WordleModule(
             await RespondErrorAsync(word.ToTitleCase(), "An error occured fetching word definition");
             return;
         }
-
-        EmbedFieldBuilder[]? groupedDefinitions = details?.Definitions
+        
+        ContainerBuilder container = new ContainerBuilder()
+            .WithAccentColor(Colours.Info)
+            .WithTextDisplay($"## Definition of {word.ToTitleCase()}");
+        
+        IMessageComponentBuilder[]? definitions = details?.Definitions
             .GroupBy(wd => wd.PartOfSpeech)
-            .Select(g =>
+            .SelectMany(g => new IMessageComponentBuilder[]
             {
-                EmbedFieldBuilder builder = new()
-                {
-                    Name = g.Key.ToTitleCase(),
-                    Value = string.Join("\n",
-                            g.Select(v => $"- {v.Definition.ToSentenceCase()}"))
-                        .TruncateTo(1020),
-                    IsInline = false
-                };
-                return builder;
+                new SeparatorBuilder(isDivider: false),
+                new TextDisplayBuilder($"""
+                                        ### {g.Key.ToTitleCase()}
+                                        {string.Join("\n", g.Select(v => $"- {v.Definition.ToSentenceCase()}"))}
+                                        """)
             })
             .ToArray();
 
-        await RespondPlainAsync(
-            $"Definition of {word.ToTitleCase()}",
-            details is null ? "No definition found" : string.Empty,
-            embedFields: groupedDefinitions,
-            ephemeral: true);
+        if (definitions?.Length > 0)
+        {
+            container.AddComponents(definitions);
+        }
+        else
+        {
+            container.WithTextDisplay("No definitions found");
+        }
+        
+        ComponentBuilderV2 builder = new ComponentBuilderV2().WithContainer(container);
+        await RespondOrFollowUpAsync(components: builder.Build(), allowedMentions: AllowedMentions.None, ephemeral: true);
     }
 
     [SlashCommand("statistics", "View game statistics")]
@@ -285,7 +291,7 @@ public class WordleModule(
                                   - **Streak Expires**: {streakExpires?.ToString() ?? "N/A"}
                                   """));
 
-        await RespondOrFollowUpAsync(components: builder.Build(), allowedMentions: AllowedMentions.None);
+        await RespondOrFollowUpAsync(components: builder.Build(), allowedMentions: new AllowedMentions(AllowedMentionTypes.Users));
     }
     
     [SlashCommand("leaderboard", "Display points leaderboard")]
