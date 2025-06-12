@@ -217,7 +217,7 @@ public class WordleModule(
             $"Definition of {word.ToTitleCase()}",
             details is null ? "No definition found" : string.Empty,
             embedFields: groupedDefinitions,
-            ephemeral: false);
+            ephemeral: true);
     }
 
     [SlashCommand("statistics", "View game statistics")]
