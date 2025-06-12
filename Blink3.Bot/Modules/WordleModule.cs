@@ -207,13 +207,14 @@ public class WordleModule(
     }
 
     [SlashCommand("statistics", "View your Wordle game statistics")]
-    public async Task Statistics()
+    public async Task Statistics(IUser? user = null)
     {
         await DeferAsync();
+        IUser targetUser = user ?? Context.User;
 
         // Retrieve the user's game statistics
         GameStatistics stats =
-            await gameStatisticsRepository.GetOrCreateGameStatistics(Context.User.Id, GameType.Wordle);
+            await gameStatisticsRepository.GetOrCreateGameStatistics(targetUser.Id, GameType.Wordle);
 
         // Calculate the win percentage
         double winPercentage = stats.GamesPlayed > 0
@@ -240,11 +241,11 @@ public class WordleModule(
                 .WithSection(new SectionBuilder()
                     .WithAccessory(new ThumbnailBuilder().WithMedia(new UnfurledMediaItemProperties
                     {
-                        Url = Context.User.GetDisplayAvatarUrl(size: 240)
+                        Url = targetUser.GetDisplayAvatarUrl(size: 240)
                     }))
                     .WithTextDisplay($"""
                                       ## Wordle Statistics
-                                      Here are your Wordle statistics, {Context.User.Mention}
+                                      Here are your Wordle statistics, {targetUser.Mention}
                                       """))
                 .WithSeparator(SeparatorSpacingSize.Large)
                 .WithTextDisplay("""
