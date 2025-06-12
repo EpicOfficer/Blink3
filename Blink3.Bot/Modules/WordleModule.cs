@@ -32,25 +32,19 @@ public class WordleModule(
         if (stats.LastActivity?.Date ==
             time.Date) return stats; // Do nothing except return the stats (they already participated today)
 
-        // If activity is on the next consecutive UTC day, increment the streak
-        if (stats.LastActivity?.Date.AddDays(1) == time.Date)
+        bool isConsecutiveDay = stats.LastActivity?.Date.AddDays(1) == time.Date;
+        if (isConsecutiveDay)
         {
             stats.CurrentStreak++; // Increment the streak
             stats.MaxStreak = Math.Max(stats.MaxStreak, stats.CurrentStreak); // Update max streak if needed
-            stats.LastActivity = time; // Update the last activity to today
-            await _unitOfWork.GameStatisticsRepository.UpdateAsync(stats);
-            await _unitOfWork.SaveChangesAsync();
-            return stats;
+        }
+        else
+        {
+            stats.MaxStreak = Math.Max(stats.MaxStreak, stats.CurrentStreak);
+            stats.CurrentStreak = 0;
         }
 
-        // If it's been more than 1 day, reset the streak
-        stats.MaxStreak = Math.Max(stats.MaxStreak, stats.CurrentStreak); // Update max streak before resetting
-        stats.CurrentStreak = 0; // Reset current streak
         stats.LastActivity = time; // Update the last activity
-
-        await _unitOfWork.GameStatisticsRepository.UpdateAsync(stats);
-        await _unitOfWork.SaveChangesAsync();
-        
         return stats;
     }
 
@@ -141,10 +135,12 @@ public class WordleModule(
                 $"🎉 **Correct!** You solved it in **{wordle.TotalAttempts} attempt{(wordle.TotalAttempts > 1 ? "s" : "")}**.\n" +
                 $"You earned **{pointsToAdd} point{(pointsToAdd != 1 ? "s" : "")}**, and now have a total of **{stats.Points} point{(stats.Points != 1 ? "s" : "")}**. 🎯";
 
-            foreach (ulong player in wordle.Players.ToHashSet().Where(u => u != Context.User.Id))
+            HashSet<GameStatistics> playerStatsList =
+                await _unitOfWork.WordleRepository.GetOtherParticipantStatsAsync(wordle, Context.User.Id);
+            
+            // Update stats for other players who participated
+            foreach (GameStatistics playerStats in playerStatsList)
             {
-                GameStatistics playerStats =
-                    await _unitOfWork.GameStatisticsRepository.GetOrCreateGameStatistics(player, GameType.Wordle);
                 playerStats.GamesPlayed++;
                 await _unitOfWork.GameStatisticsRepository.UpdateAsync(playerStats);
             }
