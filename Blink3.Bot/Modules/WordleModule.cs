@@ -7,7 +7,6 @@ using Blink3.Core.Extensions;
 using Blink3.Core.Interfaces;
 using Blink3.Core.Models;
 using Blink3.Core.Repositories.Interfaces;
-using Blink3.DataAccess.Repositories;
 using Discord;
 using Discord.Interactions;
 
@@ -16,20 +15,18 @@ namespace Blink3.Bot.Modules;
 [CommandContextType(InteractionContextType.Guild, InteractionContextType.BotDm, InteractionContextType.PrivateChannel)]
 [IntegrationType(ApplicationIntegrationType.GuildInstall, ApplicationIntegrationType.UserInstall)]
 public class WordleModule(
+    IWordleRepository wordleRepository,
     IWordleGameService wordleGameService,
     IWordsClientService wordsClientService,
     IBlinkGuildRepository blinkGuildRepository,
-    IUnitOfWork unitOfWork) : BlinkModuleBase<IInteractionContext>(blinkGuildRepository)
+    IGameStatisticsRepository gameStatisticsRepository,
+    IWordRepository wordRepository) : BlinkModuleBase<IInteractionContext>(blinkGuildRepository)
 {
     private ulong GameId => Context.Interaction.ChannelId ?? Context.User.Id;
 
-    private IWordleRepository WordleRepository => unitOfWork.WordleRepository;
-    private IWordRepository WordRepository => unitOfWork.WordRepository;
-    private IGameStatisticsRepository GameStatisticsRepository => unitOfWork.GameStatisticsRepository;
-
     private async Task<GameStatistics> UpdateStatsAsync(ulong userId)
     {
-        GameStatistics stats = await GameStatisticsRepository.GetOrCreateGameStatistics(userId, GameType.Wordle);
+        GameStatistics stats = await gameStatisticsRepository.GetOrCreateGameStatistics(userId, GameType.Wordle);
         DateTime time = DateTime.UtcNow;
 
         // If the last activity is on the same date, no need to update the streak
@@ -42,6 +39,7 @@ public class WordleModule(
             stats.CurrentStreak++; // Increment the streak
             stats.MaxStreak = Math.Max(stats.MaxStreak, stats.CurrentStreak); // Update max streak if needed
             stats.LastActivity = time; // Update the last activity to today
+            await gameStatisticsRepository.UpdateAsync(stats);
             return stats;
         }
 
@@ -49,6 +47,7 @@ public class WordleModule(
         stats.MaxStreak = Math.Max(stats.MaxStreak, stats.CurrentStreak); // Update max streak before resetting
         stats.CurrentStreak = 0; // Reset current streak
         stats.LastActivity = time; // Update the last activity
+        await gameStatisticsRepository.UpdateAsync(stats);
 
         return stats;
     }
@@ -79,7 +78,7 @@ public class WordleModule(
 
         await wordleGameService.StartNewGameAsync(GameId, lang, 5);
         GameStatistics stats = await UpdateStatsAsync(Context.User.Id);
-        await GameStatisticsRepository.UpdateAsync(stats);
+        await gameStatisticsRepository.UpdateAsync(stats);
 
         List<EmbedFieldBuilder> fields =
         [
@@ -92,8 +91,6 @@ public class WordleModule(
 
         await RespondSuccessAsync("Wordle started", "A new wordle has started.  Type `/guess` guess it.", false,
             embedFields: fields.ToArray());
-        
-        await unitOfWork.SaveChangesAsync();
     }
 
     [SlashCommand("guess", "Try to guess the wordle")]
@@ -101,7 +98,7 @@ public class WordleModule(
     {
         await DeferAsync();
 
-        Wordle? wordle = await WordleRepository.GetByChannelIdAsync(GameId);
+        Wordle? wordle = await wordleRepository.GetByChannelIdAsync(GameId);
         if (wordle is null)
         {
             await RespondErrorAsync("No game in progress",
@@ -109,7 +106,7 @@ public class WordleModule(
             return;
         }
 
-        bool isGuessable = await WordRepository.IsGuessableAsync(word, wordle.Language);
+        bool isGuessable = await wordRepository.IsGuessableAsync(word, wordle.Language);
         if (!isGuessable)
         {
             await RespondErrorAsync("Invalid guess", "The word you entered is not a valid guess.");
@@ -141,20 +138,22 @@ public class WordleModule(
                 $"🎉 **Correct!** You solved it in **{wordle.TotalAttempts} attempt{(wordle.TotalAttempts > 1 ? "s" : "")}**.\n" +
                 $"You earned **{pointsToAdd} point{(pointsToAdd != 1 ? "s" : "")}**, and now have a total of **{stats.Points} point{(stats.Points != 1 ? "s" : "")}**. 🎯";
 
-            foreach (GameStatistics player in await WordleRepository.GetOtherParticipantStatsAsync(wordle, Context.User.Id))
+            foreach (ulong player in wordle.Players.ToHashSet().Where(u => u != Context.User.Id))
             {
-                player.GamesPlayed++;
-                await GameStatisticsRepository.UpdateAsync(player);
+                GameStatistics playerStats =
+                    await gameStatisticsRepository.GetOrCreateGameStatistics(player, GameType.Wordle);
+                playerStats.GamesPlayed++;
+                await gameStatisticsRepository.UpdateAsync(playerStats);
             }
 
-            await WordleRepository.DeleteAsync(wordle);
+            await wordleRepository.DeleteAsync(wordle);
         }
         else
         {
-            await WordleRepository.UpdateAsync(wordle);
+            await wordleRepository.UpdateAsync(wordle);
         }
 
-        await GameStatisticsRepository.UpdateAsync(stats);
+        await gameStatisticsRepository.UpdateAsync(stats);
 
         using MemoryStream image = new();
         await wordleGameService.GenerateImageAsync(guess, image, await FetchConfig());
@@ -166,8 +165,6 @@ public class WordleModule(
 
         await FollowupWithFileAsync(text: text, attachment: attachment, ephemeral: false,
             components: component?.Build());
-        
-        await unitOfWork.SaveChangesAsync();
     }
 
     [SlashCommand("define", "Get the definition of a word")]
@@ -210,13 +207,14 @@ public class WordleModule(
     }
 
     [SlashCommand("statistics", "View your Wordle game statistics")]
-    public async Task Statistics()
+    public async Task Statistics(IUser? user = null)
     {
         await DeferAsync();
+        IUser targetUser = user ?? Context.User;
 
         // Retrieve the user's game statistics
         GameStatistics stats =
-            await GameStatisticsRepository.GetOrCreateGameStatistics(Context.User.Id, GameType.Wordle);
+            await gameStatisticsRepository.GetOrCreateGameStatistics(targetUser.Id, GameType.Wordle);
 
         // Calculate the win percentage
         double winPercentage = stats.GamesPlayed > 0
@@ -243,11 +241,11 @@ public class WordleModule(
                 .WithSection(new SectionBuilder()
                     .WithAccessory(new ThumbnailBuilder().WithMedia(new UnfurledMediaItemProperties
                     {
-                        Url = Context.User.GetDisplayAvatarUrl(size: 240)
+                        Url = targetUser.GetDisplayAvatarUrl(size: 240)
                     }))
                     .WithTextDisplay($"""
                                       ## Wordle Statistics
-                                      Here are your Wordle statistics, {Context.User.Mention}
+                                      Here are your Wordle statistics, {targetUser.Mention}
                                       """))
                 .WithSeparator(SeparatorSpacingSize.Large)
                 .WithTextDisplay("""
@@ -275,29 +273,55 @@ public class WordleModule(
 
         await RespondOrFollowUpAsync(components: builder.Build());
     }
-
+    
     [SlashCommand("leaderboard", "Display points leaderboard")]
     public async Task Leaderboard()
     {
-        IEnumerable<GameStatistics> leaderboard = await GameStatisticsRepository.GetLeaderboardAsync(GameType.Wordle);
+        await DeferAsync();
+        
+        IEnumerable<GameStatistics> leaderboard = await gameStatisticsRepository.GetLeaderboardAsync(GameType.Wordle);
+        
+        ContainerBuilder? containerBuilder = new ContainerBuilder()
+            .WithAccentColor(Colours.Info)
+            .WithTextDisplay("""
+                             ## Wordle Leaderboard
+                             These are the top Blink Wordle players — how do your stats compare?
+                             """);
 
-        IEnumerable<Task<EmbedFieldBuilder>> embedFieldBuilderTasks = leaderboard.Select(async (stats, ix) =>
+        int i = 1;
+        foreach (GameStatistics stats in leaderboard.Take(3))
         {
             IUser? discordUser = await Context.Client.GetUserAsync(stats.BlinkUserId);
-            string name = discordUser.GetFriendlyName();
-            EmbedFieldBuilder field = new()
-            {
-                Name = $"{ix + 1}. {name}",
-                Value = $"{stats.Points} Point{(stats.Points != 1 ? "s" : null)}",
-                IsInline = false
-            };
-            return field;
-        });
 
-        EmbedFieldBuilder[] embedFieldBuilder = await Task.WhenAll(embedFieldBuilderTasks);
+            containerBuilder.WithSeparator(SeparatorSpacingSize.Large)
+                .WithTextDisplay($"### {i}. <@{stats.BlinkUserId}> {stats.CurrentStreak.GetStreakText()}")
+                .WithSection(new SectionBuilder()
+                    .WithAccessory(new ThumbnailBuilder().WithMedia(new UnfurledMediaItemProperties
+                    {
+                        Url = discordUser.GetDisplayAvatarUrl(size: 240)
+                    }))
+                    .WithTextDisplay($"""
+                                      - **Points**: {stats.Points}
+                                      - **Games Played**: {stats.GamesPlayed}
+                                      - **Games Won**: {stats.GamesWon}
+                                      """)
+                );
+            i++;
+        }
 
-        await RespondPlainAsync("Wordle Leaderboard",
-            embedFields: embedFieldBuilder,
-            ephemeral: false);
+        containerBuilder.WithSeparator();
+        
+        foreach (GameStatistics stats in leaderboard.Skip(3))
+        {
+            containerBuilder.WithTextDisplay($"""
+                                              ### {i}. <@{stats.BlinkUserId}> {stats.CurrentStreak.GetStreakText()}
+                                              - **Points** {stats.Points}
+                                              """);
+            i++;
+        }
+        
+        ComponentBuilderV2 builder = new ComponentBuilderV2().WithContainer(containerBuilder);
+        
+        await RespondOrFollowUpAsync(components: builder.Build());
     }
 }
