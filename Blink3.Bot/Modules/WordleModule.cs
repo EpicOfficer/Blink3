@@ -123,6 +123,8 @@ public class WordleModule(
 
         WordleGuess guess = guessResult.SafeValue();
         string text = string.Empty;
+        Color embedColor = Colours.Info;
+        
         if (guess.IsCorrect)
         {
             stats.GamesWon++;
@@ -131,9 +133,11 @@ public class WordleModule(
             int pointsToAdd = 11 - wordle.TotalAttempts;
             stats.Points += Math.Max(pointsToAdd, 0);
 
-            text =
-                $"🎉 **Correct!** You solved it in **{wordle.TotalAttempts} attempt{(wordle.TotalAttempts > 1 ? "s" : "")}**.\n" +
-                $"You earned **{pointsToAdd} point{(pointsToAdd != 1 ? "s" : "")}**, and now have a total of **{stats.Points} point{(stats.Points != 1 ? "s" : "")}**. 🎯";
+            text = $"""
+                     🎉 **Congratulations, <@{stats.BlinkUserId}>!** You solved the Wordle in **{wordle.TotalAttempts} attempt{(wordle.TotalAttempts == 1 ? "" : "s")}**!  
+                     You've earned **{pointsToAdd} point{(pointsToAdd == 1 ? "" : "s")}**, and now have a total of **{stats.Points}** point{(stats.Points == 1 ? "" : "s")}.
+                     """;
+            embedColor = Colours.Success;
 
             HashSet<GameStatistics> playerStatsList =
                 await _unitOfWork.WordleRepository.GetOtherParticipantStatsAsync(wordle, Context.User.Id);
@@ -150,6 +154,11 @@ public class WordleModule(
         else
         {
             await _unitOfWork.WordleRepository.UpdateAsync(wordle);
+            
+            text = $"""
+                     ⚠️ **Not quite!** Keep trying, you’ve got this!  
+                     You've used **{wordle.TotalAttempts} attempt{(wordle.TotalAttempts == 1 ? "" : "s")}** so far.
+                     """;
         }
 
         await _unitOfWork.GameStatisticsRepository.UpdateAsync(stats);
@@ -159,12 +168,17 @@ public class WordleModule(
         await wordleGameService.GenerateImageAsync(guess, image, await FetchConfig());
         using FileAttachment attachment = new(image, $"{wordle.Id}_{guess.Id}.png");
 
-        ComponentBuilder? component = null;
-        if (wordle.Language == "en")
-            component = new ComponentBuilder().WithButton("Define", $"blink-define-word_{guess.Word}");
+        ContainerBuilder container = new ContainerBuilder()
+            .WithAccentColor(embedColor)
+            .WithTextDisplay(text)
+            .WithMediaGallery([attachment.GetAttachmentUrl()]);
 
-        await FollowupWithFileAsync(text: text, attachment: attachment, ephemeral: false,
-            components: component?.Build());
+        if (wordle.Language == "en")
+            container.WithActionRow(new ActionRowBuilder()
+                .WithButton("Define", $"blink-define-word_{guess.Word}"));
+        
+        ComponentBuilderV2 builder = new ComponentBuilderV2().WithContainer(container);
+        await FollowupWithFileAsync(attachment: attachment, ephemeral: false, components: builder.Build());
     }
 
     [SlashCommand("define", "Get the definition of a word")]
