@@ -1,5 +1,6 @@
 using Blink3.Core.Entities;
 using Blink3.Core.Extensions;
+using Blink3.Core.Interfaces;
 using Blink3.Core.Repositories.Interfaces;
 using Discord.Addons.Hosting;
 using Discord.Addons.Hosting.Util;
@@ -51,19 +52,18 @@ public class StreakResetService(
     private async Task ProcessStreakResetsAsync()
     {
         using IServiceScope scope = scopeFactory.CreateScope();
-        IGameStatisticsRepository gameStatisticsRepository =
-            scope.ServiceProvider.GetRequiredService<IGameStatisticsRepository>();
-        IReadOnlyCollection<GameStatistics> gameStats = await gameStatisticsRepository.GetAllAsync();
+        IUnitOfWork unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
+        IReadOnlyCollection<GameStatistics> gameStats = await unitOfWork.GameStatisticsRepository.GetAllAsync();
         DateTime now = DateTime.UtcNow;
 
         foreach (GameStatistics gameStat in gameStats)
-            await ResetUserStreakAsync(gameStat, gameStatisticsRepository, now);
+            await ResetUserStreakAsync(gameStat, unitOfWork, now);
     }
 
     /// <summary>
     ///     Resets a user's streak based on inactivity and updates their record.
     /// </summary>
-    private async Task ResetUserStreakAsync(GameStatistics gameStat, IGameStatisticsRepository repository, DateTime now)
+    private async Task ResetUserStreakAsync(GameStatistics gameStat, IUnitOfWork unitOfWork, DateTime now)
     {
         if (gameStat.CurrentStreak <= 0 || gameStat.LastActivity?.Date.AddDays(DaysInactiveThreshold) > now) return;
 
@@ -71,6 +71,7 @@ public class StreakResetService(
         gameStat.MaxStreak = Math.Max(gameStat.MaxStreak, gameStat.CurrentStreak);
         gameStat.CurrentStreak = 0;
 
-        await repository.UpdateAsync(gameStat);
+        await unitOfWork.GameStatisticsRepository.UpdateAsync(gameStat);
+        await unitOfWork.SaveChangesAsync();
     }
 }
