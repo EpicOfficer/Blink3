@@ -52,4 +52,9 @@ public interface IWordleGameService
         MemoryStream outStream,
         BlinkGuild blinkGuild,
         CancellationToken cancellationToken = default);
+    
+    public Task GenerateStatusImageAsync(Wordle wordle,
+        MemoryStream outStream,
+        BlinkGuild blinkGuild,
+        CancellationToken cancellationToken = default);
 }

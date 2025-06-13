@@ -1,4 +1,5 @@
 using Blink3.Core.Caching;
+using Blink3.Core.Constants;
 using Blink3.Core.Entities;
 using Blink3.Core.Enums;
 using Blink3.Core.Extensions;
@@ -108,6 +109,93 @@ public class WordleGuessImageGenerator : IWordleGuessImageGenerator
         await CreateAndSaveImageAsync(guess, options, outStream, cancellationToken);
     }
 
+    public async Task CreateAndSaveStatusImageAsync(Wordle wordle,
+        MemoryStream outStream,
+        CancellationToken cancellationToken)
+    {
+        // QWERTY keyboard layout rows
+        List<string> keyboardRows =
+        [
+            "qwertyuiop",
+            "asdfghjkl",
+            "zxcvbnm"
+        ];
+        
+        HashSet<char> invalidLetters = [];
+        foreach (WordleGuess guess in wordle.Guesses)
+        {
+            foreach (WordleLetter letter in guess.Letters.Where(letter => letter.State == WordleLetterStateEnum.Incorrect))
+            {
+                invalidLetters.Add(letter.Letter);
+            }
+        }
+        
+        // Calculate image dimensions
+        int imageWidth = keyboardRows.Max(row => row.Length) * TileSize + 2 * MarginSize;
+        int imageHeight = keyboardRows.Count * TileSize + 2 * MarginSize;
+
+        using Image<Rgba32> image = new(imageWidth, imageHeight);
+        TextOptions textOptions = new(_font)
+        {
+            HorizontalAlignment = HorizontalAlignment.Center,
+            VerticalAlignment = VerticalAlignment.Center,
+            WrappingLength = LetterSize
+        };
+
+        image.Mutate(im =>
+        {
+            // Draw each keyboard row
+            for (int rowIndex = 0; rowIndex < keyboardRows.Count; rowIndex++)
+            {
+                string row = keyboardRows[rowIndex];
+                int rowWidthPx = row.Length * TileSize;
+
+                // Calculate starting X position to center the row
+                int startX = (imageWidth - rowWidthPx) / 2;
+
+                for (int colIndex = 0; colIndex < row.Length; colIndex++)
+                {
+                    // Calculate the X and Y positions for the tile
+                    int tileX = startX + colIndex * TileSize;
+                    int tileY = rowIndex * TileSize + MarginSize;
+                    char letter = row[colIndex];
+
+                    // Determine the tile color:
+                    // If the letter is in the invalid set, use the default muted color.
+                    // Otherwise, highlight it (it's valid).
+                    Color tileColor = invalidLetters.Contains(letter)
+                        ? WordleImageConstants.KeyUnavailableColour // Muted color for unavailable letters
+                        : WordleImageConstants.KeyAvailableColour; // Highlight available letters
+
+                    // Draw the keyboard tile
+                    DrawKeyboardTile(im, char.ToUpper(letter), tileX, tileY, tileColor, textOptions);
+                }
+            }
+        });
+
+        await image.SaveAsync(outStream, new PngEncoder(), cancellationToken).ConfigureAwait(false);
+    }
+    
+    private void DrawKeyboardTile(IImageProcessingContext im,
+        char letter,
+        int x,
+        int y,
+        Color tileColor,
+        TextOptions textOptions)
+    {
+        // Draw and fill the tile rectangle
+        im.Fill(tileColor, new Rectangle(x, y, LetterSize, LetterSize));
+
+        // Measure the text size and position the letter in the center of the tile
+        string text = letter.ToString();
+        FontRectangle textSize = TextMeasurer.MeasureAdvance(text, textOptions);
+        float textX = x + (LetterSize - textSize.Width) / 2;
+        float textY = y + (LetterSize - textSize.Height) / 2;
+
+        // Draw the letter inside the tile
+        im.DrawText(text, _font, WordleImageConstants.TextColour, new PointF(textX, textY));
+    }
+    
     /// <summary>
     ///     Creates and saves an image representing a Wordle guess asynchronously.
     /// </summary>
