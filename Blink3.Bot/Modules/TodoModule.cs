@@ -1,11 +1,9 @@
 using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
-using System.Security.Permissions;
 using Blink3.Bot.Extensions;
 using Blink3.Bot.MessageStyles;
 using Blink3.Bot.Modals;
 using Blink3.Core.Entities;
-using Blink3.Core.Extensions;
 using Blink3.Core.Interfaces;
 using Blink3.Core.Repositories.Interfaces;
 using Discord;
@@ -69,79 +67,30 @@ public class TodoModule(IUnitOfWork unitOfWork) : BlinkModuleBase<IInteractionCo
         [Description("Whether to post the todo list so that it is visible to other users.")]
         bool postPublicly = false)
     {
-        IGuildUser? user = Context.User as IGuildUser;
+        ComponentBuilder builder = new ComponentBuilder()
+            .WithButton("Add", "todo:addButton")
+            .WithButton("Complete", "todo:completeButton", ButtonStyle.Secondary)
+            .WithButton("Remove", "todo:removeButton", ButtonStyle.Danger);
 
-        ButtonBuilder addButton = new("Add", "todo:addButton");
-        ContainerBuilder container = new ContainerBuilder()
-            .WithAccentColor(Colours.Info);
-        
         IReadOnlyCollection<UserTodo> todos = await _unitOfWork.UserTodoRepository.GetByUserIdAsync(Context.User.Id);
-        if (todos.Count == 0)
+        if (todos.Count < 1)
         {
-            container.WithSection(new SectionBuilder()
-                .WithTextDisplay($"""
-                                  ## Todo List
-                                  You do not have any todo list items.
-                                  """)
-                .WithAccessory(addButton)
-            );
+            await RespondInfoAsync("You don't have any todo items!", components: builder.Build());
+            return;
         }
-        else
+
+        EmbedFieldBuilder[] fields = todos.Select(todo => new EmbedFieldBuilder
         {
-            container.WithSection(new SectionBuilder()
-                .WithTextDisplay($"""
-                                  ## Todo list
-                                  Here is your todo list {user?.Mention}
-                                  """)
-                .WithAccessory(addButton));
-                
-            List<UserTodo> pendingTodos = todos.Where(todo => !todo.Complete).ToList();
-            if (pendingTodos.Count > 0)
-            {
-                container
-                    .WithTextDisplay($"""
-                                      ### 🟡 Pending Tasks
-                                      """)
-                    .WithSeparator(isDivider: false, spacing: SeparatorSpacingSize.Small)
-                    .AddComponents(pendingTodos.SelectMany(RenderTodo).ToArray())
-                    .WithSeparator(isDivider: false);
-            }
+            Name = $"{(todo.Complete ? Icons.BoxChecked : Icons.Box)} {todo.Label}",
+            Value = string.IsNullOrWhiteSpace(todo.Description) ? "_ _" : todo.Description,
+            IsInline = false
+        }).ToArray();
 
-            List<UserTodo> completedTodos = todos.Where(todo => todo.Complete).ToList();
-            if (completedTodos.Count > 0)
-            {
-                container
-                    .WithSeparator(isDivider: false)
-                    .WithTextDisplay($"""
-                                      ### ✅ Completed Tasks
-                                      """)
-                    .WithSeparator(isDivider: false, spacing: SeparatorSpacingSize.Small)
-                    .AddComponents(completedTodos.SelectMany(RenderTodo).ToArray());
-            }
-        }
-        
-        ComponentBuilderV2 builder = new ComponentBuilderV2().WithContainer(container);
-        await RespondOrFollowUpAsync(components: builder.Build(), ephemeral: !postPublicly);
-    }
-
-    private IEnumerable<IMessageComponentBuilder> RenderTodo(UserTodo todo)
-    {
-        return
-        [
-            new SeparatorBuilder(),
-            new TextDisplayBuilder($"""
-                                    - **{todo.Label}**
-                                    {todo.Description}
-                                    """),
-            new SeparatorBuilder(isDivider: false, spacing: SeparatorSpacingSize.Small),
-            new ActionRowBuilder()
-                .WithButton(
-                    todo.Complete ? "Mark as Incomplete" : "Mark as Complete",
-                    $"todo:completeButton_{todo.Id}",
-                    ButtonStyle.Secondary)
-                .WithButton("Remove", $"todo:removeButton_{todo.Id}", ButtonStyle.Danger),
-            new SeparatorBuilder(isDivider: false, spacing: SeparatorSpacingSize.Small)
-        ];
+        IGuildUser? user = Context.User as IGuildUser;
+        await RespondPlainAsync($"{(user is null ? "Your" : user.GetFriendlyName() + "'s")} todo list",
+            ephemeral: !postPublicly,
+            components: builder.Build(),
+            embedFields: fields);
     }
 
     [SlashCommand("complete", "Mark a todo list item as complete")]
