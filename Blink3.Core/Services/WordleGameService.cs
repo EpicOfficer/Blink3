@@ -41,6 +41,23 @@ public class WordleGameService(
         return Result<WordleGuess>.Ok(guess);
     }
 
+    public async Task GenerateStatusImageAsync(Wordle wordle,
+        MemoryStream outStream,
+        BlinkGuild blinkGuild,
+        CancellationToken cancellationToken = default)
+    {
+        WordleGuessImageGeneratorOptions options = new()
+        {
+            BackgroundColour = Color.ParseHex(blinkGuild.BackgroundColour),
+            TextColour = Color.ParseHex(blinkGuild.TextColour),
+            CorrectTileColour = Color.ParseHex(blinkGuild.CorrectTileColour),
+            MisplacedTileColour = Color.ParseHex(blinkGuild.MisplacedTileColour),
+            IncorrectTileColour = Color.ParseHex(blinkGuild.IncorrectTileColour)
+        };
+        
+        await guessImageGenerator.CreateAndSaveStatusImageAsync(wordle, outStream, cancellationToken);
+    }
+
     public async Task GenerateImageAsync(WordleGuess guess, MemoryStream outStream, BlinkGuild blinkGuild,
         CancellationToken cancellationToken = default)
     {

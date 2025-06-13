@@ -20,4 +20,8 @@ public interface IWordleGuessImageGenerator
         WordleGuessImageGeneratorOptions options,
         MemoryStream outStream,
         CancellationToken cancellationToken = default);
+
+    public Task CreateAndSaveStatusImageAsync(Wordle wordle,
+        MemoryStream outStream,
+        CancellationToken cancellationToken = default);
 }

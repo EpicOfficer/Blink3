@@ -170,21 +170,31 @@ public class WordleModule(
         await _unitOfWork.GameStatisticsRepository.UpdateAsync(stats);
         await _unitOfWork.SaveChangesAsync();
 
+        BlinkGuild config = await FetchConfig();
         using MemoryStream image = new();
-        await wordleGameService.GenerateImageAsync(guess, image, await FetchConfig());
+        using MemoryStream statusImage = new();
+        await Task.WhenAll(new[]
+        {
+            wordleGameService.GenerateImageAsync(guess, image, config),
+            wordleGameService.GenerateStatusImageAsync(wordle, statusImage, config)
+        });
         using FileAttachment attachment = new(image, $"{wordle.Id}_{guess.Id}.png");
+        using FileAttachment statusAttachment = new(statusImage, $"{wordle.Id}_status.png");
 
         ContainerBuilder container = new ContainerBuilder()
             .WithAccentColor(embedColor)
             .WithTextDisplay(text)
-            .WithMediaGallery([attachment.GetAttachmentUrl()]);
+            .WithMediaGallery([attachment.GetAttachmentUrl()])
+            .WithMediaGallery([statusAttachment.GetAttachmentUrl()]);
 
         if (wordle.Language == "en")
             container.WithActionRow(new ActionRowBuilder()
                 .WithButton("Define", $"blink-define-word_{guess.Word}"));
         
         ComponentBuilderV2 builder = new ComponentBuilderV2().WithContainer(container);
-        await FollowupWithFileAsync(attachment: attachment, ephemeral: false, components: builder.Build());
+        await FollowupWithFilesAsync(attachments: [attachment, statusAttachment],
+            components: builder.Build(),
+            ephemeral: false);
     }
 
     [SlashCommand("define", "Get the definition of a word")]
