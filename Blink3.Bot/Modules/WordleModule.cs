@@ -189,6 +189,10 @@ public class WordleModule(
                     .WithButton(defineButton)
                     .WithButton(letterButton));
                 break;
+            case "en" when guess.IsCorrect:
+                container.WithActionRow(new ActionRowBuilder()
+                    .WithButton(defineButton));
+                break;
             case "es" when !guess.IsCorrect:
                 container.WithActionRow(new ActionRowBuilder()
                     .WithButton(letterButton));
