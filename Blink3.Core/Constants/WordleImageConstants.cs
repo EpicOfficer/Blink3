@@ -10,6 +10,6 @@ public static class WordleImageConstants
     public static readonly Color MisplacedTileColour = Color.FromRgb(211, 162, 64);
     public static readonly Color IncorrectTileColour = Color.FromRgb(43, 43, 43);
 
-    public static readonly Color KeyUnavailableColour = Color.FromRgb(64, 64, 64); // Dark gray for unavailable
+    public static readonly Color KeyUnavailableColour = Color.FromRgb(50, 50, 50); // Dark gray for unavailable
     public static readonly Color KeyAvailableColour = Color.FromRgb(96, 96, 96); // Subtle lighter gray for available
 }
