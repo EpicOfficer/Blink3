@@ -180,11 +180,21 @@ public class WordleModule(
             .WithTextDisplay(text)
             .WithMediaGallery([attachment.GetAttachmentUrl()]);
 
-        if (wordle.Language == "en")
-            container.WithActionRow(new ActionRowBuilder()
-                .WithButton("Define", $"blink-define-word_{guess.Word}")
-                .WithButton("Show letters", $"blink-wordle-status_{wordle.Id}", ButtonStyle.Secondary));
-
+        ButtonBuilder defineButton = new("Define", $"blink-define-word_{guess.Word}");
+        ButtonBuilder letterButton = new("Show letters", $"blink-wordle-status_{wordle.Id}", ButtonStyle.Secondary);
+        switch (wordle.Language)
+        {
+            case "en" when !guess.IsCorrect:
+                container.WithActionRow(new ActionRowBuilder()
+                    .WithButton(defineButton)
+                    .WithButton(letterButton));
+                break;
+            case "es" when !guess.IsCorrect:
+                container.WithActionRow(new ActionRowBuilder()
+                    .WithButton(letterButton));
+                break;
+        }
+        
         ComponentBuilderV2 builder = new ComponentBuilderV2().WithContainer(container);
         await FollowupWithFileAsync(attachment,
             components: builder.Build(),
