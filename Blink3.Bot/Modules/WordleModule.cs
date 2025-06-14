@@ -172,29 +172,50 @@ public class WordleModule(
 
         BlinkGuild config = await FetchConfig();
         using MemoryStream image = new();
-        using MemoryStream statusImage = new();
-        await Task.WhenAll(new[]
-        {
-            wordleGameService.GenerateImageAsync(guess, image, config),
-            wordleGameService.GenerateStatusImageAsync(wordle, statusImage)
-        });
+        await wordleGameService.GenerateImageAsync(guess, image, config);
         using FileAttachment attachment = new(image, $"{wordle.Id}_{guess.Id}.png");
-        using FileAttachment statusAttachment = new(statusImage, $"{wordle.Id}_status.png");
 
         ContainerBuilder container = new ContainerBuilder()
             .WithAccentColor(embedColor)
             .WithTextDisplay(text)
-            .WithMediaGallery([attachment.GetAttachmentUrl()])
-            .WithMediaGallery([statusAttachment.GetAttachmentUrl()]);
+            .WithMediaGallery([attachment.GetAttachmentUrl()]);
 
         if (wordle.Language == "en")
             container.WithActionRow(new ActionRowBuilder()
-                .WithButton("Define", $"blink-define-word_{guess.Word}"));
+                .WithButton("Define", $"blink-define-word_{guess.Word}")
+                .WithButton("Show letters", $"blink-wordle-status_{wordle.Id}", ButtonStyle.Secondary));
 
         ComponentBuilderV2 builder = new ComponentBuilderV2().WithContainer(container);
-        await FollowupWithFilesAsync([attachment, statusAttachment],
+        await FollowupWithFileAsync(attachment,
             components: builder.Build(),
             ephemeral: false);
+    }
+
+    [ComponentInteraction("blink-wordle-status_*")]
+    public async Task Status(int id)
+    {
+        await DeferAsync();
+        Wordle? wordle = await _unitOfWork.WordleRepository.GetByIdAsync(id);
+        if (wordle is null)
+        {
+            await RespondErrorAsync("Invalid wordle", "This is not the button you are looking for.");
+            return;
+        }
+        
+        using MemoryStream image = new();
+        await wordleGameService.GenerateStatusImageAsync(wordle, image);
+        using FileAttachment attachment = new(image, $"{wordle.Id}_status.png");
+
+        ComponentBuilderV2 builder = new ComponentBuilderV2()
+            .WithContainer(new ContainerBuilder()
+                .WithAccentColor(Colours.Info)
+                .WithTextDisplay("Here are the letters that have been eliminated so far...")
+                .WithMediaGallery([attachment.GetAttachmentUrl()])
+            );
+        
+        await FollowupWithFileAsync(attachment,
+            components: builder.Build(),
+            ephemeral: true);
     }
 
     [SlashCommand("define", "Get the definition of a word")]

@@ -127,7 +127,7 @@ public class WordleGuessImageGenerator : IWordleGuessImageGenerator
             invalidLetters.Add(letter.Letter);
 
         // Calculate image dimensions
-        const int keyboardMargin = MarginSize * 3;
+        const int keyboardMargin = MarginSize * 4;
         int imageWidth = keyboardRows.Max(row => row.Length) * TileSize + 2 * keyboardMargin;
         int imageHeight = keyboardRows.Count * TileSize + 2 * keyboardMargin;
 
