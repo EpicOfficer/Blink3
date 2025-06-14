@@ -4,7 +4,8 @@ namespace Blink3.Core.Helpers;
 
 public class ULongToStringConverter : JsonConverter<ulong>
 {
-    public override ulong ReadJson(JsonReader reader, Type objectType, ulong existingValue, bool hasExistingValue, JsonSerializer serializer)
+    public override ulong ReadJson(JsonReader reader, Type objectType, ulong existingValue, bool hasExistingValue,
+        JsonSerializer serializer)
     {
         return ulong.Parse((string)reader.Value!);
     }

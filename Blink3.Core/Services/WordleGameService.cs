@@ -3,7 +3,6 @@ using Blink3.Core.Extensions;
 using Blink3.Core.Factories;
 using Blink3.Core.Interfaces;
 using Blink3.Core.Models;
-using Blink3.Core.Repositories.Interfaces;
 using Blink3.Core.Services.Generators;
 using SixLabors.ImageSharp;
 
@@ -18,7 +17,8 @@ public class WordleGameService(
 {
     public async Task<bool> IsGameInProgressAsync(ulong channelId, CancellationToken cancellationToken = default)
     {
-        return await unitOfWork.WordleRepository.GetByChannelIdAsync(channelId, cancellationToken).ConfigureAwait(false) is not
+        return await unitOfWork.WordleRepository.GetByChannelIdAsync(channelId, cancellationToken)
+                .ConfigureAwait(false) is not
             null;
     }
 
@@ -43,18 +43,8 @@ public class WordleGameService(
 
     public async Task GenerateStatusImageAsync(Wordle wordle,
         MemoryStream outStream,
-        BlinkGuild blinkGuild,
         CancellationToken cancellationToken = default)
     {
-        WordleGuessImageGeneratorOptions options = new()
-        {
-            BackgroundColour = Color.ParseHex(blinkGuild.BackgroundColour),
-            TextColour = Color.ParseHex(blinkGuild.TextColour),
-            CorrectTileColour = Color.ParseHex(blinkGuild.CorrectTileColour),
-            MisplacedTileColour = Color.ParseHex(blinkGuild.MisplacedTileColour),
-            IncorrectTileColour = Color.ParseHex(blinkGuild.IncorrectTileColour)
-        };
-        
         await guessImageGenerator.CreateAndSaveStatusImageAsync(wordle, outStream, cancellationToken);
     }
 

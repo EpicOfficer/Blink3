@@ -1,7 +1,6 @@
 using Blink3.Bot.MessageStyles.Helpers;
 using Blink3.Core.Entities;
 using Blink3.Core.Interfaces;
-using Blink3.Core.Repositories.Interfaces;
 using Discord;
 using Discord.Interactions;
 
@@ -18,11 +17,14 @@ public class BlinkModuleBase<T>(IUnitOfWork? unitOfWork = null)
     /// <param name="ephemeral">Whether the response should be ephemeral</param>
     /// <param name="components">Optional message components to include</param>
     /// <returns>A task representing the asynchronous operation</returns>
-    protected Task RespondOrFollowUpAsync(Embed? embed = null, bool ephemeral = false, MessageComponent? components = null, AllowedMentions? allowedMentions = null)
+    protected Task RespondOrFollowUpAsync(Embed? embed = null, bool ephemeral = false,
+        MessageComponent? components = null, AllowedMentions? allowedMentions = null)
     {
         return Context.Interaction.HasResponded
-            ? FollowupAsync(embed: embed, ephemeral: ephemeral, components: components, allowedMentions: allowedMentions)
-            : RespondAsync(embed: embed, ephemeral: ephemeral, components: components, allowedMentions: allowedMentions);
+            ? FollowupAsync(embed: embed, ephemeral: ephemeral, components: components,
+                allowedMentions: allowedMentions)
+            : RespondAsync(embed: embed, ephemeral: ephemeral, components: components,
+                allowedMentions: allowedMentions);
     }
 
     /// <summary>

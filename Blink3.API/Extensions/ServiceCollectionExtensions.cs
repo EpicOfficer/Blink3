@@ -34,19 +34,18 @@ public static class ServiceCollectionExtensions
                 options.ClientId = appConfig.Discord.ClientId;
                 options.ClientSecret = appConfig.Discord.ClientSecret;
                 options.CallbackPath = new PathString("/api/auth/callback");
-                
+
                 options.Scope.Add("guilds");
 
                 options.Events.OnCreatingTicket = async context =>
                 {
                     // Add your extra claim for GlobalName here
-                    if (context.User.GetProperty("global_name") is { ValueKind: JsonValueKind.String } globalNameElement &&
+                    if (context.User.GetProperty("global_name") is
+                            { ValueKind: JsonValueKind.String } globalNameElement &&
                         globalNameElement.GetString() is { } globalName &&
                         !string.IsNullOrEmpty(globalName))
-                    {
                         context.Identity?.AddClaim(new Claim(ClaimTypes.GivenName, globalName));
-                    }
-                    
+
                     await SaveTokenAsync(context);
                 };
             });
@@ -56,14 +55,15 @@ public static class ServiceCollectionExtensions
     ///     Saves the access token in the caching service.
     /// </summary>
     /// <param name="context">The OAuthCreatingTicketContext.</param>
-    /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+    /// <returns>A <see cref="Task" /> representing the asynchronous operation.</returns>
     private static async Task SaveTokenAsync(OAuthCreatingTicketContext context)
     {
         ICachingService cachingService = context.HttpContext.RequestServices.GetRequiredService<ICachingService>();
-        IEncryptionService encryptionService = context.HttpContext.RequestServices.GetRequiredService<IEncryptionService>();
-        
+        IEncryptionService encryptionService =
+            context.HttpContext.RequestServices.GetRequiredService<IEncryptionService>();
+
         string? nameIdentifierClaim = context.Identity?.FindFirst(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
-        if (nameIdentifierClaim is not null && context.AccessToken is not null) 
+        if (nameIdentifierClaim is not null && context.AccessToken is not null)
         {
             string encryptedToken = encryptionService.Encrypt(context.AccessToken, out string iv);
             string tokenKey = $"token:{nameIdentifierClaim}";

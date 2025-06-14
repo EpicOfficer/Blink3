@@ -15,7 +15,7 @@ public class EncryptionService : IEncryptionService
 
         _key = Convert.FromBase64String(key);
     }
-    
+
     public string Encrypt(string plainText, out string iv)
     {
         try
@@ -24,9 +24,9 @@ public class EncryptionService : IEncryptionService
             aes.Key = _key;
             aes.GenerateIV();
             iv = Convert.ToBase64String(aes.IV);
-        
+
             ICryptoTransform encryptor = aes.CreateEncryptor(aes.Key, aes.IV);
-        
+
             using MemoryStream memoryStream = new();
             using CryptoStream cryptoStream = new(memoryStream, encryptor, CryptoStreamMode.Write);
             using StreamWriter streamWriter = new(cryptoStream);
@@ -35,7 +35,7 @@ public class EncryptionService : IEncryptionService
                 streamWriter.Flush();
                 cryptoStream.FlushFinalBlock(); // Ensure all data is written
             }
-        
+
             return Convert.ToBase64String(memoryStream.ToArray());
         }
         catch (Exception e)
@@ -50,17 +50,17 @@ public class EncryptionService : IEncryptionService
         {
             byte[] cipherBytes = Convert.FromBase64String(cipherText);
             byte[] ivBytes = Convert.FromBase64String(iv);
-        
+
             using Aes aes = Aes.Create();
             aes.Key = _key;
             aes.IV = ivBytes;
-        
+
             ICryptoTransform decryptor = aes.CreateDecryptor(aes.Key, aes.IV);
-        
+
             using MemoryStream memoryStream = new(cipherBytes);
             using CryptoStream cryptoStream = new(memoryStream, decryptor, CryptoStreamMode.Read);
             using StreamReader streamReader = new(cryptoStream);
-        
+
             return streamReader.ReadToEnd();
         }
         catch (Exception e)

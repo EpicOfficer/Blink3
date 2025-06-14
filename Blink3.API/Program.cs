@@ -24,7 +24,7 @@ try
 
     // Logging
     builder.Host.UseSerilog();
-    
+
     // Problem details
     builder.Services.AddProblemDetails();
 
@@ -50,13 +50,10 @@ try
         client.LoginAsync(TokenType.Bot, appConfig.Discord.BotToken).Wait();
         return client;
     });
-    
+
     // Discord user client
-    builder.Services.AddScoped<Func<DiscordRestClient>>(_ =>
-    {
-        return () => new DiscordRestClient();
-    });
-    
+    builder.Services.AddScoped<Func<DiscordRestClient>>(_ => { return () => new DiscordRestClient(); });
+
     // Add forwarded headers
     builder.Services.Configure<ForwardedHeadersOptions>(options =>
     {
@@ -87,16 +84,16 @@ try
     // For getting discord tokens
     builder.Services.AddHttpClient();
     builder.Services.AddSingleton<IDiscordTokenService, DiscordTokenService>();
-    
+
     // Encryption service
     string? encryptionKey = Environment.GetEnvironmentVariable("ENCRYPTION_KEY");
     builder.Services.AddSingleton<IEncryptionService>(_ => new EncryptionService(encryptionKey));
-    
+
     // Configure Authentication and Discord OAuth
     builder.Services.AddDiscordAuth(appConfig);
 
     WebApplication app = builder.Build();
-    
+
     if (!app.Environment.IsDevelopment())
     {
         app.UseForwardedHeaders();
@@ -114,7 +111,7 @@ try
     app.UseCors("CorsPolicy");
 
     app.UseSession();
-    
+
     // Add authentication / authorization middleware
     app.UseAuthentication();
     app.UseAuthorization();

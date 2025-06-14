@@ -44,17 +44,28 @@ public interface IWordleGameService
     /// <summary>
     ///     Generates an image for the provided WordleGuess object.
     /// </summary>
-    /// <param name="guess">The WordleGuess object for which to generate an image.</param>
-    /// <param name="outStream">The output MemoryStream where the generated image will be written to.</param>
+    /// <param name="guess">The WordleGuess object for which the image will be generated.</param>
+    /// <param name="outStream">The MemoryStream where the generated image will be written.</param>
+    /// <param name="blinkGuild">The BlinkGuild instance associated with the wordle game.</param>
     /// <param name="cancellationToken">The cancellation token used to cancel the asynchronous operation.</param>
-    /// <returns>A Task representing the asynchronous operation.</returns>
+    /// <returns>
+    ///     A <see cref="Task" /> representing the asynchronous operation.
+    /// </returns>
     public Task GenerateImageAsync(WordleGuess guess,
         MemoryStream outStream,
         BlinkGuild blinkGuild,
         CancellationToken cancellationToken = default);
-    
+
+    /// <summary>
+    ///     Generates a keyboard for the current state of a Wordle game.
+    /// </summary>
+    /// <param name="wordle">The Wordle game object representing the current game state.</param>
+    /// <param name="outStream">The memory stream where the generated image will be written.</param>
+    /// <param name="cancellationToken">The cancellation token to monitor for cancellation requests.</param>
+    /// <returns>
+    ///     A <see cref="Task" /> representing the asynchronous operation.
+    /// </returns>
     public Task GenerateStatusImageAsync(Wordle wordle,
         MemoryStream outStream,
-        BlinkGuild blinkGuild,
         CancellationToken cancellationToken = default);
 }

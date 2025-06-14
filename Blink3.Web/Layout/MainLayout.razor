@@ -4,10 +4,11 @@
 @inject HttpClient Client;
 @inject AuthenticationStateProvider AuthStateProvider;
 
-<BlazorBootstrapLayout StickyHeader="true" FooterSectionCssClass="mt-auto bg-body-tertiary" ContentSectionCssClass="flex-shrink-0">
+<BlazorBootstrapLayout StickyHeader="true" FooterSectionCssClass="mt-auto bg-body-tertiary"
+                       ContentSectionCssClass="flex-shrink-0">
     <HeaderSection>
         <LoginDisplay/>
-        <ThemeSwitcher Class="ps-3 ps-lg-2" Position="DropdownMenuPosition.End" />
+        <ThemeSwitcher Class="ps-3 ps-lg-2" Position="DropdownMenuPosition.End"/>
     </HeaderSection>
 
     <SidebarSection>
@@ -34,8 +35,8 @@
     </FooterSection>
 </BlazorBootstrapLayout>
 
-<Toasts class="p-3" AutoHide="true" Delay="4000" Placement="ToastsPlacement.TopCenter" />
-<Preload LoadingText="Loading..." />
+<Toasts class="p-3" AutoHide="true" Delay="4000" Placement="ToastsPlacement.TopCenter"/>
+<Preload LoadingText="Loading..."/>
 
 @* ReSharper disable InconsistentNaming *@
 
@@ -81,7 +82,7 @@
         ClaimsPrincipal user = authState.User;
 
         if (user.Identity?.IsAuthenticated is not true) return _navItems;
-        
+
         _navItems.Add(new NavItem
         {
             Id = "2",
@@ -89,11 +90,11 @@
             IconName = IconName.PencilFill,
             Text = "Todo list"
         });
-        
+
         IEnumerable<DiscordPartialGuild>? guilds = await Client.GetFromJsonAsync<IEnumerable<DiscordPartialGuild>>("api/guilds");
 
         if (guilds == null) return _navItems;
-        
+
         foreach (DiscordPartialGuild guild in guilds)
         {
             _navItems.Add(new NavItem

@@ -2,7 +2,6 @@ using System.Net.Mime;
 using AspNet.Security.OAuth.Discord;
 using Blink3.API.Interfaces;
 using Blink3.API.Models;
-using Blink3.Core.Caching;
 using Blink3.Core.DiscordAuth;
 using Blink3.Core.DiscordAuth.Extensions;
 using Microsoft.AspNetCore.Authentication;

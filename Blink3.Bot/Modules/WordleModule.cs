@@ -6,7 +6,6 @@ using Blink3.Core.Enums;
 using Blink3.Core.Extensions;
 using Blink3.Core.Interfaces;
 using Blink3.Core.Models;
-using Blink3.Core.Repositories.Interfaces;
 using Discord;
 using Discord.Interactions;
 
@@ -20,12 +19,13 @@ public class WordleModule(
     IWordsClientService wordsClientService) : BlinkModuleBase<IInteractionContext>(unitOfWork)
 {
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
-    
+
     private ulong GameId => Context.Interaction.ChannelId ?? Context.User.Id;
 
     private async Task<GameStatistics> UpdateStatsAsync(ulong userId)
     {
-        GameStatistics stats = await _unitOfWork.GameStatisticsRepository.GetOrCreateGameStatistics(userId, GameType.Wordle);
+        GameStatistics stats =
+            await _unitOfWork.GameStatisticsRepository.GetOrCreateGameStatistics(userId, GameType.Wordle);
         DateTime time = DateTime.UtcNow;
 
         // If the last activity is on the same date, no need to update the streak
@@ -80,10 +80,10 @@ public class WordleModule(
         ComponentBuilderV2 builder = new ComponentBuilderV2()
             .WithContainer(new ContainerBuilder()
                 .WithAccentColor(Colours.Success)
-                .WithTextDisplay($"""
-                                  ## Wordle Started
-                                  A new Wordle game has started! Use `/guess` to make your guesses.
-                                  """)
+                .WithTextDisplay("""
+                                 ## Wordle Started
+                                 A new Wordle game has started! Use `/guess` to make your guesses.
+                                 """)
                 .WithSeparator(isDivider: false)
                 .WithTextDisplay($"""
                                   ### 🌐 Game Details
@@ -92,7 +92,7 @@ public class WordleModule(
                                   """)
                 .WithSeparator(isDivider: false)
                 .WithTextDisplay("***Good luck, and have fun!***"));
-        
+
         await RespondOrFollowUpAsync(components: builder.Build(), allowedMentions: AllowedMentions.None);
     }
 
@@ -130,7 +130,7 @@ public class WordleModule(
         WordleGuess guess = guessResult.SafeValue();
         string text = string.Empty;
         Color embedColor = Colours.Info;
-        
+
         if (guess.IsCorrect)
         {
             stats.GamesWon++;
@@ -140,14 +140,14 @@ public class WordleModule(
             stats.Points += pointsToAdd;
 
             text = $"""
-                     🎉 **Congratulations, <@{stats.BlinkUserId}>!** You solved the Wordle in **{wordle.TotalAttempts} attempt{(wordle.TotalAttempts == 1 ? "" : "s")}**!  
-                     You've earned **{pointsToAdd} point{(pointsToAdd == 1 ? "" : "s")}**, and now have a total of **{stats.Points}** point{(stats.Points == 1 ? "" : "s")}.
-                     """;
+                    🎉 **Congratulations, <@{stats.BlinkUserId}>!** You solved the Wordle in **{wordle.TotalAttempts} attempt{(wordle.TotalAttempts == 1 ? "" : "s")}**!  
+                    You've earned **{pointsToAdd} point{(pointsToAdd == 1 ? "" : "s")}**, and now have a total of **{stats.Points}** point{(stats.Points == 1 ? "" : "s")}.
+                    """;
             embedColor = Colours.Success;
 
             HashSet<GameStatistics> playerStatsList =
                 await _unitOfWork.WordleRepository.GetOtherParticipantStatsAsync(wordle, Context.User.Id);
-            
+
             // Update stats for other players who participated
             foreach (GameStatistics playerStats in playerStatsList)
             {
@@ -160,11 +160,11 @@ public class WordleModule(
         else
         {
             await _unitOfWork.WordleRepository.UpdateAsync(wordle);
-            
+
             text = $"""
-                     ⚠️ **Not quite!** Keep trying, you’ve got this!  
-                     You've used **{wordle.TotalAttempts} attempt{(wordle.TotalAttempts == 1 ? "" : "s")}** so far.
-                     """;
+                    ⚠️ **Not quite!** Keep trying, you’ve got this!  
+                    You've used **{wordle.TotalAttempts} attempt{(wordle.TotalAttempts == 1 ? "" : "s")}** so far.
+                    """;
         }
 
         await _unitOfWork.GameStatisticsRepository.UpdateAsync(stats);
@@ -176,7 +176,7 @@ public class WordleModule(
         await Task.WhenAll(new[]
         {
             wordleGameService.GenerateImageAsync(guess, image, config),
-            wordleGameService.GenerateStatusImageAsync(wordle, statusImage, config)
+            wordleGameService.GenerateStatusImageAsync(wordle, statusImage)
         });
         using FileAttachment attachment = new(image, $"{wordle.Id}_{guess.Id}.png");
         using FileAttachment statusAttachment = new(statusImage, $"{wordle.Id}_status.png");
@@ -190,9 +190,9 @@ public class WordleModule(
         if (wordle.Language == "en")
             container.WithActionRow(new ActionRowBuilder()
                 .WithButton("Define", $"blink-define-word_{guess.Word}"));
-        
+
         ComponentBuilderV2 builder = new ComponentBuilderV2().WithContainer(container);
-        await FollowupWithFilesAsync(attachments: [attachment, statusAttachment],
+        await FollowupWithFilesAsync([attachment, statusAttachment],
             components: builder.Build(),
             ephemeral: false);
     }
@@ -212,16 +212,16 @@ public class WordleModule(
             await RespondErrorAsync(word.ToTitleCase(), "An error occured fetching word definition");
             return;
         }
-        
+
         ContainerBuilder container = new ContainerBuilder()
             .WithAccentColor(Colours.Info)
             .WithTextDisplay($"## Definition of {word.ToTitleCase()}");
-        
+
         IMessageComponentBuilder[]? definitions = details?.Definitions
             .GroupBy(wd => wd.PartOfSpeech)
             .SelectMany(g => new IMessageComponentBuilder[]
             {
-                new SeparatorBuilder(isDivider: false),
+                new SeparatorBuilder(false),
                 new TextDisplayBuilder($"""
                                         ### {g.Key.ToTitleCase()}
                                         {string.Join("\n", g.Select(v => $"- {v.Definition.ToSentenceCase()}"))}
@@ -230,16 +230,13 @@ public class WordleModule(
             .ToArray();
 
         if (definitions?.Length > 0)
-        {
             container.AddComponents(definitions);
-        }
         else
-        {
             container.WithTextDisplay("No definitions found");
-        }
-        
+
         ComponentBuilderV2 builder = new ComponentBuilderV2().WithContainer(container);
-        await RespondOrFollowUpAsync(components: builder.Build(), allowedMentions: AllowedMentions.None, ephemeral: true);
+        await RespondOrFollowUpAsync(components: builder.Build(), allowedMentions: AllowedMentions.None,
+            ephemeral: true);
     }
 
     [SlashCommand("statistics", "View game statistics")]
@@ -307,16 +304,18 @@ public class WordleModule(
                                   - **Streak Expires**: {streakExpires?.ToString() ?? "N/A"}
                                   """));
 
-        await RespondOrFollowUpAsync(components: builder.Build(), allowedMentions: new AllowedMentions(AllowedMentionTypes.Users));
+        await RespondOrFollowUpAsync(components: builder.Build(),
+            allowedMentions: new AllowedMentions(AllowedMentionTypes.Users));
     }
-    
+
     [SlashCommand("leaderboard", "Display points leaderboard")]
     public async Task Leaderboard()
     {
         await DeferAsync();
-        
-        IEnumerable<GameStatistics> leaderboard = await _unitOfWork.GameStatisticsRepository.GetLeaderboardAsync(GameType.Wordle);
-        
+
+        IEnumerable<GameStatistics> leaderboard =
+            await _unitOfWork.GameStatisticsRepository.GetLeaderboardAsync(GameType.Wordle);
+
         ContainerBuilder? containerBuilder = new ContainerBuilder()
             .WithAccentColor(Colours.Info)
             .WithTextDisplay("""
@@ -346,7 +345,7 @@ public class WordleModule(
         }
 
         containerBuilder.WithSeparator();
-        
+
         foreach (GameStatistics stats in leaderboard.Skip(3))
         {
             containerBuilder.WithTextDisplay($"""
@@ -355,9 +354,9 @@ public class WordleModule(
                                               """);
             i++;
         }
-        
+
         ComponentBuilderV2 builder = new ComponentBuilderV2().WithContainer(containerBuilder);
-        
+
         await RespondOrFollowUpAsync(components: builder.Build(), allowedMentions: AllowedMentions.None);
     }
 }

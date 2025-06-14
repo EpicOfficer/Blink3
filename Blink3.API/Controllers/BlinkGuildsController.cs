@@ -3,7 +3,6 @@ using Blink3.Core.Caching;
 using Blink3.Core.Entities;
 using Blink3.Core.Interfaces;
 using Blink3.Core.Models;
-using Blink3.Core.Repositories.Interfaces;
 using Discord.Rest;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
@@ -15,7 +14,8 @@ namespace Blink3.API.Controllers;
 ///     Controller for performing CRUD operations on BlinkGuild items.
 /// </summary>
 [SwaggerTag("All CRUD operations for BlinkGuild items")]
-public class BlinkGuildsController(DiscordRestClient botClient,
+public class BlinkGuildsController(
+    DiscordRestClient botClient,
     Func<DiscordRestClient> userClientFactory,
     ICachingService cachingService,
     IEncryptionService encryptionService,
@@ -37,7 +37,8 @@ public class BlinkGuildsController(DiscordRestClient botClient,
     public async Task<ActionResult<IEnumerable<BlinkGuild>>> GetAllBlinkGuilds(CancellationToken cancellationToken)
     {
         List<DiscordPartialGuild> guilds = await GetUserGuilds();
-        IReadOnlyCollection<BlinkGuild> blinkGuilds = await unitOfWork.BlinkGuildRepository.FindByIdsAsync(guilds.Select(g => g.Id).ToHashSet());
+        IReadOnlyCollection<BlinkGuild> blinkGuilds =
+            await unitOfWork.BlinkGuildRepository.FindByIdsAsync(guilds.Select(g => g.Id).ToHashSet());
         return Ok(blinkGuilds);
     }
 
@@ -58,7 +59,7 @@ public class BlinkGuildsController(DiscordRestClient botClient,
     {
         ObjectResult? accessCheckResult = await CheckGuildAccessAsync(id);
         if (accessCheckResult is not null) return accessCheckResult;
-        
+
         BlinkGuild blinkGuild = await unitOfWork.BlinkGuildRepository.GetOrCreateByIdAsync(id);
         return Ok(blinkGuild);
     }
@@ -89,7 +90,7 @@ public class BlinkGuildsController(DiscordRestClient botClient,
         blinkGuild.Id = id;
         await unitOfWork.BlinkGuildRepository.UpdateAsync(blinkGuild, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
-        
+
         return NoContent();
     }
 
@@ -98,7 +99,7 @@ public class BlinkGuildsController(DiscordRestClient botClient,
     ///     Updates the content of a specific BlinkGuild item partially.
     /// </summary>
     /// <param name="id">The ID of the BlinkGuild item to patch.</param>
-    /// <param name="patchDoc">The <see cref="JsonPatchDocument{T}"/> containing the partial update.</param>
+    /// <param name="patchDoc">The <see cref="JsonPatchDocument{T}" /> containing the partial update.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>Returns 204 (No content) if the patch is successful.</returns>
     [HttpPatch("{id}")]
@@ -116,17 +117,11 @@ public class BlinkGuildsController(DiscordRestClient botClient,
         if (accessCheckResult is not null) return accessCheckResult;
 
         BlinkGuild? blinkGuild = await unitOfWork.BlinkGuildRepository.GetByIdAsync(id);
-        if (blinkGuild is null)
-        {
-            return NotFound();
-        }
+        if (blinkGuild is null) return NotFound();
         patchDoc.ApplyTo(blinkGuild);
-        
-        if (!TryValidateModel(blinkGuild))
-        {
-            return BadRequest(ModelState);
-        }
-        
+
+        if (!TryValidateModel(blinkGuild)) return BadRequest(ModelState);
+
         await unitOfWork.BlinkGuildRepository.UpdateAsync(blinkGuild, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
         return NoContent();

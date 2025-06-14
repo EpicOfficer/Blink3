@@ -1,7 +1,7 @@
 name: Publish Docker images
 on:
   release:
-    types: [created]
+    types: [ created ]
 
 env:
   REGISTRY: ghcr.io

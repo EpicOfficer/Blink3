@@ -43,7 +43,7 @@ public class Wordle
     ///     Represents the players in the Wordle game.
     /// </summary>
     public ICollection<ulong> Players { get; set; } = [];
-    
+
     /// <summary>
     ///     The total number of guesses in this wordle game.
     /// </summary>

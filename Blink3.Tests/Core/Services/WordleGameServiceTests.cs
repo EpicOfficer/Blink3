@@ -115,7 +115,8 @@ public class WordleGameServiceTests
 
         // Setup mocks to not do anything when AddGuessAsync is called
         _unitOfWorkMock
-            .Setup(x => x.WordleRepository.AddGuessAsync(It.IsAny<Wordle>(), It.IsAny<WordleGuess>(), It.IsAny<CancellationToken>()))
+            .Setup(x => x.WordleRepository.AddGuessAsync(It.IsAny<Wordle>(), It.IsAny<WordleGuess>(),
+                It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
         // Call the method under test

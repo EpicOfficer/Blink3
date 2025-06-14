@@ -5,17 +5,15 @@ namespace Blink3.Core.Entities;
 
 public class GameStatistics
 {
-    [Required]
-    [Key]
-    public int Id { get; set; }
-    
+    [Required] [Key] public int Id { get; set; }
+
     public ulong BlinkUserId { get; set; } // FK to BlinkUser
     public BlinkUser BlinkUser { get; set; } = null!;
-    
+
     public GameType Type { get; set; }
-    
+
     public int Points { get; set; }
-    
+
     public int GamesPlayed { get; set; }
     public int GamesWon { get; set; }
     public int CurrentStreak { get; set; }

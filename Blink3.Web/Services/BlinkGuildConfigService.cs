@@ -20,11 +20,11 @@ public class BlinkGuildConfigService(HttpClient httpClient) : IBlinkGuildConfigS
     {
         if (string.IsNullOrWhiteSpace(id)) return false;
         HttpMethod method = new("PATCH");
-        
+
         JsonSerializerSettings options = new();
         options.Converters.Add(new ULongToStringConverter());
         options.Converters.Add(new NullableULongToStringConverter());
-        
+
         HttpRequestMessage request = new(method, $"api/BlinkGuilds/{id}")
         {
             Content = new StringContent(JsonConvert.SerializeObject(patchDocument, options),

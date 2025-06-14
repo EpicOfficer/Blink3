@@ -9,12 +9,12 @@ public class UnitOfWork(BlinkDbContext context, ICachingService cache) : IUnitOf
     // Private fields for repositories
     private IBlinkGuildRepository? _blinkGuildRepository;
     private IBlinkUserRepository? _blinkUserRepository;
+    private IGameStatisticsRepository? _gameStatisticsRepository;
     private ITempVcRepository? _tempVcRepository;
+    private IUserTodoRepository? _userTodoRepository;
     private IWordleRepository? _wordleRepository;
     private IWordRepository? _wordRepository;
-    private IUserTodoRepository? _userTodoRepository;
-    private IGameStatisticsRepository? _gameStatisticsRepository;
-    
+
     public IBlinkGuildRepository BlinkGuildRepository =>
         _blinkGuildRepository ??= new BlinkGuildRepository(context, cache);
 

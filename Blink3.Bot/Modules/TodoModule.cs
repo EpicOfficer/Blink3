@@ -5,7 +5,6 @@ using Blink3.Bot.MessageStyles;
 using Blink3.Bot.Modals;
 using Blink3.Core.Entities;
 using Blink3.Core.Interfaces;
-using Blink3.Core.Repositories.Interfaces;
 using Discord;
 using Discord.Interactions;
 
@@ -20,7 +19,7 @@ namespace Blink3.Bot.Modules;
 public class TodoModule(IUnitOfWork unitOfWork) : BlinkModuleBase<IInteractionContext>(unitOfWork)
 {
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
-    
+
     [ComponentInteraction("todo:addButton", true)]
     public async Task AddButton()
     {

@@ -9,8 +9,8 @@ public class DiscordAttachmentService(HttpClient httpClient) : IDiscordAttachmen
 {
     public async Task<IDisposableCollection<FileAttachment>> DownloadAsync(IMessage message, bool? spoiler = null)
     {
-        IEnumerable<Task<FileAttachment>> downloadTasks = message.Attachments.Select(
-            async attachment => await CreateFileAttachmentFromUrlAsync(attachment, spoiler));
+        IEnumerable<Task<FileAttachment>> downloadTasks = message.Attachments.Select(async attachment =>
+            await CreateFileAttachmentFromUrlAsync(attachment, spoiler));
         FileAttachment[] attachments = await Task.WhenAll(downloadTasks);
         return new DisposableCollection<FileAttachment>(attachments);
     }

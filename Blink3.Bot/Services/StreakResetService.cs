@@ -1,7 +1,6 @@
 using Blink3.Core.Entities;
 using Blink3.Core.Extensions;
 using Blink3.Core.Interfaces;
-using Blink3.Core.Repositories.Interfaces;
 using Discord.Addons.Hosting;
 using Discord.Addons.Hosting.Util;
 using Discord.WebSocket;
@@ -16,9 +15,9 @@ public class StreakResetService(
     IServiceScopeFactory scopeFactory)
     : DiscordClientService(client, logger)
 {
-    private readonly ILogger<DiscordClientService> _logger = logger;
     private const int DaysInactiveThreshold = 2; // Threshold for inactivity in days
     private const int TimerInterval = 6; // Interval in hours for the timer to execute
+    private readonly ILogger<DiscordClientService> _logger = logger;
     private Timer? _timer;
 
     /// <summary>

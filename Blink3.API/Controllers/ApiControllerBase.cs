@@ -23,13 +23,12 @@ namespace Blink3.API.Controllers;
 [Route("api/[controller]")]
 [ApiController]
 [Authorize]
-public abstract class ApiControllerBase(DiscordRestClient botClient,
+public abstract class ApiControllerBase(
+    DiscordRestClient botClient,
     Func<DiscordRestClient> userClientFactory,
     ICachingService cachingService,
     IEncryptionService encryptionService) : ControllerBase
 {
-    private readonly DiscordRestClient _userClient = userClientFactory();
-    
     /// <summary>
     ///     Represents an Unauthorized Access message.
     /// </summary>
@@ -39,6 +38,8 @@ public abstract class ApiControllerBase(DiscordRestClient botClient,
     ///     The message displayed when an item could not be found.
     /// </summary>
     private const string NotFoundAccessMessage = "Could not find an item with that ID";
+
+    private readonly DiscordRestClient _userClient = userClientFactory();
 
     /// <summary>
     ///     Represents the user ID of the logged-in user.
@@ -103,15 +104,14 @@ public abstract class ApiControllerBase(DiscordRestClient botClient,
     protected async Task<List<DiscordPartialGuild>> GetUserGuilds()
     {
         await AuthenticateUserClientAsync();
-        
+
         List<DiscordPartialGuild> managedGuilds = await cachingService.GetOrAddAsync($"discord:guilds:{UserId}",
             async () =>
             {
                 List<DiscordPartialGuild> manageable = [];
-                
+
                 IAsyncEnumerable<IReadOnlyCollection<RestUserGuild>> guilds = _userClient.GetGuildSummariesAsync();
                 await foreach (IReadOnlyCollection<RestUserGuild> guildCollection in guilds)
-                {
                     manageable.AddRange(guildCollection.Where(g => g.Permissions.ManageGuild).Select(g =>
                         new DiscordPartialGuild
                         {
@@ -119,7 +119,6 @@ public abstract class ApiControllerBase(DiscordRestClient botClient,
                             Name = g.Name,
                             IconUrl = g.IconUrl
                         }));
-                }
 
                 return manageable;
             }, TimeSpan.FromMinutes(5));
@@ -130,20 +129,21 @@ public abstract class ApiControllerBase(DiscordRestClient botClient,
             .ToListAsync();
         return managedGuilds.Where(g => discordGuildIds.Contains(g.Id)).ToList();
     }
-    
+
     /// <summary>
     ///     Checks if the user has access to the specified guild.
     /// </summary>
     /// <param name="guildId">The ID of the guild to check access for.</param>
     /// <returns>
-    /// Returns an <see cref="ObjectResult"/> representing a problem response if the user doesn't have access, or null if the user has access.
+    ///     Returns an <see cref="ObjectResult" /> representing a problem response if the user doesn't have access, or null if
+    ///     the user has access.
     /// </returns>
     protected async Task<ObjectResult?> CheckGuildAccessAsync(ulong guildId)
     {
         List<DiscordPartialGuild> guilds = await GetUserGuilds();
         return guilds.Any(g => g.Id == guildId) ? null : ProblemForUnauthorizedAccess();
     }
-    
+
     ~ApiControllerBase()
     {
         _userClient.LogoutAsync().Wait();

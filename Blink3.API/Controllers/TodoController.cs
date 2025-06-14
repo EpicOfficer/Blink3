@@ -3,7 +3,6 @@ using Blink3.Core.Caching;
 using Blink3.Core.DTOs;
 using Blink3.Core.Entities;
 using Blink3.Core.Interfaces;
-using Blink3.Core.Repositories.Interfaces;
 using Discord.Rest;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
@@ -14,7 +13,8 @@ namespace Blink3.API.Controllers;
 ///     Controller for performing CRUD operations on userTodo items.
 /// </summary>
 [SwaggerTag("All CRUD operations for todo items")]
-public class TodoController(DiscordRestClient botClient,
+public class TodoController(
+    DiscordRestClient botClient,
     Func<DiscordRestClient> userClientFactory,
     ICachingService cachingService,
     IEncryptionService encryptionService,
@@ -35,7 +35,8 @@ public class TodoController(DiscordRestClient botClient,
     [SwaggerResponse(StatusCodes.Status200OK, "Success", typeof(IEnumerable<UserTodo>))]
     public async Task<ActionResult<IEnumerable<UserTodo>>> GetAllTodos(CancellationToken cancellationToken)
     {
-        IReadOnlyCollection<UserTodo> todos = await unitOfWork.UserTodoRepository.GetByUserIdAsync(UserId, cancellationToken);
+        IReadOnlyCollection<UserTodo> todos =
+            await unitOfWork.UserTodoRepository.GetByUserIdAsync(UserId, cancellationToken);
         return Ok(todos);
     }
 
@@ -76,7 +77,8 @@ public class TodoController(DiscordRestClient botClient,
     public async Task<ActionResult<UserTodo>> CreateTodo([FromBody] UserTodoDto userTodoDto,
         CancellationToken cancellationToken)
     {
-        UserTodo createdTodo = await unitOfWork.UserTodoRepository.AddAsync(userTodoDto.ToEntity(UserId), cancellationToken);
+        UserTodo createdTodo =
+            await unitOfWork.UserTodoRepository.AddAsync(userTodoDto.ToEntity(UserId), cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
         return CreatedAtAction(nameof(GetTodo), new { id = createdTodo.Id }, createdTodo);

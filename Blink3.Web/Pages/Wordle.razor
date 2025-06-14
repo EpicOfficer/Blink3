@@ -1,7 +1,7 @@
 @page "/guilds/{GuildId}/Wordle"
 @using Blink3.Core.Entities
-@using Microsoft.AspNetCore.JsonPatch
 @using Blink3.Web.Interfaces
+@using Microsoft.AspNetCore.JsonPatch
 @inject IBlinkGuildConfigService BlinkGuildConfig;
 
 <PageTitle>Wordle settings</PageTitle>
@@ -15,27 +15,32 @@
 
         <div class="mb-3">
             <label for="bgColour" class="form-label">Background colour</label>
-            <input id="bgColour" class="form-control form-control-color" type="color" @bind-value="_blinkGuild.BackgroundColour"/>
+            <input id="bgColour" class="form-control form-control-color" type="color"
+                   @bind-value="_blinkGuild.BackgroundColour"/>
         </div>
 
         <div class="mb-3">
             <label for="textColour" class="form-label">Text colour</label>
-            <input id="textColour" class="form-control form-control-color" type="color" @bind-value="_blinkGuild.TextColour"/>
+            <input id="textColour" class="form-control form-control-color" type="color"
+                   @bind-value="_blinkGuild.TextColour"/>
         </div>
 
         <div class="mb-3">
             <label for="correctColour" class="form-label">Correct colour</label>
-            <input id="correctColour" class="form-control form-control-color" type="color" @bind-value="_blinkGuild.CorrectTileColour"/>
+            <input id="correctColour" class="form-control form-control-color" type="color"
+                   @bind-value="_blinkGuild.CorrectTileColour"/>
         </div>
 
         <div class="mb-3">
             <label for="misplacedColour" class="form-label">Misplaced colour</label>
-            <input id="misplacedColour" class="form-control form-control-color" type="color" @bind-value="_blinkGuild.MisplacedTileColour"/>
+            <input id="misplacedColour" class="form-control form-control-color" type="color"
+                   @bind-value="_blinkGuild.MisplacedTileColour"/>
         </div>
 
         <div class="mb-3">
             <label for="incorrectColour" class="form-label">Incorrect colour</label>
-            <input id="incorrectColour" class="form-control form-control-color" type="color" @bind-value="_blinkGuild.IncorrectTileColour"/>
+            <input id="incorrectColour" class="form-control form-control-color" type="color"
+                   @bind-value="_blinkGuild.IncorrectTileColour"/>
         </div>
 
         <div class="d-flex">
@@ -81,7 +86,7 @@
             IncorrectTileColour = _blinkGuild.IncorrectTileColour
         };
     }
-    
+
     private async Task HandleValidSubmit()
     {
         JsonPatchDocument<BlinkGuild> patchDocument = new();
@@ -100,7 +105,7 @@
 
         if (_initialGuild?.IncorrectTileColour != _blinkGuild?.IncorrectTileColour)
             patchDocument.Replace(x => x.IncorrectTileColour, _blinkGuild?.IncorrectTileColour);
-        
+
         PreloadService.Show();
         if (await BlinkGuildConfig.PatchAsync(GuildId, patchDocument))
         {
@@ -111,6 +116,7 @@
         {
             ToastService.Notify(new ToastMessage(ToastType.Danger, "An error occurred while attempting to save changes."));
         }
+
         PreloadService.Hide();
     }
 
@@ -121,7 +127,7 @@
             "This will reset all wordle colours to the defaults and cannot be undone.");
 
         if (!confirmation) return;
-        
+
         JsonPatchDocument<BlinkGuild> patchDocument = new();
 
         patchDocument.Replace(b => b.BackgroundColour, string.Empty);
@@ -129,7 +135,7 @@
         patchDocument.Replace(b => b.CorrectTileColour, string.Empty);
         patchDocument.Replace(b => b.MisplacedTileColour, string.Empty);
         patchDocument.Replace(b => b.IncorrectTileColour, string.Empty);
-        
+
         PreloadService.Show();
         if (await BlinkGuildConfig.PatchAsync(GuildId, patchDocument))
         {
@@ -140,6 +146,8 @@
         {
             ToastService.Notify(new ToastMessage(ToastType.Danger, "Unable to save changes."));
         }
+
         PreloadService.Hide();
     }
+
 }

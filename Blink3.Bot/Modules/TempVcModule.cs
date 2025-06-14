@@ -1,7 +1,6 @@
 using Blink3.Bot.Extensions;
 using Blink3.Core.Entities;
 using Blink3.Core.Interfaces;
-using Blink3.Core.Repositories.Interfaces;
 using Discord;
 using Discord.Interactions;
 using Microsoft.Extensions.Logging;
@@ -18,8 +17,8 @@ public class TempVcModule(
     ILogger<TempVcModule> logger)
     : BlinkModuleBase<IInteractionContext>(unitOfWork)
 {
-    private readonly IUnitOfWork _unitOfWork = unitOfWork;
     private const string CamOnlyIcon = "\ud83d\udcf7";
+    private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
     [SlashCommand("create", "Create")]
     public async Task Create(string? name = null)
@@ -108,7 +107,7 @@ public class TempVcModule(
 
         await _unitOfWork.TempVcRepository.UpdatePropertiesAsync(tempVc, vc => vc.CamOnly = !vc.CamOnly);
         await _unitOfWork.SaveChangesAsync();
-        
+
         try
         {
             switch (tempVc.CamOnly)

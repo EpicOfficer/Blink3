@@ -120,19 +120,16 @@ public class WordleGuessImageGenerator : IWordleGuessImageGenerator
             "asdfghjkl",
             "zxcvbnm"
         ];
-        
+
         HashSet<char> invalidLetters = [];
         foreach (WordleGuess guess in wordle.Guesses)
-        {
-            foreach (WordleLetter letter in guess.Letters.Where(letter => letter.State == WordleLetterStateEnum.Incorrect))
-            {
-                invalidLetters.Add(letter.Letter);
-            }
-        }
-        
+        foreach (WordleLetter letter in guess.Letters.Where(letter => letter.State == WordleLetterStateEnum.Incorrect))
+            invalidLetters.Add(letter.Letter);
+
         // Calculate image dimensions
-        int imageWidth = keyboardRows.Max(row => row.Length) * TileSize + 2 * MarginSize;
-        int imageHeight = keyboardRows.Count * TileSize + 2 * MarginSize;
+        const int keyboardMargin = MarginSize * 3;
+        int imageWidth = keyboardRows.Max(row => row.Length) * TileSize + 2 * keyboardMargin;
+        int imageHeight = keyboardRows.Count * TileSize + 2 * keyboardMargin;
 
         using Image<Rgba32> image = new(imageWidth, imageHeight);
         TextOptions textOptions = new(_font)
@@ -157,7 +154,7 @@ public class WordleGuessImageGenerator : IWordleGuessImageGenerator
                 {
                     // Calculate the X and Y positions for the tile
                     int tileX = startX + colIndex * TileSize;
-                    int tileY = rowIndex * TileSize + MarginSize;
+                    int tileY = rowIndex * TileSize + keyboardMargin;
                     char letter = row[colIndex];
 
                     // Determine the tile color:
@@ -175,7 +172,7 @@ public class WordleGuessImageGenerator : IWordleGuessImageGenerator
 
         await image.SaveAsync(outStream, new PngEncoder(), cancellationToken).ConfigureAwait(false);
     }
-    
+
     private void DrawKeyboardTile(IImageProcessingContext im,
         char letter,
         int x,
@@ -195,7 +192,7 @@ public class WordleGuessImageGenerator : IWordleGuessImageGenerator
         // Draw the letter inside the tile
         im.DrawText(text, _font, WordleImageConstants.TextColour, new PointF(textX, textY));
     }
-    
+
     /// <summary>
     ///     Creates and saves an image representing a Wordle guess asynchronously.
     /// </summary>

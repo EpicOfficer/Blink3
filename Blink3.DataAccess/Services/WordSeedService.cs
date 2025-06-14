@@ -2,7 +2,6 @@ using Blink3.Core.Configuration;
 using Blink3.Core.Entities;
 using Blink3.Core.Interfaces;
 using Blink3.Core.Models;
-using Blink3.Core.Repositories.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -26,7 +25,8 @@ public class WordSeedService(
         using IServiceScope scope = scopeFactory.CreateScope();
         IUnitOfWork unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
 
-        Dictionary<WordKey, Word> existingWords = await unitOfWork.WordRepository.GetAllAsync(cancellationToken).ConfigureAwait(false);
+        Dictionary<WordKey, Word> existingWords =
+            await unitOfWork.WordRepository.GetAllAsync(cancellationToken).ConfigureAwait(false);
         logger.LogInformation("Got {count} existing words from database", existingWords.Count);
 
         List<Word> newWords = [];

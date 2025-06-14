@@ -8,7 +8,8 @@ using Swashbuckle.AspNetCore.Annotations;
 namespace Blink3.API.Controllers;
 
 [SwaggerTag("Endpoints for getting information on discord guilds")]
-public class GuildsController(DiscordRestClient botClient,
+public class GuildsController(
+    DiscordRestClient botClient,
     Func<DiscordRestClient> userClientFactory,
     ICachingService cachingService,
     IEncryptionService encryptionService)
@@ -46,24 +47,25 @@ public class GuildsController(DiscordRestClient botClient,
         if (accessCheckResult is not null) return accessCheckResult;
 
         string cacheKey = $"guild_{id}_categories";
-        IReadOnlyCollection<DiscordPartialChannel> categories = await _cachingService.GetOrAddAsync(cacheKey, async () =>
-        {
-            RestGuild guild = await _botClient.GetGuildAsync(id);
-            IReadOnlyCollection<RestCategoryChannel>? categories = await guild.GetCategoryChannelsAsync();
-            return categories
-                .OrderBy(c => c.Position)
-                .Select(c =>
-                    new DiscordPartialChannel
-                    {
-                        Id = c.Id,
-                        Name = c.Name
-                    })
-                .ToList();
-        }, TimeSpan.FromMinutes(5));
-        
+        IReadOnlyCollection<DiscordPartialChannel> categories = await _cachingService.GetOrAddAsync(cacheKey,
+            async () =>
+            {
+                RestGuild guild = await _botClient.GetGuildAsync(id);
+                IReadOnlyCollection<RestCategoryChannel>? categories = await guild.GetCategoryChannelsAsync();
+                return categories
+                    .OrderBy(c => c.Position)
+                    .Select(c =>
+                        new DiscordPartialChannel
+                        {
+                            Id = c.Id,
+                            Name = c.Name
+                        })
+                    .ToList();
+            }, TimeSpan.FromMinutes(5));
+
         return Ok(categories);
     }
-    
+
     [HttpGet("{id}/channels")]
     [SwaggerOperation(
         Summary = "Returns all channels for a guild",

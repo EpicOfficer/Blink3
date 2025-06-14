@@ -20,13 +20,9 @@ public static class ServiceCollectionExtensions
     public static void AddCaching(this IServiceCollection services, BlinkConfiguration config)
     {
         if (string.IsNullOrWhiteSpace(config.Redis?.ConnectionString))
-        {
             services.AddDistributedMemoryCache();
-        }
         else
-        {
             services.AddStackExchangeRedisCache(options => { options.Configuration = config.Redis.ConnectionString; });
-        }
 
         services.AddSingleton<ICachingService, DistributedCachingService>();
     }

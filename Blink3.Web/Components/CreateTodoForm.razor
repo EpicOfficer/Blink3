@@ -1,5 +1,5 @@
-@using Blink3.Web.Interfaces
 @using Blink3.Core.DTOs
+@using Blink3.Web.Interfaces
 <EditForm Model="_todo" OnValidSubmit="@(CreateTodoAsync)">
     <Modal @ref="_modal" OnHiding="OnModalHiding" Title="Create Todo" ModalType="ModalType.Dark">
         <BodyTemplate>
@@ -28,7 +28,7 @@
 @code {
     [Inject] private ITodoHttpRepository TodoHttpRepository { get; set; } = default!;
     [Parameter] public Func<UserTodoDto, Task> AddTodo { get; set; } = default!;
-    private UserTodoDto _todo = new() { Label = string.Empty };
+    private readonly UserTodoDto _todo = new() { Label = string.Empty };
     private Modal _modal = default!;
 
     private async Task CreateTodoAsync()

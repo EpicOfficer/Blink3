@@ -53,7 +53,7 @@ public class GenericRepository<T>(BlinkDbContext dbContext)
     {
         dbContext.Set<T>().Attach(entity);
         foreach (Action<T> property in updatedProperties) property(entity);
-        
+
         return Task.FromResult(entity);
     }
 

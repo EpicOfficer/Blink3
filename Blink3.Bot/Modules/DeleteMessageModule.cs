@@ -1,6 +1,5 @@
 using Blink3.Core.Entities;
 using Blink3.Core.Interfaces;
-using Blink3.Core.Repositories.Interfaces;
 using Discord;
 using Discord.Interactions;
 

@@ -1,5 +1,5 @@
-using Newtonsoft.Json;
 using Microsoft.Extensions.Caching.Distributed;
+using Newtonsoft.Json;
 
 namespace Blink3.Core.Caching.Distributed;
 
@@ -25,7 +25,7 @@ public class DistributedCachingService(IDistributedCache cache) : ICachingServic
 
         return jsonData is null ? default : JsonConvert.DeserializeObject<T>(jsonData);
     }
-    
+
     public async Task<T> GetOrAddAsync<T>(string key, Func<Task<T>> getter, TimeSpan? absoluteExpireTime = null,
         CancellationToken cancellationToken = default)
     {
@@ -34,7 +34,7 @@ public class DistributedCachingService(IDistributedCache cache) : ICachingServic
 
         // If not found, call getter and save the result in cache
         if (result is not null) return result;
-        
+
         result = await getter();
         await SetAsync(key, result, absoluteExpireTime, cancellationToken).ConfigureAwait(false);
 

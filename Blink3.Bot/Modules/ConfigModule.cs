@@ -1,6 +1,5 @@
 using Blink3.Core.Entities;
 using Blink3.Core.Interfaces;
-using Blink3.Core.Repositories.Interfaces;
 using Discord;
 using Discord.Interactions;
 using Color = SixLabors.ImageSharp.Color;
@@ -15,8 +14,6 @@ namespace Blink3.Bot.Modules;
 public class ConfigModule(IUnitOfWork unitOfWork)
     : BlinkModuleBase<IInteractionContext>(unitOfWork)
 {
-    private readonly IUnitOfWork _unitOfWork = unitOfWork;
-    
     public enum SettingsEnum
     {
         [ChoiceDisplay("Wordle Background Colour")]
@@ -39,7 +36,9 @@ public class ConfigModule(IUnitOfWork unitOfWork)
         [ChoiceDisplay("Temporary VC Category")]
         TempVcCategory
     }
-    
+
+    private readonly IUnitOfWork _unitOfWork = unitOfWork;
+
     [SlashCommand("set", "Change or reset config values")]
     public async Task Set(SettingsEnum setting, string? value = null)
     {
