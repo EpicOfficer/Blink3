@@ -123,8 +123,16 @@ public class WordleGuessImageGenerator : IWordleGuessImageGenerator
 
         HashSet<char> invalidLetters = [];
         foreach (WordleGuess guess in wordle.Guesses)
-        foreach (WordleLetter letter in guess.Letters.Where(letter => letter.State == WordleLetterStateEnum.Incorrect))
-            invalidLetters.Add(letter.Letter);
+        {
+            foreach (IGrouping<char, WordleLetter> letterGroup in guess.Letters.GroupBy(letter => letter.Letter))
+            {
+                // Check if all occurrences of the letter are incorrect
+                if (letterGroup.All(l => l.State == WordleLetterStateEnum.Incorrect))
+                {
+                    invalidLetters.Add(letterGroup.Key);
+                }
+            }
+        }
 
         // Calculate image dimensions
         const int keyboardMargin = MarginSize * 4;
