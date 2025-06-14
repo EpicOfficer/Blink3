@@ -44,6 +44,14 @@ public class GenericRepository<T>(BlinkDbContext dbContext)
 
     public virtual Task<T> UpdateAsync(T entity, CancellationToken cancellationToken = default)
     {
+        EntityEntry<T> entry = dbContext.Entry(entity);
+
+        // Attach the entity if it is not being tracked
+        if (entry.State == EntityState.Detached)
+        {
+            dbContext.Attach(entity);
+        }
+        
         dbContext.Entry(entity).State = EntityState.Modified;
 
         return Task.FromResult(entity);

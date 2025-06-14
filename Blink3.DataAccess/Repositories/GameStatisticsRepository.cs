@@ -13,25 +13,43 @@ public class GameStatisticsRepository(BlinkDbContext dbContext)
 
     public async Task<GameStatistics> GetOrCreateGameStatistics(ulong userId, GameType gameType)
     {
-        if (!_dbContext.BlinkUsers.Any(b => b.Id == userId))
-            await _dbContext.AddAsync(new BlinkUser
+        // Attempt to retrieve the GameStatistics
+        GameStatistics? stats = await _dbContext.GameStatistics
+            .FirstOrDefaultAsync(x => x.BlinkUserId == userId && x.Type == gameType);
+
+        if (stats != null) return stats;
+        
+        BlinkUser? blinkUser = await _dbContext.BlinkUsers.FindAsync(userId);
+        if (blinkUser == null)
+        {
+            blinkUser = new BlinkUser
             {
                 Id = userId
-            });
+            };
 
-        GameStatistics? entity = await _dbContext.Set<GameStatistics>()
-            .FirstOrDefaultAsync(g => g.BlinkUserId == userId && g.Type == gameType);
-        if (entity is not null) return entity;
-
-        entity = new GameStatistics
+            _dbContext.BlinkUsers.Add(blinkUser);
+            // Save for generated IDs or constraints (like automating other FK relationships)
+            await _dbContext.SaveChangesAsync(); 
+        }
+        
+        stats = new GameStatistics
         {
             BlinkUserId = userId,
+            GamesPlayed = 0,
+            GamesWon = 0,
+            Points = 0,
+            CurrentStreak = 0,
+            MaxStreak = 0,
             Type = gameType
         };
 
-        await AddAsync(entity).ConfigureAwait(false);
+        // Add the new entity to the DbSet (start tracking it)
+        _dbContext.GameStatistics.Add(stats);
 
-        return entity;
+        // Save changes immediately for new entities to generate their Id
+        await _dbContext.SaveChangesAsync();
+
+        return stats;
     }
 
     public async Task<IEnumerable<GameStatistics>> GetLeaderboardAsync(GameType? gameType = null)
