@@ -16,6 +16,7 @@ public class TempVcCleanService(
     IServiceScopeFactory scopeFactory)
     : DiscordClientService(client, logger)
 {
+    private const int TimerInterval = 2;
     private readonly ILogger<DiscordClientService> _logger = logger;
     private Timer? _timer;
 
@@ -23,7 +24,7 @@ public class TempVcCleanService(
     {
         await Client.WaitForReadyAsync(stoppingToken);
         _logger.LogInformation("Temp VC cleaning service is starting...");
-        _timer = new Timer(DoWork, null, TimeSpan.Zero, TimeSpan.FromMinutes(5));
+        _timer = new Timer(DoWork, null, TimeSpan.Zero, TimeSpan.FromMinutes(TimerInterval));
     }
 
     private void DoWork(object? state)
@@ -63,9 +64,6 @@ public class TempVcCleanService(
 
     private async Task HandleChannel(SocketGuild guild, TempVc tempVc, IUnitOfWork unitOfWork)
     {
-        // If the VC was created less than 2 minutes ago, skip it
-        if (tempVc.CreatedAt.AddMinutes(2) > DateTime.UtcNow) return;
-
         // If the VC is missing, delete it from the database
         if (guild.GetVoiceChannel(tempVc.ChannelId) is not { } channel)
         {
@@ -85,6 +83,20 @@ public class TempVcCleanService(
     {
         IReadOnlyCollection<SocketGuildUser>? connectedUsers = channel.ConnectedUsers;
 
+        if (tempVc.BannedUsers.Count > 0)
+        {
+            IEnumerable<SocketGuildUser> membersToKick = connectedUsers.Where(u =>
+                tempVc.BannedUsers.Contains(u.Id));
+            
+            foreach (SocketGuildUser user in membersToKick)
+            {
+                _logger.LogInformation(
+                    "Kicking user {userId} from VC {channelId} in guild {guildId} as they are banned from this VC",
+                    user.Id, channel.Id, new { guild.Id, guild.Name });
+                await user.ModifyAsync(u => u.Channel = null);
+            }
+        }
+        
         if (tempVc.CamOnly)
         {
             // Kick users who are not videoing, are not bots, and do not have manage messages permission
@@ -108,6 +120,9 @@ public class TempVcCleanService(
                 }
             }
         }
+        
+        // If the VC is less than 2 minutes old, skip it
+        if (tempVc.CreatedAt.AddMinutes(2) > DateTime.UtcNow) return;
 
         // If there are non-bot users in the VC, skip it
         if (connectedUsers.Any(u => !u.IsBot)) return;

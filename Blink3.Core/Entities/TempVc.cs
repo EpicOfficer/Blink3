@@ -34,4 +34,9 @@ public class TempVc
     ///     channel.
     /// </remarks>
     public bool CamOnly { get; set; }
+
+    /// <summary>
+    ///     Contains the collection of user IDs who are banned from accessing the temporary voice channel.
+    /// </summary>
+    public ICollection<ulong> BannedUsers { get; set; } = [];
 }

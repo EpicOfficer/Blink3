@@ -4,6 +4,7 @@ using Blink3.Core.Entities;
 using Blink3.Core.Interfaces;
 using Discord;
 using Discord.Interactions;
+using Discord.WebSocket;
 using Microsoft.Extensions.Logging;
 
 namespace Blink3.Bot.Modules;
@@ -59,16 +60,16 @@ public class TempVcModule(
         ComponentBuilderV2 builder = new(new ContainerBuilder()
             .WithAccentColor(Colours.Info)
             .WithTextDisplay($"""
-                              ## Channel created successfully 🎉
-                              Hey {Context.User.Mention}, your temporary voice channel has been created!
+                              ## Channel created
+                              Hey {Context.User.Mention}, your temporary voice channel `{voiceChannel.Name}` has been created!
                               """)
             .WithSeparator(isDivider: false)
             .WithActionRow(new ActionRowBuilder()
-                .WithButton("Join Voice Channel", style: ButtonStyle.Link, url: $"https://discord.com/channels/{Context.Guild.Id}/{voiceChannel.Id}")
+                .WithButton("Take me there", style: ButtonStyle.Link, url: $"https://discord.com/channels/{Context.Guild.Id}/{voiceChannel.Id}")
             )
         );
         
-        await RespondOrFollowUpAsync(components: builder.Build(), allowedMentions: new AllowedMentions(AllowedMentionTypes.Users), ephemeral: true);
+        await RespondOrFollowUpAsync(components: builder.Build(), allowedMentions: new AllowedMentions(AllowedMentionTypes.Users), ephemeral: false);
     }
 
     [SlashCommand("rename", "Rename your Temporary VC")]
@@ -98,6 +99,48 @@ public class TempVcModule(
             $"Your temporary VC has been renamed to {voiceChannel.Mention}");
     }
 
+    [SlashCommand("ban", "Ban a member from your Temporary VC")]
+    [UserCommand("Ban from VC")]
+    public async Task Ban(SocketGuildUser user)
+    {
+        TempVc? tempVc = await GetTempVcAsync();
+        if (tempVc is null) return;
+
+        if (user.Id == Context.User.Id)
+        {
+            await RespondErrorAsync("Cannot ban yourself", "You cannot ban yourself from your temporary VC!");
+            return;
+        }
+        
+        if (!tempVc.BannedUsers.Contains(user.Id)) tempVc.BannedUsers.Add(user.Id);
+        await _unitOfWork.TempVcRepository.UpdateAsync(tempVc);
+        await _unitOfWork.SaveChangesAsync();
+        
+        await user.ModifyAsync(u => u.Channel = null);
+        
+        await RespondSuccessAsync("User banned", $"{user.Mention} has been banned from your temporary VC.", ephemeral: false);
+    }
+
+    [SlashCommand("unban", "Unban a member from your Temporary VC")]
+    [UserCommand("Unban from VC")]
+    public async Task Unban(SocketGuildUser user)
+    {
+        TempVc? tempVc = await GetTempVcAsync();
+        if (tempVc is null) return;
+
+        if (!tempVc.BannedUsers.Contains(user.Id))
+        {
+            await RespondErrorAsync("User not banned", $"{user.Mention} is not banned from your temporary VC.");
+            return;
+        }
+        
+        tempVc.BannedUsers.Remove(user.Id);
+        await _unitOfWork.TempVcRepository.UpdateAsync(tempVc);
+        await _unitOfWork.SaveChangesAsync();
+        
+        await RespondSuccessAsync("User unbanned", $"{user.Mention} has been unbanned from your temporary VC.", ephemeral: false);
+    }
+    
     [SlashCommand("limit", "Set a user limit for your Temporary VC")]
     public async Task SetLimit([MaxValue(25)] [MinValue(0)] int limit = 0)
     {
