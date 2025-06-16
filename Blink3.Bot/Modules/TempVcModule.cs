@@ -1,4 +1,5 @@
 using Blink3.Bot.Extensions;
+using Blink3.Bot.MessageStyles;
 using Blink3.Core.Entities;
 using Blink3.Core.Interfaces;
 using Discord;
@@ -55,7 +56,19 @@ public class TempVcModule(
         });
         await _unitOfWork.SaveChangesAsync();
 
-        await RespondSuccessAsync("Channel created", $"Temporary VC {voiceChannel.Mention} created successfully.");
+        ComponentBuilderV2 builder = new(new ContainerBuilder()
+            .WithAccentColor(Colours.Info)
+            .WithTextDisplay($"""
+                              ## Channel created successfully 🎉
+                              Hey {Context.User.Mention}, your temporary voice channel has been created!
+                              """)
+            .WithSeparator(isDivider: false)
+            .WithActionRow(new ActionRowBuilder()
+                .WithButton("Join Voice Channel", style: ButtonStyle.Link, url: $"https://discord.com/channels/{Context.Guild.Id}/{voiceChannel.Id}")
+            )
+        );
+        
+        await RespondOrFollowUpAsync(components: builder.Build(), allowedMentions: new AllowedMentions(AllowedMentionTypes.Users), ephemeral: true);
     }
 
     [SlashCommand("rename", "Rename your Temporary VC")]
