@@ -103,9 +103,16 @@ public class TempVcModule(
     [UserCommand("Ban from VC")]
     public async Task Ban(SocketGuildUser user)
     {
-        TempVc? tempVc = await GetTempVcAsync();
-        if (tempVc is null) return;
+        (TempVc? tempVc, IVoiceChannel? voiceChannel) = await GetTempVcAndVoiceChannelAsync();
+        if (tempVc is null || voiceChannel is null)
+            return;
 
+        if (user.Id == Context.Client.CurrentUser.Id)
+        {
+            await RespondErrorAsync("Cannot ban the bot", "You cannot ban me from your temporary VC!");
+            return;
+        }
+        
         if (user.Id == Context.User.Id)
         {
             await RespondErrorAsync("Cannot ban yourself", "You cannot ban yourself from your temporary VC!");
@@ -116,7 +123,12 @@ public class TempVcModule(
         await _unitOfWork.TempVcRepository.UpdateAsync(tempVc);
         await _unitOfWork.SaveChangesAsync();
         
-        await user.ModifyAsync(u => u.Channel = null);
+        if (user.VoiceChannel?.Id == voiceChannel.Id)
+            await user.ModifyAsync(u => u.Channel = null);
+
+        await voiceChannel.AddPermissionOverwriteAsync(user, new OverwritePermissions(
+            connect: PermValue.Deny,
+            sendMessages: PermValue.Deny));
         
         await RespondSuccessAsync("User banned", $"{user.Mention} has been banned from your temporary VC.", ephemeral: false);
     }
@@ -125,8 +137,9 @@ public class TempVcModule(
     [UserCommand("Unban from VC")]
     public async Task Unban(SocketGuildUser user)
     {
-        TempVc? tempVc = await GetTempVcAsync();
-        if (tempVc is null) return;
+        (TempVc? tempVc, IVoiceChannel? voiceChannel) = await GetTempVcAndVoiceChannelAsync();
+        if (tempVc is null || voiceChannel is null)
+            return;
 
         if (!tempVc.BannedUsers.Contains(user.Id))
         {
@@ -137,6 +150,7 @@ public class TempVcModule(
         tempVc.BannedUsers.Remove(user.Id);
         await _unitOfWork.TempVcRepository.UpdateAsync(tempVc);
         await _unitOfWork.SaveChangesAsync();
+        await voiceChannel.RemovePermissionOverwriteAsync(user);
         
         await RespondSuccessAsync("User unbanned", $"{user.Mention} has been unbanned from your temporary VC.", ephemeral: false);
     }
