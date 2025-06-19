@@ -113,6 +113,12 @@ public class TodoModule(IUnitOfWork unitOfWork) : BlinkModuleBase<IInteractionCo
             await RespondErrorAsync("Todo not found!", "I could not find that item on your todo list...");
             return;
         }
+        
+        if (Context.User.Id != todo.UserId)
+        {
+            await RespondErrorAsync("You cannot edit this item!", "Only the person who created this item can edit it.");
+            return;
+        }
 
         todo.Complete = !todo.Complete;
 
@@ -125,7 +131,21 @@ public class TodoModule(IUnitOfWork unitOfWork) : BlinkModuleBase<IInteractionCo
     [ComponentInteraction("todo:remove_*", true)]
     public async Task Remove(int id)
     {
-        await _unitOfWork.UserTodoRepository.DeleteByIdAsync(id);
+        UserTodo? todo = await _unitOfWork.UserTodoRepository.GetByIdAsync(id);
+        
+        if (todo is null)
+        {
+            await RespondErrorAsync("Todo not found!", "I could not find that item on your todo list...");
+            return;
+        }
+        
+        if (Context.User.Id != todo.UserId)
+        {
+            await RespondErrorAsync("You cannot remove this item!", "Only the person who created this item can remove it.");
+            return;
+        }
+        
+        await _unitOfWork.UserTodoRepository.DeleteAsync(todo);
         await _unitOfWork.SaveChangesAsync();
 
         await RespondSuccessAsync("Todo item removed");
