@@ -1,5 +1,6 @@
 using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
+using System.Numerics;
 using Blink3.Bot.Extensions;
 using Blink3.Bot.MessageStyles;
 using Blink3.Bot.Modals;
@@ -61,118 +62,72 @@ public class TodoModule(IUnitOfWork unitOfWork) : BlinkModuleBase<IInteractionCo
         await RespondSuccessAsync($"Created todo item \"{label}\"");
     }
 
-    [SlashCommand("view", "View your todo list")]
+    [SlashCommand("view", "View or edit your todo list")]
     public async Task View(
         [Description("Whether to post the todo list so that it is visible to other users.")]
         bool postPublicly = false)
     {
-        ComponentBuilder builder = new ComponentBuilder()
-            .WithButton("Add", "todo:addButton")
-            .WithButton("Complete", "todo:completeButton", ButtonStyle.Secondary)
-            .WithButton("Remove", "todo:removeButton", ButtonStyle.Danger);
-
-        IReadOnlyCollection<UserTodo> todos = await _unitOfWork.UserTodoRepository.GetByUserIdAsync(Context.User.Id);
-        if (todos.Count < 1)
-        {
-            await RespondInfoAsync("You don't have any todo items!", components: builder.Build());
-            return;
-        }
-
-        EmbedFieldBuilder[] fields = todos.Select(todo => new EmbedFieldBuilder
-        {
-            Name = $"{(todo.Complete ? Icons.BoxChecked : Icons.Box)} {todo.Label}",
-            Value = string.IsNullOrWhiteSpace(todo.Description) ? "_ _" : todo.Description,
-            IsInline = false
-        }).ToArray();
-
         IGuildUser? user = Context.User as IGuildUser;
-        await RespondPlainAsync($"{(user is null ? "Your" : user.GetFriendlyName() + "'s")} todo list",
-            ephemeral: !postPublicly,
-            components: builder.Build(),
-            embedFields: fields);
-    }
-
-    [SlashCommand("complete", "Mark a todo list item as complete")]
-    [ComponentInteraction("todo:completeButton", true)]
-    public async Task CompleteMenu()
-    {
-        MessageComponent? components = await BuildSelectMenuWithTodos("todo:complete");
-
-        if (components is null)
-        {
-            await RespondInfoAsync("You don't have any todo items!");
-            return;
-        }
-
-        await RespondInfoAsync("Select a todo item to mark as complete:", components: components);
-    }
-
-    [SlashCommand("remove", "Permanently remove todo list item")]
-    [ComponentInteraction("todo:removeButton", true)]
-    public async Task RemoveMenu()
-    {
-        MessageComponent? components = await BuildSelectMenuWithTodos("todo:remove");
-
-        if (components is null)
-        {
-            await RespondInfoAsync("You don't have any todo items!");
-            return;
-        }
-
-        await RespondInfoAsync("Select a todo item to remove:", components: components);
-    }
-
-    [ComponentInteraction("todo:complete", true)]
-    public async Task Complete(string id)
-    {
-        int key = GetId(id);
-
-        await _unitOfWork.UserTodoRepository.CompleteByIdAsync(key);
-        await _unitOfWork.SaveChangesAsync();
-
-        await RespondSuccessAsync("Marked todo as complete");
-    }
-
-    [ComponentInteraction("todo:remove", true)]
-    public async Task Remove(string id)
-    {
-        int key = GetId(id);
-
-        await _unitOfWork.UserTodoRepository.DeleteByIdAsync(key);
-        await _unitOfWork.SaveChangesAsync();
-
-        await RespondSuccessAsync("Todo item removed");
-    }
-
-    private static int GetId(string id)
-    {
-        if (!int.TryParse(id, out int key)) throw new ArgumentOutOfRangeException(nameof(id));
-
-        return key;
-    }
-
-    private async Task<MessageComponent?> BuildSelectMenuWithTodos(string customId)
-    {
         IReadOnlyCollection<UserTodo> todos = await _unitOfWork.UserTodoRepository.GetByUserIdAsync(Context.User.Id);
-        if (todos.Count < 1) return null;
 
-        SelectMenuBuilder menuBuilder = new SelectMenuBuilder()
-            .WithCustomId(customId)
-            .WithPlaceholder("Select todo list item")
-            .WithMaxValues(1)
-            .WithMaxValues(1);
+        ContainerBuilder builder = new ContainerBuilder()
+            .WithAccentColor(Colours.Info)
+            .WithSection(new SectionBuilder()
+                .WithTextDisplay($"## {(user is null ? "Your" : user.GetFriendlyName() + "'s")} todo list.")
+                .WithAccessory(new ButtonBuilder("Add", "todo:addButton")))
+            .WithSeparator(isDivider: false);
+
+        if (todos.Count == 0)
+        {
+            builder.WithTextDisplay("🔍 Your todo list is currently empty. Add a new item using the **Add Item** button above!");
+        }
 
         foreach (UserTodo todo in todos)
         {
-            if (!string.IsNullOrWhiteSpace(todo.Description))
-            {
-                menuBuilder.AddOption(todo.Label, todo.Id.ToString(), todo.Description);
-                continue;
-            }
-
-            menuBuilder.AddOption(todo.Label, todo.Id.ToString());
+            string completionIcon = todo.Complete ? Icons.BoxChecked : Icons.Box;
+            ButtonStyle style = todo.Complete ? ButtonStyle.Secondary : ButtonStyle.Success;
+            
+            builder.WithSeparator()
+                .WithTextDisplay($"""
+                                        ### {completionIcon} {todo.Label}
+                                        {todo.Description ?? "_ _"}
+                                        """)
+                .WithSeparator(isDivider: false, spacing: SeparatorSpacingSize.Small)
+                .WithActionRow(new ActionRowBuilder()
+                    .WithButton($"{(todo.Complete ? "Mark Incomplete" : "Mark Complete")}", 
+                        $"todo:toggleComplete_{todo.Id}",
+                        style)
+                    .WithButton("Remove", $"todo:remove_{todo.Id}", ButtonStyle.Danger));
         }
 
-        return new ComponentBuilder().WithSelectMenu(menuBuilder).Build();
+        ComponentBuilderV2 components = new(builder);
+        await RespondOrFollowUpAsync(components: components.Build(), ephemeral: !postPublicly);
+    }
+
+    [ComponentInteraction("todo:toggleComplete_*", true)]
+    public async Task ToggleComplete(int id)
+    {
+        UserTodo? todo = await _unitOfWork.UserTodoRepository.GetByIdAsync(id);
+        if (todo is null)
+        {
+            await RespondErrorAsync("Todo not found!", "I could not find that item on your todo list...");
+            return;
+        }
+
+        todo.Complete = !todo.Complete;
+
+        await _unitOfWork.UserTodoRepository.UpdateAsync(todo);
+        await _unitOfWork.SaveChangesAsync();
+
+        await RespondSuccessAsync($"Marked todo as {(todo.Complete ? "complete" : "incomplete")}");
+    }
+
+    [ComponentInteraction("todo:remove_*", true)]
+    public async Task Remove(int id)
+    {
+        await _unitOfWork.UserTodoRepository.DeleteByIdAsync(id);
+        await _unitOfWork.SaveChangesAsync();
+
+        await RespondSuccessAsync("Todo item removed");
     }
 }
