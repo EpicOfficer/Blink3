@@ -48,9 +48,16 @@ public class TempVcCleanService(
         Dictionary<ulong, List<TempVc>> guilds = tempVcs.GroupBy(tempVc => tempVc.GuildId)
             .ToDictionary(group => group.Key, group => group.ToList());
 
-        _logger.LogInformation("Cleaning {count} unique VCs in {guildCount} guilds",
-            tempVcs.Count, guilds.Count);
-
+        if (tempVcs.Count > 0)
+        {
+            _logger.LogInformation("Cleaning {count} unique VCs in {guildCount} guilds",
+                tempVcs.Count, guilds.Count);
+        }
+        else
+        {
+            _logger.LogDebug("No temporary VCs to clean.");
+        }
+        
         foreach (KeyValuePair<ulong, List<TempVc>> guild in guilds)
             await HandleGuild(guild.Key, guild.Value, unitOfWork);
     }
