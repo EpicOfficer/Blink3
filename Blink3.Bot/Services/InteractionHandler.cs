@@ -2,6 +2,7 @@ using System.Reflection;
 using Blink3.Bot.MessageStyles.Extensions;
 using Blink3.Bot.MessageStyles.Variations;
 using Blink3.Core.Configuration;
+using Blink3.Core.LogContexts;
 using Discord;
 using Discord.Addons.Hosting;
 using Discord.Addons.Hosting.Util;
@@ -103,14 +104,15 @@ public class InteractionHandler(
     {
         if (result.IsSuccess)
         {
-            _logger.LogInformation("Handled interaction {interaction} in module {module} for user {userId}",
-                commandInfo.Name, commandInfo.Module.Name, context.User.Id);
+            _logger.LogInformation("Handled interaction {interaction} in module {module} for {user}",
+                commandInfo.Name, commandInfo.Module.Name, new UserLogContext(context.User));
             return;
         }
 
         _logger.LogWarning(
-            "Error handling interaction {interaction} in module {module} for user {userId}: {ErrorReason}",
-            commandInfo.Name, commandInfo.Module.Name, context.User.Id, result.ErrorReason);
+            "Error handling interaction {interaction} in module {module} for {user}\n" +
+            "{ErrorReason}",
+            commandInfo.Name, commandInfo.Module.Name, new UserLogContext(context.User), result.ErrorReason);
 
         if (context.Interaction is null) return;
 
