@@ -103,7 +103,7 @@ public class StreakResetService(
 
             // Send DM reminder to the user
             string gameName = Enum.GetName(gameStat.Type) ?? "Wordle";
-            await SendUserStreakReminderAsync(user, gameName, streakExpiry);
+            await SendUserStreakReminderAsync(user, gameName, gameStat.CurrentStreak, streakExpiry);
 
             // Mark reminder as sent
             gameStat.ReminderSentAt = now;
@@ -112,14 +112,20 @@ public class StreakResetService(
         }
     }
     
-    private async Task SendUserStreakReminderAsync(IUser user, string gameName, DateTime streakExpiry)
+    private async Task SendUserStreakReminderAsync(IUser user, string gameName, int currentStreak, DateTime streakExpiry)
     {
         UserLogContext userContext = new(user);
         
         try
         {
-            string reminderMessage = $"Hi {userContext.UserName}, your {gameName} streak is about to expire on {new TimestampTag(streakExpiry, TimestampTagStyles.Relative)}.\n" +
-                                     "Make sure to extend your streak before then!";
+            string reminderMessage = $"""
+                                      Hi {user.Mention}! 👋
+
+                                      Your **{gameName} streak** of **{currentStreak} days** is set to expire {new TimestampTag(streakExpiry, TimestampTagStyles.Relative)}. 🕒  
+
+                                      It would be a shame to lose your **{currentStreak}-day streak**.  
+                                      Don't miss out! Jump in now to keep it alive! 🎮💪
+                                      """;
             
             await user.SendMessageAsync(reminderMessage);
 
