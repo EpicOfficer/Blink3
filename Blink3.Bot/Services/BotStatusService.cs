@@ -20,8 +20,6 @@ public class BotStatusService(DiscordSocketClient client, ILogger<DiscordClientS
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         await Client.WaitForReadyAsync(stoppingToken);
-        Logger.LogInformation("Client is ready!");
-
         await Client.SetActivityAsync(new Game("blinkbot.io"));
     }
 }

@@ -19,4 +19,5 @@ public class GameStatistics
     public int CurrentStreak { get; set; }
     public int MaxStreak { get; set; }
     public DateTime? LastActivity { get; set; }
+    public DateTime? ReminderSentAt { get; set; }
 }
