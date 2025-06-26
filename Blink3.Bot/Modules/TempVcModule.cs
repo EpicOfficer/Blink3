@@ -2,6 +2,7 @@ using Blink3.Bot.Extensions;
 using Blink3.Bot.MessageStyles;
 using Blink3.Core.Entities;
 using Blink3.Core.Interfaces;
+using Blink3.Core.LogContexts;
 using Discord;
 using Discord.Interactions;
 using Discord.WebSocket;
@@ -45,6 +46,8 @@ public class TempVcModule(
 
         if (voiceChannel is null)
         {
+            logger.LogError("Failed to create a Temporary VC for {User} in {Guild}", 
+                new UserLogContext(Context.User), new GuildLogContext(Context.Guild));
             await RespondErrorAsync("Error creating VC", "An error has occured while creating a temporary VC.");
             return;
         }
@@ -69,6 +72,10 @@ public class TempVcModule(
             )
         );
         
+        logger.LogInformation("{User} created Temporary {Channel}",
+            new UserLogContext(Context.User),
+            new GuildChannelLogContext(voiceChannel));
+        
         await RespondOrFollowUpAsync(components: builder.Build(), allowedMentions: new AllowedMentions(AllowedMentionTypes.Users), ephemeral: false);
     }
 
@@ -88,12 +95,16 @@ public class TempVcModule(
         }
         catch (Exception e)
         {
-            logger.LogInformation(e, "Failed to rename VC {channel} for user {user} in guild {guild}", voiceChannel.Id,
+            logger.LogWarning(e, "Failed to rename VC {channel} for user {user} in guild {guild}", voiceChannel.Id,
                 Context.User.Id, Context.Guild.Id);
             await RespondErrorAsync("Unable to rename Temporary VC",
                 "An error occurred while trying to rename the channel.  Try again in a few minutes!");
             return;
         }
+        
+        logger.LogInformation("{User} renamed Temporary {Channel}",
+            new UserLogContext(Context.User),
+            new GuildChannelLogContext(voiceChannel));
 
         await RespondSuccessAsync("Temporary VC Renamed",
             $"Your temporary VC has been renamed to {voiceChannel.Mention}");
@@ -122,6 +133,11 @@ public class TempVcModule(
         if (!tempVc.BannedUsers.Contains(user.Id)) tempVc.BannedUsers.Add(user.Id);
         await _unitOfWork.TempVcRepository.UpdateAsync(tempVc);
         await _unitOfWork.SaveChangesAsync();
+        
+        logger.LogInformation("{User} banned {TargetUser} from {Channel}",
+            new UserLogContext(Context.User),
+            new UserLogContext(user),
+            new GuildChannelLogContext(voiceChannel));
         
         if (user.VoiceChannel?.Id == voiceChannel.Id)
             await user.ModifyAsync(u => u.Channel = null);
@@ -152,6 +168,11 @@ public class TempVcModule(
         await _unitOfWork.SaveChangesAsync();
         await voiceChannel.RemovePermissionOverwriteAsync(user);
         
+        logger.LogInformation("{User} unbanned {TargetUser} from {Channel}",
+            new UserLogContext(Context.User),
+            new UserLogContext(user),
+            new GuildChannelLogContext(voiceChannel));
+        
         await RespondSuccessAsync("User unbanned", $"{user.Mention} has been unbanned from your temporary VC.", ephemeral: false);
     }
     
@@ -165,6 +186,12 @@ public class TempVcModule(
         if (limit is 1 or < 0) limit = 2;
         if (limit > 24) limit = 25;
         await voiceChannel.ModifyAsync(v => v.UserLimit = limit);
+        
+        logger.LogInformation("{User} set a user limit of {UserLimit} for {Channel}",
+            new UserLogContext(Context.User),
+            limit,
+            new GuildChannelLogContext(voiceChannel));
+        
         await RespondSuccessAsync("Channel limit set", $"Your temporary VC channel limit has been set to {limit}");
     }
 
@@ -191,11 +218,18 @@ public class TempVcModule(
                     break;
             }
         }
-        catch
+        catch (Exception e)
         {
-            // ignored
+            logger.LogWarning(e, "Failed to update cam-only mode for {Channel} by {User}", 
+                new GuildChannelLogContext(voiceChannel), 
+                new UserLogContext(Context.User));
         }
 
+        logger.LogInformation("{User} toggled camera-only mode to {CamOnly} for {Channel}",
+            new UserLogContext(Context.User),
+            tempVc.CamOnly,
+            new GuildChannelLogContext(voiceChannel));
+        
         await RespondSuccessAsync("Temporary VC updated",
             $"Camera only mode has been {(tempVc.CamOnly ? "enabled" : "disabled")}.");
     }
@@ -207,10 +241,21 @@ public class TempVcModule(
         if (tempVc is null) return;
 
         if (await Context.Guild.GetVoiceChannelAsync(tempVc.ChannelId) is { } voiceChannel)
+        {
             await voiceChannel.DeleteAsync();
+            logger.LogInformation("{User} deleted Temporary {Channel}",
+                new UserLogContext(Context.User),
+                new GuildChannelLogContext(voiceChannel));
+        }
+        else
+        {
+            logger.LogWarning("Failed to delete Temporary VC for {User} in {Guild}: Channel not found", 
+                new UserLogContext(Context.User), new GuildLogContext(Context.Guild));
+        }
 
         await _unitOfWork.TempVcRepository.DeleteAsync(tempVc);
         await _unitOfWork.SaveChangesAsync();
+        
         await RespondSuccessAsync("Channel deleted", "Your temporary VC has been successfully deleted.");
     }
 
