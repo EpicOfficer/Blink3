@@ -19,8 +19,8 @@ public class StreakResetService(
     : DiscordClientService(client, logger)
 {
     private const int DaysInactiveThreshold = 2; // Threshold for inactivity in days
-    private const int ReminderThresholdHours = 1; // Threshold in hours for streak reminders
-    private const int FlexibleMinutes = 30; // Flexible range for streak reminders in minutes
+    private static readonly TimeSpan ReminderWindowStartOffset = TimeSpan.FromHours(2);
+    private static readonly TimeSpan ReminderWindowEndOffset = TimeSpan.FromMinutes(5);
     private const int TimerInterval = 2; // Interval in hours for the timer to execute
     private readonly ILogger<DiscordClientService> _logger = logger;
     private Timer? _timer;
@@ -67,6 +67,8 @@ public class StreakResetService(
             await SendStreakReminderAsync(gameStat, unitOfWork, now);
             await ResetUserStreakAsync(gameStat, unitOfWork, now);
         }
+        
+        await unitOfWork.SaveChangesAsync();
     }
 
     private async Task SendStreakReminderAsync(GameStatistics gameStat, IUnitOfWork unitOfWork, DateTime now)
@@ -76,25 +78,31 @@ public class StreakResetService(
             DateTime streakExpiry = gameStat.LastActivity.Value.AddDays(DaysInactiveThreshold);
             TimeSpan timeToExpiry = streakExpiry - now;
 
-            // Use a flexible range for reminders (-30 mins to +30 mins of the threshold)
-            TimeSpan minThreshold = TimeSpan.FromHours(ReminderThresholdHours) - TimeSpan.FromMinutes(FlexibleMinutes);
-            TimeSpan maxThreshold = TimeSpan.FromHours(ReminderThresholdHours) + TimeSpan.FromMinutes(FlexibleMinutes);
-            
-            // Skip if a reminder has been sent recently (inside the max flexible range)
-            if (gameStat.ReminderSentAt.HasValue && gameStat.ReminderSentAt.Value >= streakExpiry - maxThreshold)
+            DateTime windowStart = streakExpiry - ReminderWindowStartOffset;
+            DateTime windowEnd = streakExpiry - ReminderWindowEndOffset;
+
+            // Skip if a reminder has already been sent for this expiry window
+            if (gameStat.ReminderSentAt.HasValue && gameStat.ReminderSentAt.Value >= windowStart)
             {
-                _logger.LogDebug("Skipping reminder for user {BlinkUserId}, reminder already sent in the allowed range.", gameStat.BlinkUserId);
+                _logger.LogDebug("Skipping reminder for user {BlinkUserId}, reminder already sent during this window.", gameStat.BlinkUserId);
                 return;
             }
 
-            // Skip if the time to expiry is outside the allowed range
-            if (timeToExpiry > maxThreshold || timeToExpiry < minThreshold)
+            // Only send it if we're inside the window
+            if (now < windowStart || now > windowEnd)
             {
-                _logger.LogDebug("Skipping reminder for user {BlinkUserId}, time to expiry is outside the allowed range.", gameStat.BlinkUserId);
+                _logger.LogDebug(
+                    "Skipping reminder for user {BlinkUserId}, outside reminder window. Now: {Now}, Window: {WindowStart} to {WindowEnd}",
+                    gameStat.BlinkUserId, now, windowStart, windowEnd);
                 return;
             }
 
-            IUser user = await FetchUserDetailsAsync(gameStat.BlinkUserId);
+            IUser? user = await FetchUserDetailsAsync(gameStat.BlinkUserId);
+            if (user == null)
+            {
+                _logger.LogWarning("Skipping user {BlinkUserId} due to missing user details.", gameStat.BlinkUserId);
+                return;
+            }
             UserLogContext userContext = new(user);
 
             _logger.LogInformation(
@@ -108,7 +116,6 @@ public class StreakResetService(
             // Mark reminder as sent
             gameStat.ReminderSentAt = now;
             await unitOfWork.GameStatisticsRepository.UpdateAsync(gameStat);
-            await unitOfWork.SaveChangesAsync();
         }
     }
     
@@ -153,15 +160,36 @@ public class StreakResetService(
         gameStat.ReminderSentAt = null;
         
         await unitOfWork.GameStatisticsRepository.UpdateAsync(gameStat);
-        await unitOfWork.SaveChangesAsync();
     }
     
-    private async Task<IUser> FetchUserDetailsAsync(ulong userId)
+    private async Task<IUser?> FetchUserDetailsAsync(ulong userId)
     {
-        IUser? user = await Client.GetUserAsync(userId);
-        if (user != null) return user;
-        
-        _logger.LogWarning("Unable to fetch Discord user details for userId {UserId}.", userId);
-        throw new Exception($"User with ID {userId} not found.");
+        try
+        {
+            IUser? user = await Client.GetUserAsync(userId);
+            if (user != null) return user;
+
+            _logger.LogWarning("User with ID {UserId} could not be found.", userId);
+            return null;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error occurred while fetching user details for userId {UserId}.", userId);
+            return null;
+        }
+    }
+
+    public override Task StopAsync(CancellationToken stoppingToken)
+    {
+        _logger.LogInformation("Streak reset service is stopping...");
+        _timer?.Change(Timeout.Infinite, 0);
+        return base.StopAsync(stoppingToken);
+    }
+
+    public override void Dispose()
+    {
+        base.Dispose();
+        _timer?.Dispose();
+        GC.SuppressFinalize(this);
     }
 }
