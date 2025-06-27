@@ -110,7 +110,9 @@ public class StreakResetService(
                 userContext, timeToExpiry);
 
             // Send DM reminder to the user
-            string gameName = Enum.GetName(gameStat.Type) ?? "Wordle";
+            string gameName = Enum.IsDefined(gameStat.Type) 
+                ? Enum.GetName(gameStat.Type)! 
+                : "Wordle";
             await SendUserStreakReminderAsync(user, gameName, gameStat.CurrentStreak, streakExpiry);
 
             // Mark reminder as sent
@@ -151,8 +153,17 @@ public class StreakResetService(
     {
         if (gameStat.CurrentStreak <= 0 || gameStat.LastActivity?.Date.AddDays(DaysInactiveThreshold) > now) return;
 
-        UserLogContext userContext = new(await FetchUserDetailsAsync(gameStat.BlinkUserId));
-        _logger.LogInformation("Resetting streak for {userContext}...", userContext);
+        IUser? user = await FetchUserDetailsAsync(gameStat.BlinkUserId);
+        if (user != null)
+        {
+            UserLogContext userContext = new(user);
+            _logger.LogInformation("Resetting streak for {UserContext}...", userContext);
+        }
+        else
+        {
+            _logger.LogInformation("Resetting streak for user {userId}", gameStat.BlinkUserId);
+        }
+        
         gameStat.MaxStreak = Math.Max(gameStat.MaxStreak, gameStat.CurrentStreak);
         gameStat.CurrentStreak = 0;
 
