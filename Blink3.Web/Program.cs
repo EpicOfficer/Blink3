@@ -1,3 +1,4 @@
+using Blink3.Core.Extensions;
 using Blink3.Web;
 using Blink3.Web.Configuration;
 using Blink3.Web.Configuration.Extensions;
@@ -17,6 +18,8 @@ builder.RootComponents.Add<HeadOutlet>("head::after");
 
 builder.Services.AddAppConfiguration(builder.Configuration);
 AppOptions appConfig = builder.Services.GetAppConfiguration();
+
+builder.Services.AddBlinkLogging(builder.Configuration, "Blink3.Web");
 
 builder.Services.AddTransient<CookieHandler>();
 builder.Services.AddScoped(sp => sp

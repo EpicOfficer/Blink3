@@ -4,6 +4,7 @@ x-common-environment: &common-env
   ConnectionStrings__DefaultConnection: Server=postgres;Port=5432;Database=${POSTGRES_USER};Userid=${POSTGRES_USER};Password=${POSTGRES_PASSWORD};SslMode=Prefer;TrustServerCertificate=true
   Redis__ConnectionString: redis,ssl=false,name=${REDIS_NAME}
   ASPNETCORE_ENVIRONMENT: Production
+  LOKI_URL: ${LOKI_URL}
 
 services:
   redis:

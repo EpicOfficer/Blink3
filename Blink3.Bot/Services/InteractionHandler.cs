@@ -104,13 +104,13 @@ public class InteractionHandler(
     {
         if (result.IsSuccess)
         {
-            _logger.LogInformation("Handled interaction {interaction} in module {module} for {user}",
+            _logger.LogInformation("Handled interaction {interaction} in module {module} for {@User}",
                 commandInfo.Name, commandInfo.Module.Name, new UserLogContext(context.User));
             return;
         }
 
         _logger.LogWarning(
-            "Error handling interaction {interaction} in module {module} for {user}\n" +
+            "Error handling interaction {interaction} in module {module} for {@User}\n" +
             "{ErrorReason}",
             commandInfo.Name, commandInfo.Module.Name, new UserLogContext(context.User), result.ErrorReason);
 

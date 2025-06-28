@@ -106,7 +106,7 @@ public class StreakResetService(
             UserLogContext userContext = new(user);
 
             _logger.LogInformation(
-                "Sending streak reminder to {UserContext}. Time to expiry: {TimeToExpiry}",
+                "Sending streak reminder to {@UserContext}. Time to expiry: {TimeToExpiry}",
                 userContext, timeToExpiry);
 
             // Send DM reminder to the user
@@ -138,11 +138,11 @@ public class StreakResetService(
             
             await user.SendMessageAsync(reminderMessage);
 
-            _logger.LogInformation("Streak reminder sent to {UserContext}.", userContext);
+            _logger.LogInformation("Streak reminder sent to {@UserContext}.", userContext);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to send streak reminder to {UserContext}.", userContext);
+            _logger.LogError(ex, "Failed to send streak reminder to {@UserContext}.", userContext);
         }
     }
     
@@ -157,7 +157,7 @@ public class StreakResetService(
         if (user != null)
         {
             UserLogContext userContext = new(user);
-            _logger.LogInformation("Resetting streak for {UserContext}...", userContext);
+            _logger.LogInformation("Resetting streak for {@UserContext}...", userContext);
         }
         else
         {

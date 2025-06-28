@@ -102,7 +102,7 @@ public class TempVcModule(
             return;
         }
         
-        logger.LogInformation("{User} renamed Temporary {Channel}",
+        logger.LogInformation("{@User} renamed Temporary {@Channel}",
             new UserLogContext(Context.User),
             new GuildChannelLogContext(voiceChannel));
 
@@ -134,7 +134,7 @@ public class TempVcModule(
         await _unitOfWork.TempVcRepository.UpdateAsync(tempVc);
         await _unitOfWork.SaveChangesAsync();
         
-        logger.LogInformation("{User} banned {TargetUser} from {Channel}",
+        logger.LogInformation("{@User} banned {@TargetUser} from {@Channel}",
             new UserLogContext(Context.User),
             new UserLogContext(user),
             new GuildChannelLogContext(voiceChannel));
@@ -168,7 +168,7 @@ public class TempVcModule(
         await _unitOfWork.SaveChangesAsync();
         await voiceChannel.RemovePermissionOverwriteAsync(user);
         
-        logger.LogInformation("{User} unbanned {TargetUser} from {Channel}",
+        logger.LogInformation("{@User} unbanned {@TargetUser} from {@Channel}",
             new UserLogContext(Context.User),
             new UserLogContext(user),
             new GuildChannelLogContext(voiceChannel));
@@ -187,7 +187,7 @@ public class TempVcModule(
         if (limit > 24) limit = 25;
         await voiceChannel.ModifyAsync(v => v.UserLimit = limit);
         
-        logger.LogInformation("{User} set a user limit of {UserLimit} for {Channel}",
+        logger.LogInformation("{@User} set a user limit of {@UserLimit} for {@Channel}",
             new UserLogContext(Context.User),
             limit,
             new GuildChannelLogContext(voiceChannel));
@@ -220,12 +220,12 @@ public class TempVcModule(
         }
         catch (Exception e)
         {
-            logger.LogWarning(e, "Failed to update cam-only mode for {Channel} by {User}", 
+            logger.LogWarning(e, "Failed to update cam-only mode for {@Channel} by {@User}", 
                 new GuildChannelLogContext(voiceChannel), 
                 new UserLogContext(Context.User));
         }
 
-        logger.LogInformation("{User} toggled camera-only mode to {CamOnly} for {Channel}",
+        logger.LogInformation("{@User} toggled camera-only mode to {CamOnly} for {@Channel}",
             new UserLogContext(Context.User),
             tempVc.CamOnly,
             new GuildChannelLogContext(voiceChannel));
@@ -243,13 +243,13 @@ public class TempVcModule(
         if (await Context.Guild.GetVoiceChannelAsync(tempVc.ChannelId) is { } voiceChannel)
         {
             await voiceChannel.DeleteAsync();
-            logger.LogInformation("{User} deleted Temporary {Channel}",
+            logger.LogInformation("{@User} deleted Temporary {@Channel}",
                 new UserLogContext(Context.User),
                 new GuildChannelLogContext(voiceChannel));
         }
         else
         {
-            logger.LogWarning("Failed to delete Temporary VC for {User} in {Guild}: Channel not found", 
+            logger.LogWarning("Failed to delete Temporary VC for {@User} in {@Guild}: Channel not found", 
                 new UserLogContext(Context.User), new GuildLogContext(Context.Guild));
         }
 

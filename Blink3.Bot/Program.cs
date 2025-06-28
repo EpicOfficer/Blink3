@@ -2,6 +2,7 @@
 using Blink3.Core.Caching.Extensions;
 using Blink3.Core.Configuration;
 using Blink3.Core.Configuration.Extensions;
+using Blink3.Core.Extensions;
 using Blink3.Core.Interfaces;
 using Blink3.Core.Services;
 using Blink3.Core.Services.Generators;
@@ -11,31 +12,23 @@ using Discord;
 using Discord.Addons.Hosting;
 using Discord.Interactions;
 using Discord.WebSocket;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Serilog;
-using Serilog.Events;
-
-if (!EF.IsDesignTime)
-    Log.Logger = new LoggerConfiguration()
-        .MinimumLevel.Information()
-        .MinimumLevel.Override("Microsoft", LogEventLevel.Error)
-        .WriteTo.Console()
-        .CreateLogger();
 
 try
 {
     HostApplicationBuilder builder = Host.CreateApplicationBuilder(args);
+    builder.Services.AddAppConfiguration(builder.Configuration);
+    BlinkConfiguration appConfig = builder.Services.GetAppConfiguration();
 
+    builder.Services.AddBlinkLogging(builder.Configuration, "Blink3.Bot");
+    
     builder.Services.AddHttpClient();
     builder.Services.AddHttpClient<IDiscordAttachmentService, DiscordAttachmentService>();
     builder.Services.AddHttpClient<IWordsClientService, WordsClientService>();
 
     builder.Services.AddSerilog();
-
-    builder.Services.AddAppConfiguration(builder.Configuration);
-    BlinkConfiguration appConfig = builder.Services.GetAppConfiguration();
 
     builder.Services.AddDataAccess(appConfig);
     builder.Services.AddCaching(appConfig);

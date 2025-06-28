@@ -4,6 +4,7 @@ using Blink3.API.Services;
 using Blink3.Core.Caching.Extensions;
 using Blink3.Core.Configuration;
 using Blink3.Core.Configuration.Extensions;
+using Blink3.Core.Extensions;
 using Blink3.Core.Helpers;
 using Blink3.DataAccess.Extensions;
 using Discord;
@@ -22,9 +23,9 @@ try
 {
     WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
-    // Logging
+    builder.Services.AddBlinkLogging(builder.Configuration, "Blink3.API");
     builder.Host.UseSerilog();
-
+    
     // Problem details
     builder.Services.AddProblemDetails();
 

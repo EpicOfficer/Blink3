@@ -70,7 +70,7 @@ public class TempVcCleanService(
         {
             GuildLogContext guildContext = new(guild);
             _logger.LogInformation(
-                "Deleting temp VC {channelId} in {guildContext} from database as the channel is missing",
+                "Deleting temp VC {channelId} in {@GuildContext} from database as the channel is missing",
                 tempVc.ChannelId, guildContext);
             await unitOfWork.TempVcRepository.DeleteAsync(tempVc);
             await unitOfWork.SaveChangesAsync();
@@ -96,7 +96,7 @@ public class TempVcCleanService(
                 GuildChannelLogContext channelContext = new(channel);
 
                 _logger.LogInformation(
-                    "Kicking {userContext} from {channelContext} as they are banned from this VC",
+                    "Kicking {@UserContext} from {@ChannelContext} as they are banned from this VC",
                     userContext, channelContext);
 
                 await user.ModifyAsync(u => u.Channel = null);
@@ -114,7 +114,7 @@ public class TempVcCleanService(
                 UserLogContext userContext = new(user);
                 GuildChannelLogContext channelContext = new(channel);
                 _logger.LogInformation(
-                    "Kicking {userContext} from {channelContext} as they are not videoing",
+                    "Kicking {@UserContext} from {@ChannelContext} as they are not videoing",
                     userContext, channelContext);
                 await user.ModifyAsync(u => u.Channel = null);
                 try
@@ -137,7 +137,7 @@ public class TempVcCleanService(
 
         // Delete the VC, as there are no users in it
         _logger.LogInformation(
-            "Automatically deleting stale VC {channelContext}",
+            "Automatically deleting stale VC {@ChannelContext}",
             new GuildChannelLogContext(channel));
         await channel.DeleteAsync();
         await unitOfWork.TempVcRepository.DeleteAsync(tempVc);
