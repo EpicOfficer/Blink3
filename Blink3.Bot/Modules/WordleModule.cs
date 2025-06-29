@@ -4,10 +4,12 @@ using Blink3.Bot.MessageStyles;
 using Blink3.Core.Entities;
 using Blink3.Core.Enums;
 using Blink3.Core.Extensions;
+using Blink3.Core.Helpers;
 using Blink3.Core.Interfaces;
 using Blink3.Core.Models;
 using Discord;
 using Discord.Interactions;
+using Microsoft.Extensions.ObjectPool;
 
 namespace Blink3.Bot.Modules;
 
@@ -20,33 +22,10 @@ public class WordleModule(
 {
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
+    private static readonly ObjectPool<MemoryStream> StreamPool =
+        new DefaultObjectPool<MemoryStream>(new DefaultPooledObjectPolicy<MemoryStream>(), 20);
+    
     private ulong GameId => Context.Interaction.ChannelId ?? Context.User.Id;
-
-    private async Task<GameStatistics> UpdateStatsAsync(ulong userId)
-    {
-        GameStatistics stats =
-            await _unitOfWork.GameStatisticsRepository.GetOrCreateGameStatistics(userId, GameType.Wordle);
-        DateTime time = DateTime.UtcNow;
-
-        // If the last activity is on the same date, no need to update the streak
-        if (stats.LastActivity?.Date ==
-            time.Date) return stats; // Do nothing except return the stats (they already participated today)
-
-        bool isConsecutiveDay = stats.LastActivity?.Date.AddDays(1) == time.Date;
-        if (isConsecutiveDay)
-        {
-            stats.CurrentStreak++; // Increment the streak
-            stats.MaxStreak = Math.Max(stats.MaxStreak, stats.CurrentStreak); // Update max streak if needed
-        }
-        else
-        {
-            stats.MaxStreak = Math.Max(stats.MaxStreak, stats.CurrentStreak);
-            stats.CurrentStreak = 0;
-        }
-
-        stats.LastActivity = time; // Update the last activity
-        return stats;
-    }
 
     [SlashCommand("wordle", "Start a new game of wordle")]
     public async Task Start(WordleLanguageEnum language = WordleLanguageEnum.English)
@@ -73,7 +52,7 @@ public class WordleModule(
         };
 
         await wordleGameService.StartNewGameAsync(GameId, lang, 5);
-        GameStatistics stats = await UpdateStatsAsync(Context.User.Id);
+        GameStatistics stats = await StreakHelper.EnsureStatsUpdatedAsync(_unitOfWork, Context.User.Id, GameType.Wordle);
         await _unitOfWork.GameStatisticsRepository.UpdateAsync(stats);
         await _unitOfWork.SaveChangesAsync();
 
@@ -116,6 +95,7 @@ public class WordleModule(
             return;
         }
 
+        // Make a Guess
         Result<WordleGuess> guessResult = await wordleGameService.MakeGuessAsync(word, Context.User.Id, wordle);
         if (!guessResult.IsSuccess)
         {
@@ -123,32 +103,46 @@ public class WordleModule(
             return;
         }
 
-        GameStatistics stats = await UpdateStatsAsync(Context.User.Id);
-
-        if (wordle.Players.Contains(Context.User.Id) is false) wordle.Players.Add(Context.User.Id);
+        // Update game statistics
+        GameStatistics stats = await StreakHelper.EnsureStatsUpdatedAsync(_unitOfWork, Context.User.Id, GameType.Wordle);
+        if (wordle.Players.Contains(Context.User.Id) is false)
+            wordle.Players.Add(Context.User.Id);
 
         WordleGuess guess = guessResult.SafeValue();
-        string text = string.Empty;
-        Color embedColor = Colours.Info;
+        string responseMessage = BuildGuessResponse(wordle, guess, stats);
+        await HandleGameUpdates(wordle, stats, guess, responseMessage);
+    }
 
+    private static string BuildGuessResponse(Wordle wordle, WordleGuess guess, GameStatistics stats)
+    {
         if (guess.IsCorrect)
         {
             stats.GamesWon++;
             stats.GamesPlayed++;
-
             int pointsToAdd = Math.Max(11 - wordle.TotalAttempts, 0);
             stats.Points += pointsToAdd;
 
-            text = $"""
+            return $"""
                     🎉 **Congratulations, <@{stats.BlinkUserId}>!** You solved the Wordle in **{wordle.TotalAttempts} attempt{(wordle.TotalAttempts == 1 ? "" : "s")}**!  
                     You've earned **{pointsToAdd} point{(pointsToAdd == 1 ? "" : "s")}**, and now have a total of **{stats.Points}** point{(stats.Points == 1 ? "" : "s")}.
                     """;
-            embedColor = Colours.Success;
+        }
 
+        return $"""
+                ⚠️ **Not quite!** Keep trying, you’ve got this!  
+                You've used **{wordle.TotalAttempts} attempt{(wordle.TotalAttempts == 1 ? "" : "s")}** so far.
+                """;
+    }
+    
+    private async Task HandleGameUpdates(Wordle wordle, GameStatistics stats, WordleGuess guess, string responseMessage)
+    {
+        Color embedColor = guess.IsCorrect ? Colours.Success : Colours.Info;
+
+        if (guess.IsCorrect)
+        {
             HashSet<GameStatistics> playerStatsList =
                 await _unitOfWork.WordleRepository.GetOtherParticipantStatsAsync(wordle, Context.User.Id);
 
-            // Update stats for other players who participated
             foreach (GameStatistics playerStats in playerStatsList)
             {
                 playerStats.GamesPlayed++;
@@ -160,51 +154,61 @@ public class WordleModule(
         else
         {
             await _unitOfWork.WordleRepository.UpdateAsync(wordle);
-
-            text = $"""
-                    ⚠️ **Not quite!** Keep trying, you’ve got this!  
-                    You've used **{wordle.TotalAttempts} attempt{(wordle.TotalAttempts == 1 ? "" : "s")}** so far.
-                    """;
         }
 
         await _unitOfWork.GameStatisticsRepository.UpdateAsync(stats);
         await _unitOfWork.SaveChangesAsync();
 
-        BlinkGuild config = await FetchConfig();
-        using MemoryStream image = new();
-        await wordleGameService.GenerateImageAsync(guess, image, config);
-        using FileAttachment attachment = new(image, $"{wordle.Id}_{guess.Id}.png");
-
-        ContainerBuilder container = new ContainerBuilder()
-            .WithAccentColor(embedColor)
-            .WithTextDisplay(text)
-            .WithMediaGallery([attachment.GetAttachmentUrl()]);
-
+        // Generate game response
+        await GenerateGuessResponse(wordle, guess, responseMessage, embedColor);
+    }
+    
+    private async Task GenerateGuessResponse(Wordle wordle, WordleGuess guess, string text, Color embedColor)
+    {
         ButtonBuilder defineButton = new("Define", $"blink-define-word_{guess.Word}");
         ButtonBuilder letterButton = new("Show letters", $"blink-wordle-status_{wordle.Id}", ButtonStyle.Secondary);
-        switch (wordle.Language)
-        {
-            case "en" when !guess.IsCorrect:
-                container.WithActionRow(new ActionRowBuilder()
-                    .WithButton(defineButton)
-                    .WithButton(letterButton));
-                break;
-            case "en" when guess.IsCorrect:
-                container.WithActionRow(new ActionRowBuilder()
-                    .WithButton(defineButton));
-                break;
-            case "es" when !guess.IsCorrect:
-                container.WithActionRow(new ActionRowBuilder()
-                    .WithButton(letterButton));
-                break;
-        }
-        
-        ComponentBuilderV2 builder = new ComponentBuilderV2().WithContainer(container);
-        await FollowupWithFileAsync(attachment,
-            components: builder.Build(),
-            ephemeral: false);
-    }
 
+        MemoryStream image = StreamPool.Get();
+        try
+        {
+            image.SetLength(0);
+            BlinkGuild config = await FetchConfig();
+            await wordleGameService.GenerateImageAsync(guess, image, config);
+            image.Position = 0;
+
+            FileAttachment attachment = new(image, $"{wordle.Id}_{guess.Id}.png");
+
+            ContainerBuilder container = new ContainerBuilder()
+                .WithAccentColor(embedColor)
+                .WithTextDisplay(text)
+                .WithMediaGallery([attachment.GetAttachmentUrl()]);
+
+            switch (wordle.Language)
+            {
+                case "en" when !guess.IsCorrect:
+                    container.WithActionRow(new ActionRowBuilder()
+                        .WithButton(defineButton)
+                        .WithButton(letterButton));
+                    break;
+                case "en" when guess.IsCorrect:
+                    container.WithActionRow(new ActionRowBuilder()
+                        .WithButton(defineButton));
+                    break;
+                case "es" when !guess.IsCorrect:
+                    container.WithActionRow(new ActionRowBuilder()
+                        .WithButton(letterButton));
+                    break;
+            }
+
+            ComponentBuilderV2 builder = new ComponentBuilderV2().WithContainer(container);
+            await FollowupWithFileAsync(attachment, components: builder.Build(), ephemeral: false);
+        }
+        finally
+        {
+            StreamPool.Return(image);
+        }
+    }
+    
     [ComponentInteraction("blink-wordle-status_*")]
     public async Task Status(int id)
     {
@@ -216,20 +220,30 @@ public class WordleModule(
             return;
         }
         
-        using MemoryStream image = new();
-        await wordleGameService.GenerateStatusImageAsync(wordle, image);
-        using FileAttachment attachment = new(image, $"{wordle.Id}_status.png");
+        MemoryStream image = StreamPool.Get();
+        try
+        {
+            image.SetLength(0);
+            await wordleGameService.GenerateStatusImageAsync(wordle, image);
+            
+            image.Position = 0;
+            FileAttachment attachment = new(image, $"{wordle.Id}_status.png");
 
-        ComponentBuilderV2 builder = new ComponentBuilderV2()
-            .WithContainer(new ContainerBuilder()
-                .WithAccentColor(Colours.Info)
-                .WithTextDisplay("Here are the letters that have been eliminated so far...")
-                .WithMediaGallery([attachment.GetAttachmentUrl()])
-            );
+            ComponentBuilderV2 builder = new ComponentBuilderV2()
+                .WithContainer(new ContainerBuilder()
+                    .WithAccentColor(Colours.Info)
+                    .WithTextDisplay("Here are the letters that have been eliminated so far...")
+                    .WithMediaGallery([attachment.GetAttachmentUrl()])
+                );
         
-        await FollowupWithFileAsync(attachment,
-            components: builder.Build(),
-            ephemeral: true);
+            await FollowupWithFileAsync(attachment,
+                components: builder.Build(),
+                ephemeral: true);
+        }
+        finally
+        {
+            StreamPool.Return(image);
+        }
     }
 
     [SlashCommand("define", "Get the definition of a word")]
