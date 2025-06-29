@@ -78,8 +78,6 @@ public class WordleModule(
     [SlashCommand("guess", "Try to guess the wordle")]
     public async Task Guess(string word)
     {
-        await DeferAsync();
-
         Wordle? wordle = await _unitOfWork.WordleRepository.GetByChannelIdAsync(GameId);
         if (wordle is null)
         {
@@ -201,7 +199,7 @@ public class WordleModule(
             }
 
             ComponentBuilderV2 builder = new ComponentBuilderV2().WithContainer(container);
-            await FollowupWithFileAsync(attachment, components: builder.Build(), ephemeral: false);
+            await RespondWithFileAsync(attachment, components: builder.Build(), ephemeral: false);
         }
         finally
         {
