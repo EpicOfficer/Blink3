@@ -14,16 +14,34 @@ public class WordRepository(BlinkDbContext dbContext, ICachingService cache) : I
 {
     private const string SolutionCountCachePrefix = "Words_Solution_Count_";
     private readonly Random _random = new();
+    
+    private readonly Dictionary<string, HashSet<string>> _inMemoryCache = new(StringComparer.OrdinalIgnoreCase);
 
     [SuppressMessage("Performance",
         "CA1862:Use the \'StringComparison\' method overloads to perform case-insensitive string comparisons")]
     public async Task<bool> IsGuessableAsync(string word, string lang,
         CancellationToken cancellationToken = new())
     {
-        return await dbContext.Words.AnyAsync(w => w.Text.ToLower() == word.ToLower() &&
-                                                   w.Language == lang, cancellationToken).ConfigureAwait(false);
-    }
+        if (!_inMemoryCache.TryGetValue(lang, out HashSet<string>? wordList))
+        {
+            wordList = await LoadWordListAsync(lang, cancellationToken);
+            _inMemoryCache[lang] = wordList;
+        }
 
+        return wordList.Contains(word);
+    }
+    
+    private async Task<HashSet<string>> LoadWordListAsync(string lang, CancellationToken cancellationToken)
+    {
+        IEnumerable<string> words = await dbContext.Words
+            .Where(w => w.Language == lang)
+            .Select(w => w.Text)
+            .ToListAsync(cancellationToken)
+            .ConfigureAwait(false);
+
+        return new HashSet<string>(words, StringComparer.OrdinalIgnoreCase);
+    }
+    
     public async Task<Dictionary<WordKey, Word>> GetAllAsync(CancellationToken cancellationToken = new())
     {
         Dictionary<WordKey, Word> existingWords =
