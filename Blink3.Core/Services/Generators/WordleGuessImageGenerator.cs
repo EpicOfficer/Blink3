@@ -3,6 +3,7 @@ using Blink3.Core.Entities;
 using Blink3.Core.Enums;
 using Blink3.Core.Extensions;
 using Blink3.Core.Interfaces;
+using Microsoft.Extensions.ObjectPool;
 using SixLabors.Fonts;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Drawing.Processing;
@@ -102,6 +103,27 @@ public class WordleGuessImageGenerator : IWordleGuessImageGenerator
         VerticalAlignment = VerticalAlignment.Center
     };
 
+    private static readonly PngEncoder FastPngEncoder = new()
+    {
+        CompressionLevel = PngCompressionLevel.BestSpeed,
+        BitDepth = PngBitDepth.Bit8,
+        FilterMethod = PngFilterMethod.None
+    };
+    
+    /// <summary>
+    ///     Loads a font with the specified name and size.
+    /// </summary>
+    /// <param name="fontName">The name of the font to load.</param>
+    /// <param name="size">The size of the font to create.</param>
+    /// <returns>A Font object representing the loaded font with the specified size.</returns>
+    private static Font LoadFont(string fontName, int size)
+    {
+        FontCollection fontCollection = new();
+        string fontPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Fonts", fontName);
+        FontFamily fontFamily = fontCollection.Add(fontPath);
+        return fontFamily.CreateFont(size);
+    }
+
     /// <summary>
     ///     Generates an image representing a WordleGuess object asynchronously.
     /// </summary>
@@ -182,23 +204,7 @@ public class WordleGuessImageGenerator : IWordleGuessImageGenerator
             }
         });
 
-        await image.SaveAsync(outStream,
-            new PngEncoder { CompressionLevel = PngCompressionLevel.BestSpeed },
-            cancellationToken).ConfigureAwait(false);
-    }
-
-    /// <summary>
-    ///     Loads a font with the specified name and size.
-    /// </summary>
-    /// <param name="fontName">The name of the font to load.</param>
-    /// <param name="size">The size of the font to create.</param>
-    /// <returns>A Font object representing the loaded font with the specified size.</returns>
-    private static Font LoadFont(string fontName, int size)
-    {
-        FontCollection fontCollection = new();
-        string fontPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Fonts", fontName);
-        FontFamily fontFamily = fontCollection.Add(fontPath);
-        return fontFamily.CreateFont(size);
+        await image.SaveAsync(outStream, FastPngEncoder, cancellationToken).ConfigureAwait(false);
     }
 
     /// <summary>
@@ -255,9 +261,7 @@ public class WordleGuessImageGenerator : IWordleGuessImageGenerator
         });
 
         // Save image to memory stream
-        await image.SaveAsync(outStream,
-            new PngEncoder { CompressionLevel = PngCompressionLevel.BestSpeed },
-            cancellationToken).ConfigureAwait(false);
+        await image.SaveAsync(outStream, FastPngEncoder, cancellationToken).ConfigureAwait(false);
     }
 
     /// <summary>
