@@ -1,6 +1,8 @@
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using Blink3.Core.Caching.Interfaces;
 using Blink3.Core.Constants;
+using SixLabors.ImageSharp;
 
 // ReSharper disable PropertyCanBeMadeInitOnly.Global
 
@@ -114,6 +116,21 @@ public class BlinkGuild : ICacheKeyIdentifiable
     /// </summary>
     public ulong? TemporaryVcCategoryId { get; set; }
 
+    [NotMapped]
+    public Color ParsedBackgroundColor => Color.ParseHex(BackgroundColour);
+    
+    [NotMapped]
+    public Color ParsedTextColour => Color.ParseHex(TextColour);
+    
+    [NotMapped]
+    public Color ParsedCorrectTileColour => Color.ParseHex(CorrectTileColour);
+    
+    [NotMapped]
+    public Color ParsedMisplacedTileColour => Color.ParseHex(MisplacedTileColour);
+    
+    [NotMapped]
+    public Color ParsedIncorrectTileColour => Color.ParseHex(IncorrectTileColour);
+    
     public string GetCacheKey()
     {
         return Id.ToString();
