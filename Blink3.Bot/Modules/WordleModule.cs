@@ -27,7 +27,7 @@ public class WordleModule(
     
     private ulong GameId => Context.Interaction.ChannelId ?? Context.User.Id;
 
-    [SlashCommand("wordle", "Start a new game of wordle")]
+    [SlashCommand("word", "Start a game of BlinkWord, a fun word-guessing challenge!")]
     public async Task Start(WordleLanguageEnum language = WordleLanguageEnum.English)
     {
         await DeferAsync();
@@ -35,7 +35,7 @@ public class WordleModule(
         if (await wordleGameService.IsGameInProgressAsync(GameId))
         {
             await RespondInfoAsync("Game already in progress",
-                "A wordle is already in progress for this channel.  Type `/guess` to try and guess it");
+                "A BlinkWord game is already in progress for this channel.  Type `/guess` to try and guess it");
             return;
         }
 
@@ -52,7 +52,7 @@ public class WordleModule(
         };
 
         await wordleGameService.StartNewGameAsync(GameId, lang, 5);
-        GameStatistics stats = await StreakHelper.EnsureStatsUpdatedAsync(_unitOfWork, Context.User.Id, GameType.Wordle);
+        GameStatistics stats = await StreakHelper.EnsureStatsUpdatedAsync(_unitOfWork, Context.User.Id, GameType.BlinkWord);
         await _unitOfWork.GameStatisticsRepository.UpdateAsync(stats);
         await _unitOfWork.SaveChangesAsync();
 
@@ -60,8 +60,8 @@ public class WordleModule(
             .WithContainer(new ContainerBuilder()
                 .WithAccentColor(Colours.Success)
                 .WithTextDisplay("""
-                                 ## Wordle Started
-                                 A new Wordle game has started! Use `/guess` to make your guesses.
+                                 ## A New BlinkWord Game Has Started! 🎉
+                                 Your mission, should you choose to accept it, is to guess the **hidden word** as quickly as possible.
                                  """)
                 .WithSeparator(isDivider: false)
                 .WithTextDisplay($"""
@@ -75,14 +75,14 @@ public class WordleModule(
         await RespondOrFollowUpAsync(components: builder.Build(), allowedMentions: AllowedMentions.None);
     }
 
-    [SlashCommand("guess", "Try to guess the wordle")]
+    [SlashCommand("guess", "Submit a word to guess the hidden answer in an active BlinkWord game")]
     public async Task Guess(string word)
     {
         Wordle? wordle = await _unitOfWork.WordleRepository.GetByChannelIdAsync(GameId);
         if (wordle is null)
         {
             await RespondErrorAsync("No game in progress",
-                "There is no game in progress.  Type `/wordle` to start one");
+                "There is no active BlinkWord game in progress.  Type `/word` to start one");
             return;
         }
 
@@ -102,7 +102,7 @@ public class WordleModule(
         }
 
         // Update game statistics
-        GameStatistics stats = await StreakHelper.EnsureStatsUpdatedAsync(_unitOfWork, Context.User.Id, GameType.Wordle);
+        GameStatistics stats = await StreakHelper.EnsureStatsUpdatedAsync(_unitOfWork, Context.User.Id, GameType.BlinkWord);
         if (wordle.Players.Contains(Context.User.Id) is false)
             wordle.Players.Add(Context.User.Id);
 
@@ -121,7 +121,7 @@ public class WordleModule(
             stats.Points += pointsToAdd;
 
             return $"""
-                    🎉 **Congratulations, <@{stats.BlinkUserId}>!** You solved the Wordle in **{wordle.TotalAttempts} attempt{(wordle.TotalAttempts == 1 ? "" : "s")}**!  
+                    🎉 **Congratulations, <@{stats.BlinkUserId}>!** You solved the BlinkWord in **{wordle.TotalAttempts} attempt{(wordle.TotalAttempts == 1 ? "" : "s")}**!  
                     You've earned **{pointsToAdd} point{(pointsToAdd == 1 ? "" : "s")}**, and now have a total of **{stats.Points}** point{(stats.Points == 1 ? "" : "s")}.
                     """;
         }
@@ -214,7 +214,7 @@ public class WordleModule(
         Wordle? wordle = await _unitOfWork.WordleRepository.GetByIdAsync(id);
         if (wordle is null)
         {
-            await RespondErrorAsync("Invalid wordle", "This is not the button you are looking for.");
+            await RespondErrorAsync("Invalid BlinkWord", "This is not the button you are looking for.");
             return;
         }
         
@@ -294,7 +294,7 @@ public class WordleModule(
 
         // Retrieve the user's game statistics
         GameStatistics stats =
-            await _unitOfWork.GameStatisticsRepository.GetOrCreateGameStatistics(targetUser.Id, GameType.Wordle);
+            await _unitOfWork.GameStatisticsRepository.GetOrCreateGameStatistics(targetUser.Id, GameType.BlinkWord);
 
         // Calculate the win percentage
         double winPercentage = stats.GamesPlayed > 0
@@ -324,8 +324,8 @@ public class WordleModule(
                         Url = targetUser.GetDisplayAvatarUrl(size: 240)
                     }))
                     .WithTextDisplay($"""
-                                      ## Wordle Statistics
-                                      Here are the Wordle statistics for {targetUser.Mention} {stats.CurrentStreak.GetStreakText()}
+                                      ## BlinkWord Statistics
+                                      Here are the statistics for {targetUser.Mention} {stats.CurrentStreak.GetStreakText()}
                                       """))
                 .WithSeparator(SeparatorSpacingSize.Large)
                 .WithTextDisplay("""
@@ -361,13 +361,13 @@ public class WordleModule(
         await DeferAsync();
 
         IEnumerable<GameStatistics> leaderboard =
-            await _unitOfWork.GameStatisticsRepository.GetLeaderboardAsync(GameType.Wordle);
+            await _unitOfWork.GameStatisticsRepository.GetLeaderboardAsync(GameType.BlinkWord);
 
         ContainerBuilder? containerBuilder = new ContainerBuilder()
             .WithAccentColor(Colours.Info)
             .WithTextDisplay("""
-                             ## Wordle Leaderboard
-                             These are the top Blink Wordle players — how do your stats compare?
+                             ## BlinkWord Leaderboard
+                             These are the top BlinkWord players — how do your stats compare?
                              """);
 
         int i = 1;

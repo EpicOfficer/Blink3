@@ -8,7 +8,7 @@ namespace Blink3.DataAccess.Migrations
     /// <inheritdoc />
     public partial class WordlePointsMigration : Migration
     {
-        private const int WordleGameTypeValue = (int)GameType.Wordle;
+        private const int WordleGameTypeValue = (int)GameType.BlinkWord;
         
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

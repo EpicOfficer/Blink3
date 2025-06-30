@@ -46,7 +46,7 @@ public class WordleRepository(BlinkDbContext dbContext) :
         List<GameStatistics> stats = await _dbContext.GameStatistics
             .AsNoTracking()
             .Where(s => players.Contains(s.BlinkUserId) &&
-                        s.Type == GameType.Wordle &&
+                        s.Type == GameType.BlinkWord &&
                         s.BlinkUserId != userId)
             .ToListAsync(cancellationToken);
         return [..stats];
