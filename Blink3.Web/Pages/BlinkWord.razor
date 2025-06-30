@@ -1,12 +1,12 @@
-@page "/guilds/{GuildId}/Wordle"
+@page "/guilds/{GuildId}/BlinkWord"
 @using Blink3.Core.Entities
 @using Blink3.Web.Interfaces
 @using Microsoft.AspNetCore.JsonPatch
 @inject IBlinkGuildConfigService BlinkGuildConfig;
 
-<PageTitle>Wordle settings</PageTitle>
+<PageTitle>Blink - BlinkWord settings</PageTitle>
 
-<h1 class="mb-2 pb-2">Wordle settings</h1>
+<h1 class="mb-2 pb-2">BlinkWord settings</h1>
 
 @if (_blinkGuild is not null)
 {
