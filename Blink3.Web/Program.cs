@@ -19,8 +19,6 @@ builder.RootComponents.Add<HeadOutlet>("head::after");
 builder.Services.AddAppConfiguration(builder.Configuration);
 AppOptions appConfig = builder.Services.GetAppConfiguration();
 
-builder.Services.AddBlinkLogging(builder.Configuration, "Blink3.Web");
-
 builder.Services.AddTransient<CookieHandler>();
 builder.Services.AddScoped(sp => sp
         .GetRequiredService<IHttpClientFactory>()
