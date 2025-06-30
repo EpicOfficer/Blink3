@@ -65,24 +65,6 @@ services:
       - default
       - public
 
-  web:
-    restart: always
-    image: ghcr.io/epicofficer/blink3.web:latest
-    environment:
-      API_ADDRESS: ${API_URL}
-      CLIENT_ID: ${DISCORD_CLIENT_ID}
-    depends_on:
-      - api
-    networks:
-      - public
-
-  # Not implemented, yet...
-  #activity:
-  #  restart: always
-  #  image: ghcr.io/epicofficer/blink3.activity:latest
-  #  networks:
-  #    - public
-
 networks:
   public:
     driver: bridge

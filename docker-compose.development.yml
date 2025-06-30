@@ -30,17 +30,3 @@ services:
       dockerfile: Blink3.API/Dockerfile
     ports:
       - "8288:8080"
-  
-  web:
-    build:
-      context: .
-      dockerfile: Blink3.Web/Dockerfile
-    ports:
-      - "8280:80"
-
-  #activity:
-  #  build:
-  #    context: .
-  #    dockerfile: Blink3.Activity/Dockerfile
-  #  ports:
-  #    - "8380:80"
