@@ -1,3 +1,4 @@
+using System.Net;
 using Blink3.API.Extensions;
 using Blink3.API.Interfaces;
 using Blink3.API.Services;
@@ -12,6 +13,7 @@ using Discord.Rest;
 using Microsoft.AspNetCore.HttpOverrides;
 using Serilog;
 using Serilog.Events;
+using IPNetwork = Microsoft.AspNetCore.HttpOverrides.IPNetwork;
 
 Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Information()
@@ -58,9 +60,10 @@ try
     // Add forwarded headers
     builder.Services.Configure<ForwardedHeadersOptions>(options =>
     {
-        options.ForwardLimit = 3;
         options.ForwardedHeaders =
             ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+        
+        options.KnownNetworks.Add(new IPNetwork(IPAddress.Parse("172.16.0.0"), 12));
     });
 
     List<string> origins = appConfig.ApiAllowedOrigins;
