@@ -28,7 +28,15 @@ public static class ServiceCollectionExtensions
                 options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
                 options.DefaultChallengeScheme = DiscordAuthenticationDefaults.AuthenticationScheme;
             })
-            .AddCookie()
+            .AddCookie(options =>
+            {
+                options.Cookie.Name = "blink3.auth";
+                options.Cookie.HttpOnly = true;
+                options.Cookie.SameSite = SameSiteMode.None;
+                options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+                options.LoginPath = new PathString("/api/auth/login");
+                options.LogoutPath = new PathString("/api/auth/logout");
+            })
             .AddDiscord(options =>
             {
                 options.ClientId = appConfig.Discord.ClientId;

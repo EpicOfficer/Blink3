@@ -94,11 +94,6 @@ try
 
     // Configure Authentication and Discord OAuth
     builder.Services.AddDiscordAuth(appConfig);
-    builder.Services.ConfigureApplicationCookie(options =>
-    {
-        options.Cookie.SameSite = SameSiteMode.None;             // 👈 Required for cross-origin
-        options.Cookie.SecurePolicy = CookieSecurePolicy.Always; // 👈 Required for 'None'
-    });
 
     WebApplication app = builder.Build();
 
