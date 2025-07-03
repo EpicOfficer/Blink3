@@ -1,11 +1,13 @@
 using Blink3.Bot.Extensions;
 using Blink3.Core.Extensions;
 using Blink3.Core.Interfaces;
+using Blink3.Core.LogContexts;
 using Blink3.Core.Models;
 using Discord;
 using Discord.Interactions;
 using Discord.Webhook;
 using Discord.WebSocket;
+using Microsoft.Extensions.Logging;
 
 // ReSharper disable UnusedType.Global
 // ReSharper disable UnusedMember.Global
@@ -15,7 +17,8 @@ namespace Blink3.Bot.Modules;
 [RequireContext(ContextType.Guild)]
 [RequireUserPermission(GuildPermission.ManageMessages)]
 [RequireBotPermission(GuildPermission.ManageMessages | GuildPermission.ManageWebhooks)]
-public class MoveMessageModule(IDiscordAttachmentService discordAttachmentService)
+public class MoveMessageModule(IDiscordAttachmentService discordAttachmentService,
+    ILogger<MoveMessageModule> logger)
     : BlinkModuleBase<IInteractionContext>
 {
     [MessageCommand("Move message")]
@@ -35,24 +38,32 @@ public class MoveMessageModule(IDiscordAttachmentService discordAttachmentServic
     [ComponentInteraction("blink-move-message_*_*")]
     public async Task MoveMessageTo(string channelIdStr, string messageIdStr, SocketChannel[] channels)
     {
-        await DeferAsync(true);
+        UserLogContext userLogContext = new(Context.User);
+        GuildLogContext guildLogContext = new(Context.Guild);
 
-        Result<Tuple<SocketTextChannel, SocketTextChannel>> channelsResult =
-            await GetSourceAndTargetChannelsAsync(channelIdStr, channels);
-
-        if (!channelsResult.IsSuccess)
+        using (logger.BeginScope(new { Guild = guildLogContext, User = userLogContext }))
         {
-            await RespondErrorAsync(message: channelsResult.Error ?? "An unknown error occured moving the message");
-            return;
+            await DeferAsync(true);
+
+            Result<Tuple<SocketTextChannel, SocketTextChannel>> channelsResult =
+                await GetSourceAndTargetChannelsAsync(channelIdStr, channels);
+
+            if (!channelsResult.IsSuccess)
+            {
+                logger.LogInformation("{User} Triggered an error running MoveMessage in {Guild}: {Error}",
+                    userLogContext, guildLogContext, channelsResult.Error);
+                await RespondErrorAsync(message: channelsResult.Error ?? "An unknown error occured moving the message");
+                return;
+            }
+
+            SocketTextChannel sourceChannel = channelsResult.SafeValue().Item1;
+            SocketTextChannel targetChannel = channelsResult.SafeValue().Item2;
+
+            IMessage? message = await GetMessageToMove(sourceChannel, messageIdStr.ToUlong());
+            if (message is null) return;
+
+            await MoveMessage(message, targetChannel);
         }
-
-        SocketTextChannel sourceChannel = channelsResult.SafeValue().Item1;
-        SocketTextChannel targetChannel = channelsResult.SafeValue().Item2;
-
-        IMessage? message = await GetMessageToMove(sourceChannel, messageIdStr.ToUlong());
-        if (message is null) return;
-
-        await MoveMessage(message, targetChannel);
     }
 
     /// <summary>
@@ -97,6 +108,8 @@ public class MoveMessageModule(IDiscordAttachmentService discordAttachmentServic
 
         if (!message.Author.IsBot) return message;
 
+        logger.LogInformation("{User} Tried to move a bot message in {Guild}",
+            new UserLogContext(Context.User), new GuildLogContext(Context.Guild));
         await RespondErrorAsync("Unsupported message", "This command cannot be used on bot messages");
         return null;
     }
@@ -125,6 +138,7 @@ public class MoveMessageModule(IDiscordAttachmentService discordAttachmentServic
 
         await message.DeleteAsync();
 
+        logger.LogInformation("{User} Used MoveMessage in {Guild}", new UserLogContext(Context.User), new GuildLogContext(Context.Guild));
         await RespondSuccessAsync("Message moved", $"Successfully moved message to {targetChannel.Name}");
     }
 
@@ -137,8 +151,7 @@ public class MoveMessageModule(IDiscordAttachmentService discordAttachmentServic
     {
         return (await channel.GetWebhooksAsync()).FirstOrDefault() ?? await channel.CreateWebhookAsync("Blink");
     }
-
-
+    
     /// <summary>
     ///     Sends a message with attachments using a Discord webhook client.
     /// </summary>

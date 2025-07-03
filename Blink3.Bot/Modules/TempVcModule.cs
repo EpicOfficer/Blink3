@@ -78,7 +78,7 @@ public class TempVcModule(
                 )
             );
             
-            logger.LogInformation("{User} created Temporary {Channel}", userLogContext, new GuildChannelLogContext(voiceChannel));
+            logger.LogInformation("{User} created Temporary VC {Channel}", userLogContext, new GuildChannelLogContext(voiceChannel));
             
             await RespondOrFollowUpAsync(components: builder.Build(), allowedMentions: new AllowedMentions(AllowedMentionTypes.Users), ephemeral: false);
         }
