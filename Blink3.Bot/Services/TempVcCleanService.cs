@@ -60,7 +60,12 @@ public class TempVcCleanService(
     {
         if (Client.GetGuild(guildId) is not { } guild) return;
 
-        foreach (TempVc tempVc in tempVcs) await HandleChannel(guild, tempVc, unitOfWork);
+        GuildLogContext guildLogContext = new(guild);
+
+        using (logger.BeginScope(new { Guild = guildLogContext }))
+        {
+            foreach (TempVc tempVc in tempVcs) await HandleChannel(guild, tempVc, unitOfWork);
+        }
     }
 
     private async Task HandleChannel(SocketGuild guild, TempVc tempVc, IUnitOfWork unitOfWork)
@@ -70,7 +75,7 @@ public class TempVcCleanService(
         {
             GuildLogContext guildContext = new(guild);
             _logger.LogInformation(
-                "Deleting temp VC {channelId} in {@GuildContext} from database as the channel is missing",
+                "Deleting temp VC {channelId} in {Guild} from database as the channel is missing",
                 tempVc.ChannelId, guildContext);
             await unitOfWork.TempVcRepository.DeleteAsync(tempVc);
             await unitOfWork.SaveChangesAsync();
@@ -95,8 +100,7 @@ public class TempVcCleanService(
                 UserLogContext userContext = new(user);
                 GuildChannelLogContext channelContext = new(channel);
 
-                _logger.LogInformation(
-                    "Kicking {@UserContext} from {@ChannelContext} as they are banned from this VC",
+                _logger.LogInformation("Kicking {User} from {Channel} as they are banned from this VC",
                     userContext, channelContext);
 
                 await user.ModifyAsync(u => u.Channel = null);
@@ -113,9 +117,7 @@ public class TempVcCleanService(
             {
                 UserLogContext userContext = new(user);
                 GuildChannelLogContext channelContext = new(channel);
-                _logger.LogInformation(
-                    "Kicking {@UserContext} from {@ChannelContext} as they are not videoing",
-                    userContext, channelContext);
+                _logger.LogInformation("Kicking {User} from {Channel;} as they are not videoing", userContext, channelContext);
                 await user.ModifyAsync(u => u.Channel = null);
                 try
                 {
@@ -124,7 +126,7 @@ public class TempVcCleanService(
                 }
                 catch (Exception e)
                 {
-                    _logger.LogInformation(e, "Failed to DM user {userId} in guild {guildId}", user.Id, guild.Id);
+                    _logger.LogInformation(e, "Failed to DM {User} in {Channel}", userContext, channelContext);
                 }
             }
         }
@@ -136,9 +138,7 @@ public class TempVcCleanService(
         if (connectedUsers.Any(u => !u.IsBot)) return;
 
         // Delete the VC, as there are no users in it
-        _logger.LogInformation(
-            "Automatically deleting stale VC {@ChannelContext}",
-            new GuildChannelLogContext(channel));
+        _logger.LogInformation("Automatically deleting stale VC {Channel}", new GuildChannelLogContext(channel));
         await channel.DeleteAsync();
         await unitOfWork.TempVcRepository.DeleteAsync(tempVc);
         await unitOfWork.SaveChangesAsync();
