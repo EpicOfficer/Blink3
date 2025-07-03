@@ -34,14 +34,14 @@ public class TempVcModule(
             BlinkGuild guildConfig = await FetchConfig();
             if (guildConfig.TemporaryVcCategoryId is null)
             {
-                logger.LogInformation("{User} tried to create a Temporary VC for {Guild} but it is not configured", userLogContext, guildLogContext);
+                logger.LogInformation("{User} Tried to create a Temporary VC for {Guild} but it is not configured", userLogContext, guildLogContext);
                 await RespondErrorAsync("Not configured", "Temporary VCs have not been configured for this server.");
                 return;
             }
 
             if (await _unitOfWork.TempVcRepository.GetByUserIdAsync(Context.Guild.Id, Context.User.Id) is not null)
             {
-                logger.LogInformation("{User} tried to create a duplicate Temporary VC for {Guild}", userLogContext, guildLogContext);
+                logger.LogInformation("{User} Tried to create a duplicate Temporary VC for {Guild}", userLogContext, guildLogContext);
                 await RespondErrorAsync("Temporary VC limit reached", "You already have a temporary VC in this server.");
                 return;
             }
@@ -78,7 +78,7 @@ public class TempVcModule(
                 )
             );
             
-            logger.LogInformation("{User} created Temporary VC {Channel}", userLogContext, new GuildChannelLogContext(voiceChannel));
+            logger.LogInformation("{User} Created Temporary VC {Channel}", userLogContext, new GuildChannelLogContext(voiceChannel));
             
             await RespondOrFollowUpAsync(components: builder.Build(), allowedMentions: new AllowedMentions(AllowedMentionTypes.Users), ephemeral: false);
         }
@@ -113,7 +113,7 @@ public class TempVcModule(
                 return;
             }
             
-            logger.LogInformation("{@User} renamed Temporary {@Channel}", userLogContext, channelLogContext);
+            logger.LogInformation("{@User} Renamed Temporary {@Channel}", userLogContext, channelLogContext);
 
             await RespondSuccessAsync("Temporary VC Renamed",
                 $"Your temporary VC has been renamed to {voiceChannel.Mention}");
@@ -137,14 +137,14 @@ public class TempVcModule(
 
             if (user.Id == Context.Client.CurrentUser.Id)
             {
-                logger.LogInformation("{User} attempted to ban the bot from their temporary VC {Channel}", userLogContext, channelLogContext);
+                logger.LogInformation("{User} Attempted to ban the bot from their temporary VC {Channel}", userLogContext, channelLogContext);
                 await RespondErrorAsync("Cannot ban the bot", "You cannot ban me from your temporary VC!");
                 return;
             }
         
             if (user.Id == Context.User.Id)
             {
-                logger.LogInformation("{User} attempted to ban themselves from their temporary VC {Channel}", userLogContext, channelLogContext);
+                logger.LogInformation("{User} Attempted to ban themselves from their temporary VC {Channel}", userLogContext, channelLogContext);
                 await RespondErrorAsync("Cannot ban yourself", "You cannot ban yourself from your temporary VC!");
                 return;
             }
@@ -153,7 +153,7 @@ public class TempVcModule(
             await _unitOfWork.TempVcRepository.UpdateAsync(tempVc);
             await _unitOfWork.SaveChangesAsync();
         
-            logger.LogInformation("{User} banned {TargetUser} from {Channel}",
+            logger.LogInformation("{User} Banned {TargetUser} from {Channel}",
                 userLogContext,
                 new UserLogContext(user),
                 channelLogContext);
@@ -197,7 +197,7 @@ public class TempVcModule(
             await _unitOfWork.SaveChangesAsync();
             await voiceChannel.RemovePermissionOverwriteAsync(user);
         
-            logger.LogInformation("{User} unbanned {TargetUser} from {Channel}",
+            logger.LogInformation("{User} Unbanned {TargetUser} from {Channel}",
                 userLogContext,
                 new UserLogContext(user),
                 channelLogContext);
@@ -218,13 +218,11 @@ public class TempVcModule(
             if (tempVc is null || voiceChannel is null)
                 return;
         
-            GuildChannelLogContext channelLogContext = new(voiceChannel);
-
             if (limit is 1 or < 0) limit = 2;
             if (limit > 24) limit = 25;
             await voiceChannel.ModifyAsync(v => v.UserLimit = limit);
         
-            logger.LogInformation("{User} set a user limit of {UserLimit} for {Channel}", userLogContext, limit, guildLogContext);
+            logger.LogInformation("{User} Set a user limit of {UserLimit} for {Channel}", userLogContext, limit, guildLogContext);
         
             await RespondSuccessAsync("Channel limit set", $"Your temporary VC channel limit has been set to {limit}");
         }
@@ -267,7 +265,7 @@ public class TempVcModule(
                     userLogContext);
             }
 
-            logger.LogInformation("{User} toggled cam-only mode to {CamOnly} for {Channel}",
+            logger.LogInformation("{User} Toggled cam-only mode to {CamOnly} for {Channel}",
                 userLogContext,
                 tempVc.CamOnly,
                 channelLogContext);
@@ -291,7 +289,7 @@ public class TempVcModule(
            if (await Context.Guild.GetVoiceChannelAsync(tempVc.ChannelId) is { } voiceChannel)
            {
                await voiceChannel.DeleteAsync();
-               logger.LogInformation("{User} deleted Temporary VC {Channel}",
+               logger.LogInformation("{User} Deleted Temporary VC {Channel}",
                    userLogContext,
                    new GuildChannelLogContext(voiceChannel));
            }
@@ -315,7 +313,7 @@ public class TempVcModule(
 
         UserLogContext userLogContext = new(Context.User);
         GuildLogContext guildLogContext = new(Context.Guild);
-        logger.LogInformation("{User} tried to use a Temporary VC for {Guild} but they do not have one", userLogContext, guildLogContext);
+        logger.LogInformation("{User} Tried to use a Temporary VC for {Guild} but they do not have one", userLogContext, guildLogContext);
         
         await RespondErrorAsync("No Temporary VC", "You do not have a temporary VC in this server.");
         return null;
@@ -331,7 +329,7 @@ public class TempVcModule(
 
         UserLogContext userLogContext = new(Context.User);
         GuildLogContext guildLogContext = new(Context.Guild);
-        logger.LogInformation("{User} tried to use a Temporary VC for {Guild} but it does not exist", userLogContext, guildLogContext);
+        logger.LogInformation("{User} Tried to use a Temporary VC for {Guild} but it does not exist", userLogContext, guildLogContext);
         
         await RespondErrorAsync("Temporary VC not found", "Your temporary VC could not be found.");
         return (null, null);

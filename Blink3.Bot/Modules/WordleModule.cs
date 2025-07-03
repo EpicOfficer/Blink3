@@ -447,7 +447,7 @@ public class WordleModule(
             ComponentBuilderV2 builder = new ComponentBuilderV2().WithContainer(containerBuilder);
 
             await RespondOrFollowUpAsync(components: builder.Build(), allowedMentions: AllowedMentions.None);
-            logger.LogInformation("{User} Viewed BlinkWord leaderboard", userLogContext);
+            logger.LogInformation("{User} Viewed the BlinkWord leaderboard", userLogContext);
         }
     }
 }
