@@ -106,7 +106,7 @@ public class WordleModule(
             bool isGuessable = await _unitOfWork.WordRepository.IsGuessableAsync(word, wordle.Language);
             if (!isGuessable)
             {
-                logger.LogInformation("{User} Tried to make a guess on an invalid word", userLogContext);
+                logger.LogInformation("{User} Tried to guess an invalid word", userLogContext);
                 await RespondErrorAsync("Invalid guess", "The word you entered is not a valid guess.");
                 return;
             }
