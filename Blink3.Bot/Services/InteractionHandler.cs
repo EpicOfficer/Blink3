@@ -104,7 +104,7 @@ public class InteractionHandler(
     {
         if (result.IsSuccess)
         {
-            _logger.LogInformation("Handled interaction {interaction} in module {module} for {@User}",
+            _logger.LogDebug("Handled interaction {interaction} in module {module} for {@User}",
                 commandInfo.Name, commandInfo.Module.Name, new UserLogContext(context.User));
             return;
         }

@@ -5,9 +5,9 @@ namespace Blink3.Core.LogContexts;
 // ReSharper disable MemberCanBePrivate.Global
 public class GuildLogContext(IGuild guild)
 {
-    public ulong GuildId => guild.Id;
-    public string GuildName => guild.Name;
+    public readonly ulong Id = guild.Id;
+    public readonly string Name = guild.Name;
     
-    public override string ToString() => $"Guild: {GuildName} ({GuildId})";
+    public override string ToString() => $"{Name} ({Id})";
 }
 // ReSharper restore MemberCanBePrivate.Global
