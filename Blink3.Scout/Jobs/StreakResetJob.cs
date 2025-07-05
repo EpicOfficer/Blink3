@@ -23,7 +23,7 @@ public class StreakResetJob(IServiceScopeFactory scopeFactory, ILogger<StreakRes
         
         foreach (GameStatistics gameStat in gameStats)
         {
-            if (StreakHelpers.ShouldResetStreak(gameStat, now))
+            if (StreakHelpers.ShouldResetStreak(gameStat))
             {
                 await HandleStreakResetAsync(client, gameStat, unitOfWork, now);
             }

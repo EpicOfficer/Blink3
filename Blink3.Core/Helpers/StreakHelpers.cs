@@ -61,8 +61,9 @@ public static class StreakHelpers
     /// <summary>
     ///     Determines if the user's streak should be reset based on inactivity.
     /// </summary>
-    public static bool ShouldResetStreak(GameStatistics gameStat, DateTime now)
+    public static bool ShouldResetStreak(GameStatistics gameStat)
     {
+        DateTime now = DateTime.UtcNow;
         return gameStat is { CurrentStreak: > 0, LastActivity: not null } &&
                gameStat.LastActivity.Value.AddDays(DaysInactiveThreshold) <= now;
     }
@@ -80,12 +81,13 @@ public static class StreakHelpers
     /// <summary>
     ///     Determines if a streak reminder should be sent based on the user's activity.
     /// </summary>
-    public static bool ShouldSendReminder(GameStatistics gameStat, DateTime now)
+    public static bool ShouldSendReminder(GameStatistics gameStat)
     {
         if (gameStat.LastActivity == null || gameStat.CurrentStreak <= 0) return false;
 
-        DateTime streakExpiry = gameStat.LastActivity.Value.AddDays(DaysInactiveThreshold);
+        DateTime streakExpiry = GetStreakExpiry(gameStat);
         
+        DateTime now = DateTime.UtcNow;
         if (now >= streakExpiry) 
             return false;
         

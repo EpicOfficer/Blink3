@@ -16,22 +16,21 @@ public class StreakReminderJob(IServiceScopeFactory scopeFactory, ILogger<Streak
         IUnitOfWork unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
         DiscordRestClient client = scope.ServiceProvider.GetRequiredService<DiscordRestClient>();
         IReadOnlyCollection<GameStatistics> gameStats = await GetGameStatisticsAsync(scope);
-        DateTime now = DateTime.UtcNow;
 
-        logger.LogInformation("Processing streak reminders for {TotalUsers} users at {CurrentTime}", gameStats.Count, now);
+        logger.LogInformation("Processing streak reminders for {TotalUsers} users at {CurrentTime}", gameStats.Count, DateTime.UtcNow);
         
         foreach (GameStatistics gameStat in gameStats)
         {
-            if (StreakHelpers.ShouldSendReminder(gameStat, now))
+            if (StreakHelpers.ShouldSendReminder(gameStat))
             {
-                await HandleStreakReminderAsync(client, gameStat, unitOfWork, now);
+                await HandleStreakReminderAsync(client, gameStat, unitOfWork);
             }
         }
         
         await unitOfWork.SaveChangesAsync();
     }
     
-    private async Task HandleStreakReminderAsync(IDiscordClient client, GameStatistics gameStat, IUnitOfWork unitOfWork, DateTime now)
+    private async Task HandleStreakReminderAsync(IDiscordClient client, GameStatistics gameStat, IUnitOfWork unitOfWork)
     {
         IUser? user = await FetchUserDetailsAsync(client, gameStat.BlinkUserId);
         if (user == null)
@@ -49,7 +48,7 @@ public class StreakReminderJob(IServiceScopeFactory scopeFactory, ILogger<Streak
         TimestampTag expires = TimestampTag.FromDateTime(streakExpiry, TimestampTagStyles.Relative);
         await user.SendMessageAsync($"Hi {user.Mention}, your {gameName} streak of {gameStat.CurrentStreak} days is expiring {expires}. Keep it up!");
 
-        gameStat.ReminderSentAt = now;
+        gameStat.ReminderSentAt = DateTime.UtcNow;
         await unitOfWork.GameStatisticsRepository.UpdateAsync(gameStat);
     }
 }
