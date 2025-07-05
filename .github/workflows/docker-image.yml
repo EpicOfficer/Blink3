@@ -18,6 +18,8 @@ jobs:
             image: ghcr.io/epicofficer/blink3.api
           - dockerfile: ./Blink3.Bot/Dockerfile
             image: ghcr.io/epicofficer/blink3.bot
+          - dockerfile: ./Blink3.Scout/Dockerfile
+            image: ghcr.io/epicofficer/blink3.scout
     
     permissions:
       contents: read
