@@ -344,7 +344,7 @@ public class WordleModule(
             {
                 lastActivity = TimestampTag.FromDateTime(stats.LastActivity.Value, TimestampTagStyles.Relative);
 
-                DateTime nextDayStart = stats.LastActivity.Value.Date.AddDays(1);
+                DateTime nextDayStart = StreakHelpers.GetNextStreakDate(stats);
                 streakReset = TimestampTag.FromDateTime(nextDayStart, TimestampTagStyles.Relative);
 
                 DateTime streakExpiresDate = StreakHelpers.GetStreakExpiry(stats);
