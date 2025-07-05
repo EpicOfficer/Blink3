@@ -49,6 +49,17 @@ services:
         condition: service_healthy
     image: ghcr.io/epicofficer/blink3.bot:latest
 
+  scout:
+    restart: always
+    environment:
+      <<: *common-env
+      Discord__ClientId: ${DISCORD_CLIENT_ID}
+      Discord__ClientSecret: ${DISCORD_CLIENT_SECRET}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    image: ghcr.io/epicofficer/blink3.scout:latest
+
   api:
     restart: always
     environment:

@@ -10,6 +10,9 @@ using Blink3.Core.Helpers;
 using Blink3.DataAccess.Extensions;
 using Discord;
 using Discord.Rest;
+using Hangfire;
+using Hangfire.Dashboard;
+using Hangfire.PostgreSql;
 using Microsoft.AspNetCore.HttpOverrides;
 using Serilog;
 using IPNetwork = Microsoft.AspNetCore.HttpOverrides.IPNetwork;
@@ -26,6 +29,13 @@ try
     builder.Services.AddBlinkLogging(builder.Configuration, "Blink3.API");
     
     Log.Information("Blink API Starting...");
+    
+    // Add Scout
+    builder.Services.AddHangfire(config =>
+    {
+        config.UsePostgreSqlStorage(c =>
+            c.UseNpgsqlConnection(appConfig.ConnectionStrings.DefaultConnection));
+    });
     
     // Problem details
     builder.Services.AddProblemDetails();
@@ -114,6 +124,11 @@ try
     app.UseAuthentication();
     app.UseAuthorization();
 
+    app.UseHangfireDashboard("/scout", new DashboardOptions
+    {
+        Authorization = [new AllowAnonymousDashboardAuthorizationFilter()]
+    });
+    
     // Map controller endpoints
     app.MapControllers();
 
@@ -126,4 +141,13 @@ catch (Exception e)
 finally
 {
     Log.CloseAndFlush();
+}
+
+public class AllowAnonymousDashboardAuthorizationFilter : IDashboardAuthorizationFilter
+{
+    public bool Authorize(DashboardContext context)
+    {
+        // Allow all requests to access the dashboard
+        return true;
+    }
 }
