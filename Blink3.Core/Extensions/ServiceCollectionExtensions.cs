@@ -55,10 +55,9 @@ namespace Blink3.Core.Extensions
             Log.Logger = loggerConfig.CreateLogger();
 
             // Add Serilog to the dependency injection container
-            services.AddLogging(loggingBuilder =>
-            {
-                loggingBuilder.AddSerilog(dispose: true);
-            });
+            
+
+            services.AddSerilog();
 
             // Return the IServiceCollection to enable fluent calls
             return services;

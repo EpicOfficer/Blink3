@@ -27,9 +27,7 @@ try
     builder.Services.AddHttpClient();
     builder.Services.AddHttpClient<IDiscordAttachmentService, DiscordAttachmentService>();
     builder.Services.AddHttpClient<IWordsClientService, WordsClientService>();
-
-    builder.Services.AddSerilog();
-
+    
     builder.Services.AddDataAccess(appConfig);
     builder.Services.AddCaching(appConfig);
 

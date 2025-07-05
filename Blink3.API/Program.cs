@@ -12,21 +12,20 @@ using Discord;
 using Discord.Rest;
 using Microsoft.AspNetCore.HttpOverrides;
 using Serilog;
-using Serilog.Events;
 using IPNetwork = Microsoft.AspNetCore.HttpOverrides.IPNetwork;
-
-Log.Logger = new LoggerConfiguration()
-    .MinimumLevel.Information()
-    .MinimumLevel.Override("Microsoft", LogEventLevel.Error)
-    .WriteTo.Console()
-    .CreateLogger();
 
 try
 {
     WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
+    // Add Application configurations
+    builder.Services.AddAppConfiguration(builder.Configuration);
+    BlinkConfiguration appConfig = builder.Services.GetAppConfiguration();
+
+    // Add Logging
     builder.Services.AddBlinkLogging(builder.Configuration, "Blink3.API");
-    builder.Host.UseSerilog();
+    
+    Log.Information("Blink API Starting...");
     
     // Problem details
     builder.Services.AddProblemDetails();
@@ -41,11 +40,7 @@ try
     // Swagger docs
     builder.Services.AddEndpointsApiExplorer();
     builder.Services.AddSwaggerGen(c => { c.EnableAnnotations(); });
-
-    // Add Application configurations
-    builder.Services.AddAppConfiguration(builder.Configuration);
-    BlinkConfiguration appConfig = builder.Services.GetAppConfiguration();
-
+    
     // Discord bot client
     builder.Services.AddSingleton<DiscordRestClient>(_ =>
     {
