@@ -63,7 +63,7 @@ public static class StreakHelpers
     /// </summary>
     public static bool ShouldResetStreak(GameStatistics gameStat)
     {
-        DateTime now = DateTime.UtcNow;
+        DateTime now = DateTime.UtcNow.Date;
         return gameStat is { CurrentStreak: > 0, LastActivity: not null } &&
                GetStreakExpiry(gameStat) <= now;
     }
@@ -85,16 +85,12 @@ public static class StreakHelpers
     {
         if (gameStat.LastActivity == null || gameStat.CurrentStreak <= 0) return false;
 
+        DateTime now = DateTime.UtcNow.Date;
         DateTime streakExpiry = GetStreakExpiry(gameStat);
-        
-        DateTime now = DateTime.UtcNow;
-        if (now >= streakExpiry) 
-            return false;
-        
-        bool isExpirationDay = now.Date == streakExpiry.Date;
+        bool isExpirationDay = now == streakExpiry.Date;
         
         bool reminderAlreadySent = gameStat.ReminderSentAt.HasValue &&
-                                   gameStat.ReminderSentAt.Value.Date == now.Date;
+                                   gameStat.ReminderSentAt.Value.Date == now;
         
         return isExpirationDay && !reminderAlreadySent;
     }
