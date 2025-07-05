@@ -86,10 +86,10 @@ public static class StreakHelpers
         if (gameStat.LastActivity == null || gameStat.CurrentStreak <= 0) return false;
 
         DateTime now = DateTime.UtcNow.Date;
-        DateTime streakExpiry = GetStreakExpiry(gameStat);
         
-        bool isReminderPending = gameStat.ReminderSentAt?.Date != now;
-        return streakExpiry.Date == now && isReminderPending;
+        if (gameStat.ReminderSentAt?.Date == now ) return false;
+        
+        return gameStat.LastActivity.Value.Date.AddDays(1) == now;
     }
 
     /// <summary>
