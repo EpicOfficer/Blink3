@@ -10,7 +10,7 @@ public class StartupService(IRecurringJobManager jobManager) : IHostedService
         jobManager.AddOrUpdate<StreakReminderJob>(
             "blink-streak-reminder",
             job => job.ExecuteAsync(),
-            Cron.Daily(0)
+            Cron.Daily(22)
         );
         
         jobManager.AddOrUpdate<StreakResetJob>(
