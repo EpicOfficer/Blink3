@@ -8,9 +8,7 @@ public abstract class BaseStreakJob(IServiceScopeFactory scopeFactory, ILogger l
 {
     protected readonly IServiceScopeFactory ScopeFactory = scopeFactory;
     protected readonly ILogger Logger = logger;
-
-    protected const int DaysInactiveThreshold = 2; // Threshold for inactivity
-
+    
     protected async Task<IUser?> FetchUserDetailsAsync(IDiscordClient client, ulong userId)
     {
         try
@@ -29,7 +27,7 @@ public abstract class BaseStreakJob(IServiceScopeFactory scopeFactory, ILogger l
         }
     }
 
-    protected async Task<IReadOnlyCollection<GameStatistics>> GetGameStatisticsAsync(IServiceScope scope)
+    protected static async Task<IReadOnlyCollection<GameStatistics>> GetGameStatisticsAsync(IServiceScope scope)
     {
         IUnitOfWork unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
         return await unitOfWork.GameStatisticsRepository.GetAllAsync();

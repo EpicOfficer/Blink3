@@ -10,11 +10,9 @@ namespace Blink3.Scout.Jobs;
 // ReSharper disable once ClassNeverInstantiated.Global
 public class StreakResetJob(IServiceScopeFactory scopeFactory, ILogger<StreakResetJob> logger) : BaseStreakJob(scopeFactory, logger)
 {
-    private readonly IServiceScopeFactory _scopeFactory = scopeFactory;
-
     public async Task ExecuteAsync()
     {
-        using IServiceScope scope = _scopeFactory.CreateScope();
+        using IServiceScope scope = ScopeFactory.CreateScope();
         
         IUnitOfWork unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
         DiscordRestClient client = scope.ServiceProvider.GetRequiredService<DiscordRestClient>();
@@ -25,7 +23,7 @@ public class StreakResetJob(IServiceScopeFactory scopeFactory, ILogger<StreakRes
         
         foreach (GameStatistics gameStat in gameStats)
         {
-            if (StreakHelpers.ShouldResetStreak(gameStat, now, DaysInactiveThreshold))
+            if (StreakHelpers.ShouldResetStreak(gameStat, now))
             {
                 await HandleStreakResetAsync(client, gameStat, unitOfWork, now);
             }

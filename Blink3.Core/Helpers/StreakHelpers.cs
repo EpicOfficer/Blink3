@@ -6,6 +6,8 @@ namespace Blink3.Core.Helpers;
 
 public static class StreakHelpers
 {
+    private const int DaysInactiveThreshold = 2; // Threshold for inactivity
+
     /// <summary>
     ///     Updates the user's streak based on their last activity and the current time.
     /// </summary>
@@ -59,10 +61,10 @@ public static class StreakHelpers
     /// <summary>
     ///     Determines if the user's streak should be reset based on inactivity.
     /// </summary>
-    public static bool ShouldResetStreak(GameStatistics gameStat, DateTime now, int daysInactiveThreshold)
+    public static bool ShouldResetStreak(GameStatistics gameStat, DateTime now)
     {
         return gameStat is { CurrentStreak: > 0, LastActivity: not null } &&
-               gameStat.LastActivity.Value.AddDays(daysInactiveThreshold) <= now;
+               gameStat.LastActivity.Value.AddDays(DaysInactiveThreshold) <= now;
     }
 
     /// <summary>
@@ -78,11 +80,30 @@ public static class StreakHelpers
     /// <summary>
     ///     Determines if a streak reminder should be sent based on the user's activity.
     /// </summary>
-    public static bool ShouldSendReminder(GameStatistics gameStat, DateTime now, int daysInactiveThreshold)
+    public static bool ShouldSendReminder(GameStatistics gameStat, DateTime now)
     {
         if (gameStat.LastActivity == null || gameStat.CurrentStreak <= 0) return false;
 
-        DateTime streakExpiry = gameStat.LastActivity.Value.AddDays(daysInactiveThreshold);
-        return !gameStat.ReminderSentAt.HasValue || gameStat.ReminderSentAt.Value.Date != streakExpiry.Date;
+        DateTime streakExpiry = gameStat.LastActivity.Value.AddDays(DaysInactiveThreshold);
+        
+        if (now >= streakExpiry) 
+            return false;
+        
+        bool isExpirationDay = now.Date == streakExpiry.Date;
+        
+        bool reminderAlreadySent = gameStat.ReminderSentAt.HasValue &&
+                                   gameStat.ReminderSentAt.Value.Date == now.Date;
+        
+        return isExpirationDay && !reminderAlreadySent;
+    }
+
+    /// <summary>
+    ///     Calculates the expiry date of the user's current streak based on their last activity.
+    /// </summary>
+    /// <param name="gameStat">The user's game statistics containing the last activity date.</param>
+    /// <returns>The calculated expiry date for the streak, or the current date and time if the last activity is null.</returns>
+    public static DateTime GetStreakExpiry(GameStatistics gameStat)
+    {
+        return gameStat.LastActivity?.AddDays(DaysInactiveThreshold) ?? DateTime.UtcNow;
     }
 }

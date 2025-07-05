@@ -10,11 +10,9 @@ namespace Blink3.Scout.Jobs;
 // ReSharper disable once ClassNeverInstantiated.Global
 public class StreakReminderJob(IServiceScopeFactory scopeFactory, ILogger<StreakResetJob> logger) : BaseStreakJob(scopeFactory, logger)
 {
-    private readonly IServiceScopeFactory _scopeFactory = scopeFactory;
-    
     public async Task ExecuteAsync()
     {
-        using IServiceScope scope = _scopeFactory.CreateScope();
+        using IServiceScope scope = ScopeFactory.CreateScope();
         IUnitOfWork unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
         DiscordRestClient client = scope.ServiceProvider.GetRequiredService<DiscordRestClient>();
         IReadOnlyCollection<GameStatistics> gameStats = await GetGameStatisticsAsync(scope);
@@ -24,7 +22,7 @@ public class StreakReminderJob(IServiceScopeFactory scopeFactory, ILogger<Streak
         
         foreach (GameStatistics gameStat in gameStats)
         {
-            if (StreakHelpers.ShouldSendReminder(gameStat, now, DaysInactiveThreshold))
+            if (StreakHelpers.ShouldSendReminder(gameStat, now))
             {
                 await HandleStreakReminderAsync(client, gameStat, unitOfWork, now);
             }
@@ -43,12 +41,13 @@ public class StreakReminderJob(IServiceScopeFactory scopeFactory, ILogger<Streak
         }
 
         string gameName = gameStat.Type.ToString();
-        DateTime streakExpiry = gameStat.LastActivity!.Value.AddDays(DaysInactiveThreshold);
+        DateTime streakExpiry = StreakHelpers.GetStreakExpiry(gameStat);
 
         Logger.LogInformation("Sending streak reminder to {User}. Streak expiry: {ExpirationDate}",
             new UserLogContext(user), streakExpiry);
 
-        await user.SendMessageAsync($"Hi {user.Mention}, your {gameName} streak of {gameStat.CurrentStreak} days is expiring on {streakExpiry}. Keep it up!");
+        TimestampTag expires = TimestampTag.FromDateTime(streakExpiry, TimestampTagStyles.Relative);
+        await user.SendMessageAsync($"Hi {user.Mention}, your {gameName} streak of {gameStat.CurrentStreak} days is expiring {expires}. Keep it up!");
 
         gameStat.ReminderSentAt = now;
         await unitOfWork.GameStatisticsRepository.UpdateAsync(gameStat);
