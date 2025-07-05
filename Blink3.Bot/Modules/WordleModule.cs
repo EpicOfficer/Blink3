@@ -62,7 +62,7 @@ public class WordleModule(
             };
 
             await wordleGameService.StartNewGameAsync(GameId, lang, wordLength);
-            GameStatistics stats = await StreakHelper.EnsureStatsUpdatedAsync(_unitOfWork, Context.User.Id, GameType.BlinkWord);
+            GameStatistics stats = await StreakHelpers.EnsureStatsUpdatedAsync(_unitOfWork, Context.User.Id, GameType.BlinkWord);
             await _unitOfWork.GameStatisticsRepository.UpdateAsync(stats);
             await _unitOfWork.SaveChangesAsync();
 
@@ -121,7 +121,7 @@ public class WordleModule(
             }
 
             // Update game statistics
-            GameStatistics stats = await StreakHelper.EnsureStatsUpdatedAsync(_unitOfWork, Context.User.Id, GameType.BlinkWord);
+            GameStatistics stats = await StreakHelpers.EnsureStatsUpdatedAsync(_unitOfWork, Context.User.Id, GameType.BlinkWord);
             if (wordle.Players.Contains(Context.User.Id) is false)
                 wordle.Players.Add(Context.User.Id);
 

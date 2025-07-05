@@ -25,6 +25,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Files", "Solution 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Blink3.Tests", "Blink3.Tests\Blink3.Tests.csproj", "{D8F3BEB2-9D9B-49CD-8711-D1A4BA78C689}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Blink3.Scout", "Blink3.Scout\Blink3.Scout.csproj", "{9661CBB9-9C64-41C3-AB88-D905532F194D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -55,5 +57,9 @@ Global
 		{D8F3BEB2-9D9B-49CD-8711-D1A4BA78C689}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D8F3BEB2-9D9B-49CD-8711-D1A4BA78C689}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D8F3BEB2-9D9B-49CD-8711-D1A4BA78C689}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9661CBB9-9C64-41C3-AB88-D905532F194D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9661CBB9-9C64-41C3-AB88-D905532F194D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9661CBB9-9C64-41C3-AB88-D905532F194D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9661CBB9-9C64-41C3-AB88-D905532F194D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

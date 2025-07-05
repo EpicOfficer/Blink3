@@ -1,5 +1,6 @@
 using System.Net;
 using Blink3.API.Extensions;
+using Blink3.API.Filters;
 using Blink3.API.Interfaces;
 using Blink3.API.Services;
 using Blink3.Core.Caching.Extensions;
@@ -10,23 +11,31 @@ using Blink3.Core.Helpers;
 using Blink3.DataAccess.Extensions;
 using Discord;
 using Discord.Rest;
+using Hangfire;
+using Hangfire.PostgreSql;
 using Microsoft.AspNetCore.HttpOverrides;
 using Serilog;
-using Serilog.Events;
 using IPNetwork = Microsoft.AspNetCore.HttpOverrides.IPNetwork;
-
-Log.Logger = new LoggerConfiguration()
-    .MinimumLevel.Information()
-    .MinimumLevel.Override("Microsoft", LogEventLevel.Error)
-    .WriteTo.Console()
-    .CreateLogger();
 
 try
 {
     WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
+    // Add Application configurations
+    builder.Services.AddAppConfiguration(builder.Configuration);
+    BlinkConfiguration appConfig = builder.Services.GetAppConfiguration();
+
+    // Add Logging
     builder.Services.AddBlinkLogging(builder.Configuration, "Blink3.API");
-    builder.Host.UseSerilog();
+    
+    Log.Information("Blink API Starting...");
+    
+    // Add Scout
+    builder.Services.AddHangfire(config =>
+    {
+        config.UsePostgreSqlStorage(c =>
+            c.UseNpgsqlConnection(appConfig.ConnectionStrings.DefaultConnection));
+    });
     
     // Problem details
     builder.Services.AddProblemDetails();
@@ -41,11 +50,7 @@ try
     // Swagger docs
     builder.Services.AddEndpointsApiExplorer();
     builder.Services.AddSwaggerGen(c => { c.EnableAnnotations(); });
-
-    // Add Application configurations
-    builder.Services.AddAppConfiguration(builder.Configuration);
-    BlinkConfiguration appConfig = builder.Services.GetAppConfiguration();
-
+    
     // Discord bot client
     builder.Services.AddSingleton<DiscordRestClient>(_ =>
     {
@@ -119,6 +124,11 @@ try
     app.UseAuthentication();
     app.UseAuthorization();
 
+    app.UseHangfireDashboard("/scout", new DashboardOptions
+    {
+        Authorization = [new AllowAnonymousDashboardAuthorizationFilter()]
+    });
+    
     // Map controller endpoints
     app.MapControllers();
 

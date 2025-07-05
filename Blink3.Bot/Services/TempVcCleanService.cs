@@ -62,7 +62,7 @@ public class TempVcCleanService(
 
         GuildLogContext guildLogContext = new(guild);
 
-        using (logger.BeginScope(new { Guild = guildLogContext }))
+        using (_logger.BeginScope(new { Guild = guildLogContext }))
         {
             foreach (TempVc tempVc in tempVcs) await HandleChannel(guild, tempVc, unitOfWork);
         }

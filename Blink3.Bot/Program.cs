@@ -27,9 +27,7 @@ try
     builder.Services.AddHttpClient();
     builder.Services.AddHttpClient<IDiscordAttachmentService, DiscordAttachmentService>();
     builder.Services.AddHttpClient<IWordsClientService, WordsClientService>();
-
-    builder.Services.AddSerilog();
-
+    
     builder.Services.AddDataAccess(appConfig);
     builder.Services.AddCaching(appConfig);
 
@@ -67,7 +65,6 @@ try
     builder.Services.AddHostedService<InteractionHandler>();
     builder.Services.AddHostedService<BotStatusService>();
     builder.Services.AddHostedService<TempVcCleanService>();
-    builder.Services.AddHostedService<StreakResetService>();
 
     IHost host = builder.Build();
 
