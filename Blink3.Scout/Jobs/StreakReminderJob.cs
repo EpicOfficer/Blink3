@@ -8,7 +8,8 @@ using Discord.Rest;
 namespace Blink3.Scout.Jobs;
 
 // ReSharper disable once ClassNeverInstantiated.Global
-public class StreakReminderJob(IServiceScopeFactory scopeFactory, ILogger<StreakResetJob> logger) : BaseStreakJob(scopeFactory, logger)
+public class StreakReminderJob(IServiceScopeFactory scopeFactory, ILogger<StreakResetJob> logger)
+    : BaseStreakJob(scopeFactory, logger)
 {
     public async Task ExecuteAsync()
     {
@@ -17,11 +18,12 @@ public class StreakReminderJob(IServiceScopeFactory scopeFactory, ILogger<Streak
         DiscordRestClient client = scope.ServiceProvider.GetRequiredService<DiscordRestClient>();
         IReadOnlyCollection<GameStatistics> gameStats = await GetGameStatisticsAsync(scope);
 
-        logger.LogInformation("Processing streak reminders for {TotalUsers} users at {CurrentTime}", gameStats.Count, DateTime.UtcNow);
-        
+        logger.LogInformation("Processing streak reminders for {TotalUsers} users at {CurrentTime}", gameStats.Count,
+            DateTime.UtcNow);
+
         foreach (GameStatistics gameStat in gameStats)
         {
-            if (!StreakHelpers.ShouldSendReminder(gameStat)) 
+            if (!StreakHelpers.ShouldSendReminder(gameStat))
                 continue; // Skip users who don't need reminders
 
             try
@@ -33,10 +35,10 @@ public class StreakReminderJob(IServiceScopeFactory scopeFactory, ILogger<Streak
                 logger.LogError(ex, "Failed to send streak reminder for user {UserId}", gameStat.BlinkUserId);
             }
         }
-        
+
         await unitOfWork.SaveChangesAsync();
     }
-    
+
     private async Task HandleStreakReminderAsync(IDiscordClient client, GameStatistics gameStat, IUnitOfWork unitOfWork)
     {
         IUser? user = await FetchUserDetailsAsync(client, gameStat.BlinkUserId);
@@ -53,7 +55,7 @@ public class StreakReminderJob(IServiceScopeFactory scopeFactory, ILogger<Streak
             new UserLogContext(user), streakExpiry);
 
         TimestampTag expires = TimestampTag.FromDateTime(streakExpiry, TimestampTagStyles.Relative);
-        await user.SendMessageAsync($"Hi {user.Mention}, your {gameName} streak of {gameStat.CurrentStreak} days is expiring {expires}. Keep it up!");
+        await user.SendMessageAsync($"Hey {user.Mention}, your {gameName} streak of {gameStat.CurrentStreak} days is about to expire {expires}.  Don’t give up on it now! 💪");
 
         gameStat.ReminderSentAt = DateTime.UtcNow;
         await unitOfWork.GameStatisticsRepository.UpdateAsync(gameStat);
