@@ -53,8 +53,7 @@ services:
     restart: always
     environment:
       <<: *common-env
-      Discord__ClientId: ${DISCORD_CLIENT_ID}
-      Discord__ClientSecret: ${DISCORD_CLIENT_SECRET}
+      Discord__BotToken: ${DISCORD_BOT_TOKEN}
     depends_on:
       postgres:
         condition: service_healthy

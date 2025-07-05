@@ -43,6 +43,7 @@
     <ItemGroup>
         <ProjectReference Include="..\Blink3.Core\Blink3.Core.csproj"/>
         <ProjectReference Include="..\Blink3.DataAccess\Blink3.DataAccess.csproj"/>
+        <ProjectReference Include="..\Blink3.Scout\Blink3.Scout.csproj" />
     </ItemGroup>
 
 </Project>

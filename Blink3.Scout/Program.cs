@@ -3,6 +3,7 @@ using Blink3.Core.Configuration;
 using Blink3.Core.Configuration.Extensions;
 using Blink3.Core.Extensions;
 using Blink3.DataAccess.Extensions;
+using Blink3.Scout.Services;
 using Discord;
 using Discord.Rest;
 using Hangfire;
@@ -41,6 +42,8 @@ builder.Services.AddSingleton<DiscordRestClient>(_ =>
 builder.Services.AddDataAccess(appConfig);
 builder.Services.AddCaching(appConfig);
 builder.Services.AddHttpClient();
+
+builder.Services.AddHostedService<StartupService>();
 
 try
 {
