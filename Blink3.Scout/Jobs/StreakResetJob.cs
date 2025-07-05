@@ -17,22 +17,21 @@ public class StreakResetJob(IServiceScopeFactory scopeFactory, ILogger<StreakRes
         IUnitOfWork unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
         DiscordRestClient client = scope.ServiceProvider.GetRequiredService<DiscordRestClient>();
         IReadOnlyCollection<GameStatistics> gameStats = await GetGameStatisticsAsync(scope);
-        DateTime now = DateTime.UtcNow;
 
-        logger.LogInformation("Processing streak resets for {TotalUsers} users at {CurrentTime}", gameStats.Count, now);
+        logger.LogInformation("Processing streak resets for {TotalUsers} users at {CurrentTime}", gameStats.Count, DateTime.UtcNow);
         
         foreach (GameStatistics gameStat in gameStats)
         {
             if (StreakHelpers.ShouldResetStreak(gameStat))
             {
-                await HandleStreakResetAsync(client, gameStat, unitOfWork, now);
+                await HandleStreakResetAsync(client, gameStat, unitOfWork);
             }
         }
         
         await unitOfWork.SaveChangesAsync();
     }
     
-    private async Task HandleStreakResetAsync(IDiscordClient client, GameStatistics gameStat, IUnitOfWork unitOfWork, DateTime now)
+    private async Task HandleStreakResetAsync(IDiscordClient client, GameStatistics gameStat, IUnitOfWork unitOfWork)
     {
         IUser? user = await FetchUserDetailsAsync(client, gameStat.BlinkUserId);
         if (user != null)
