@@ -1,5 +1,6 @@
 using System.Net;
 using Blink3.API.Extensions;
+using Blink3.API.Filters;
 using Blink3.API.Interfaces;
 using Blink3.API.Services;
 using Blink3.Core.Caching.Extensions;
@@ -11,7 +12,6 @@ using Blink3.DataAccess.Extensions;
 using Discord;
 using Discord.Rest;
 using Hangfire;
-using Hangfire.Dashboard;
 using Hangfire.PostgreSql;
 using Microsoft.AspNetCore.HttpOverrides;
 using Serilog;
@@ -141,13 +141,4 @@ catch (Exception e)
 finally
 {
     Log.CloseAndFlush();
-}
-
-public class AllowAnonymousDashboardAuthorizationFilter : IDashboardAuthorizationFilter
-{
-    public bool Authorize(DashboardContext context)
-    {
-        // Allow all requests to access the dashboard
-        return true;
-    }
 }
