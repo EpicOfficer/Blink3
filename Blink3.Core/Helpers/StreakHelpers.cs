@@ -20,13 +20,13 @@ public static class StreakHelpers
         if (isConsecutiveDay)
         {
             userStats.CurrentStreak++;
-            userStats.MaxStreak = Math.Max(userStats.MaxStreak, userStats.CurrentStreak);
         }
         else
         {
-            userStats.MaxStreak = Math.Max(userStats.MaxStreak, userStats.CurrentStreak);
             userStats.CurrentStreak = 0;
         }
+        
+        userStats.MaxStreak = Math.Max(userStats.MaxStreak, userStats.CurrentStreak);
     }
 
     /// <summary>
@@ -65,7 +65,7 @@ public static class StreakHelpers
     {
         DateTime now = DateTime.UtcNow;
         return gameStat is { CurrentStreak: > 0, LastActivity: not null } &&
-               gameStat.LastActivity.Value.AddDays(DaysInactiveThreshold) <= now;
+               GetStreakExpiry(gameStat) <= now;
     }
 
     /// <summary>
@@ -106,6 +106,6 @@ public static class StreakHelpers
     /// <returns>The calculated expiry date for the streak, or the current date and time if the last activity is null.</returns>
     public static DateTime GetStreakExpiry(GameStatistics gameStat)
     {
-        return gameStat.LastActivity?.AddDays(DaysInactiveThreshold) ?? DateTime.UtcNow;
+        return gameStat.LastActivity?.Date.AddDays(DaysInactiveThreshold) ?? DateTime.UtcNow;
     }
 }
