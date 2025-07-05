@@ -87,12 +87,9 @@ public static class StreakHelpers
 
         DateTime now = DateTime.UtcNow.Date;
         DateTime streakExpiry = GetStreakExpiry(gameStat);
-        bool isExpirationDay = now == streakExpiry.Date;
         
-        bool reminderAlreadySent = gameStat.ReminderSentAt.HasValue &&
-                                   gameStat.ReminderSentAt.Value.Date == now;
-        
-        return isExpirationDay && !reminderAlreadySent;
+        bool isReminderPending = gameStat.ReminderSentAt?.Date != now;
+        return streakExpiry.Date == now && isReminderPending;
     }
 
     /// <summary>

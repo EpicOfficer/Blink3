@@ -21,9 +21,16 @@ public class StreakReminderJob(IServiceScopeFactory scopeFactory, ILogger<Streak
         
         foreach (GameStatistics gameStat in gameStats)
         {
-            if (StreakHelpers.ShouldSendReminder(gameStat))
+            if (!StreakHelpers.ShouldSendReminder(gameStat)) 
+                continue; // Skip users who don't need reminders
+
+            try
             {
                 await HandleStreakReminderAsync(client, gameStat, unitOfWork);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Failed to send streak reminder for user {UserId}", gameStat.BlinkUserId);
             }
         }
         
