@@ -11,6 +11,30 @@ public class GameStatisticsRepository(BlinkDbContext dbContext)
     private const int LeaderboardSize = 8;
     private readonly BlinkDbContext _dbContext = dbContext;
 
+    public async Task<GameStatistics> GetGlobalStatisticsAsync(ulong userId)
+    {
+        GameStatistics globalStatistics = new()
+        {
+            BlinkUserId = userId
+        };
+        
+        List<GameStatistics> allStats = await _dbContext.GameStatistics
+            .Where(x => x.BlinkUserId == userId)
+            .ToListAsync();
+        
+        globalStatistics = allStats.Aggregate(globalStatistics, (agg, stats) =>
+        {
+            agg.GamesPlayed += stats.GamesPlayed;   // Sum of total games played
+            agg.GamesWon += stats.GamesWon;         // Sum of total games won
+            agg.Points += stats.Points;             // Sum of total points
+            agg.CurrentStreak = Math.Max(agg.CurrentStreak, stats.CurrentStreak); // Take the highest current streak
+            agg.MaxStreak = Math.Max(agg.MaxStreak, stats.MaxStreak);             // Take the maximum streak
+            return agg;
+        });
+
+        return globalStatistics;
+    }
+    
     public async Task<GameStatistics> GetOrCreateGameStatistics(ulong userId, GameType gameType)
     {
         // Attempt to retrieve the GameStatistics

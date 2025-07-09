@@ -8,6 +8,8 @@ namespace Blink3.Core.Repositories.Interfaces;
 /// </summary>
 public interface IGameStatisticsRepository : IGenericRepository<GameStatistics>
 {
+    public Task<GameStatistics> GetGlobalStatisticsAsync(ulong userId);
+    
     public Task<GameStatistics> GetOrCreateGameStatistics(ulong userId, GameType gameType);
 
     public Task<IEnumerable<GameStatistics>> GetLeaderboardAsync(GameType? gameType = null);
