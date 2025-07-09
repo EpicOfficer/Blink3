@@ -29,6 +29,14 @@ public class GameStatisticsRepository(BlinkDbContext dbContext)
             agg.Points += stats.Points;             // Sum of total points
             agg.CurrentStreak = Math.Max(agg.CurrentStreak, stats.CurrentStreak); // Take the highest current streak
             agg.MaxStreak = Math.Max(agg.MaxStreak, stats.MaxStreak);             // Take the maximum streak
+            agg.LastActivity = stats.LastActivity switch
+            {
+                null => agg.LastActivity, // Keep the current value if stats.LastActivity is null
+                _ when agg.LastActivity is null => stats.LastActivity, // Assign if the current value is null
+                _ when stats.LastActivity > agg.LastActivity => stats.LastActivity, // Assign if it's more recent
+                _ => agg.LastActivity // Otherwise, keep the current value
+            };
+            
             return agg;
         });
 
