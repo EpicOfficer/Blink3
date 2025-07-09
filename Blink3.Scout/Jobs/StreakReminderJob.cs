@@ -1,4 +1,5 @@
 using Blink3.Core.Entities;
+using Blink3.Core.Extensions;
 using Blink3.Core.Helpers;
 using Blink3.Core.Interfaces;
 using Blink3.Core.LogContexts;
@@ -48,7 +49,7 @@ public class StreakReminderJob(IServiceScopeFactory scopeFactory, ILogger<Streak
             return;
         }
 
-        string gameName = gameStat.Type.ToString();
+        string gameName = gameStat.Type.GetFriendlyName();
         DateTime streakExpiry = StreakHelpers.GetStreakExpiry(gameStat);
 
         Logger.LogInformation("Sending streak reminder to {User}. Streak expiry: {ExpirationDate}",
