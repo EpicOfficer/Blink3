@@ -101,15 +101,7 @@ public class WordleModule(
                     "There is no active BlinkWord game in progress.  Type `/word` to start one");
                 return;
             }
-
-            bool isGuessable = await _unitOfWork.WordRepository.IsGuessableAsync(word, wordle.Language);
-            if (!isGuessable)
-            {
-                logger.LogInformation("{User} Tried to guess an invalid word", userLogContext);
-                await RespondErrorAsync("Invalid guess", "The word you entered is not a valid guess.");
-                return;
-            }
-
+            
             // Make a Guess
             Result<WordleGuess> guessResult = await wordleGameService.MakeGuessAsync(word, Context.User.Id, wordle);
             if (!guessResult.IsSuccess)

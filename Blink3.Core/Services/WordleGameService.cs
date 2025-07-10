@@ -24,13 +24,17 @@ public class WordleGameService(
     public async Task<Result<WordleGuess>> MakeGuessAsync(string word, ulong userId, Wordle wordle,
         CancellationToken cancellationToken = default)
     {
+        WordleGuess? oldGuess = wordle.Guesses.FirstOrDefault(w => w.Word == word);
+        if (oldGuess is not null) return Result<WordleGuess>.Ok(oldGuess);
+
         if (wordle.ValidateWordLength(word) is not true)
             return Result<WordleGuess>.Fail(
                 $"The word you guessed does not match the wordle length {wordle.WordToGuess.Length}");
 
-        WordleGuess? oldGuess = wordle.Guesses.FirstOrDefault(w => w.Word == word);
-        if (oldGuess is not null) return Result<WordleGuess>.Ok(oldGuess);
-
+        bool isGuessable = await unitOfWork.WordRepository.IsGuessableAsync(word, wordle.Language, cancellationToken);
+        if (!isGuessable)
+            return Result<WordleGuess>.Fail("The word you entered is not a valid guess.");
+        
         WordleGuess guess = WordleGuessFactory.Create(wordle, word, userId);
 
         wordle.ProcessGuess(guess);

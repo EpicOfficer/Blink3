@@ -12,45 +12,48 @@ namespace Blink3.DataAccess.Repositories;
 
 public class WordRepository(BlinkDbContext dbContext, ICachingService cache) : IWordRepository
 {
-    private const string SolutionCountCachePrefix = "Words_Solution_Count_";
-    private readonly Random _random = new();
-    
-    private readonly Dictionary<string, HashSet<string>> _inMemoryCache = new(StringComparer.OrdinalIgnoreCase);
-
     [SuppressMessage("Performance",
         "CA1862:Use the \'StringComparison\' method overloads to perform case-insensitive string comparisons")]
     public async Task<bool> IsGuessableAsync(string word, string lang,
         CancellationToken cancellationToken = new())
     {
-        if (!_inMemoryCache.TryGetValue(lang, out HashSet<string>? wordList))
-        {
-            wordList = await LoadWordListAsync(lang, cancellationToken);
-            _inMemoryCache[lang] = wordList;
-        }
-
+        HashSet<string> wordList = await LoadWordListAsync(lang, cancellationToken);
         return wordList.Contains(word);
     }
     
     private async Task<HashSet<string>> LoadWordListAsync(string lang, CancellationToken cancellationToken)
     {
-        IEnumerable<string> words = await dbContext.Words
-            .Where(w => w.Language == lang)
-            .Select(w => w.Text)
-            .ToListAsync(cancellationToken)
-            .ConfigureAwait(false);
+        string cacheKey = $"WordList_{lang}";
 
-        return new HashSet<string>(words, StringComparer.OrdinalIgnoreCase);
+        return await cache.GetOrAddAsync(cacheKey, async () =>
+        {
+            List<string> words = await dbContext.Words
+                .AsNoTracking()
+                .Where(w => w.Language == lang)
+                .Select(w => w.Text)
+                .Distinct()
+                .ToListAsync(cancellationToken)
+                .ConfigureAwait(false);
+            
+            return new HashSet<string>(words, StringComparer.OrdinalIgnoreCase);
+        }, TimeSpan.FromHours(12), cancellationToken);
     }
     
     public async Task<Dictionary<WordKey, Word>> GetAllAsync(CancellationToken cancellationToken = new())
     {
-        Dictionary<WordKey, Word> existingWords =
-            await dbContext.Words
-                .AsNoTracking()
-                .ToDictionaryAsync(w => new WordKey(w.Language, w.Text), cancellationToken)
-                .ConfigureAwait(false);
+        List<Word> allWords = await dbContext.Words
+            .AsNoTracking()
+            .ToListAsync(cancellationToken)
+            .ConfigureAwait(false);
 
-        return existingWords;
+        Dictionary<WordKey, Word> uniqueWords = new();
+        foreach (Word word in allWords)
+        {
+            WordKey key = new(word.Language, word.Text);
+            uniqueWords.TryAdd(key, word);
+        }
+
+        return uniqueWords;
     }
 
     public async Task BulkAddAsync(IEnumerable<Word> newWords, CancellationToken cancellationToken = new())
@@ -66,32 +69,12 @@ public class WordRepository(BlinkDbContext dbContext, ICachingService cache) : I
     public async Task<string> GetRandomSolutionAsync(string lang = "en", int length = 5,
         CancellationToken cancellationToken = new())
     {
-        string solutionCountCacheKey = $"{SolutionCountCachePrefix}_{lang}_{length}";
-        int solutionCount =
-            await cache.GetAsync<int?>(solutionCountCacheKey, cancellationToken).ConfigureAwait(false) ??
-            await GetSolutionCountAsync(solutionCountCacheKey, lang, length, cancellationToken)
-                .ConfigureAwait(false);
-
-        int randomIndex = _random.Next(0, solutionCount);
-
         return await dbContext.Words
             .AsNoTracking()
-            .Where(w => w.Language == lang && w.Length == length)
+            .Where(w => w.Language == lang && w.IsSolution && w.Length == length)
+            .OrderBy(_ => EF.Functions.Random())
             .Select(w => w.Text)
-            .Skip(randomIndex)
-            .Take(1)
-            .SingleAsync(cancellationToken)
+            .FirstAsync(cancellationToken)
             .ConfigureAwait(false);
-    }
-
-    private async Task<int> GetSolutionCountAsync(string solutionCountCacheKey, string language, int length,
-        CancellationToken cancellationToken = new())
-    {
-        int solutionCount = await dbContext.Words
-            .CountAsync(w => w.Language == language && w.IsSolution && w.Length == length, cancellationToken)
-            .ConfigureAwait(false);
-        await cache.SetAsync(solutionCountCacheKey, solutionCount, cancellationToken: cancellationToken)
-            .ConfigureAwait(false);
-        return solutionCount;
     }
 }

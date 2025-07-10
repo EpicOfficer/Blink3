@@ -26,7 +26,7 @@ public class Word
     ///     The text for the word
     /// </summary>
     [Required]
-    [MaxLength(8)]
+    [MaxLength(100)]
     public string Text
     {
         get => _text;
