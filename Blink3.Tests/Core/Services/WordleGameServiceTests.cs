@@ -113,6 +113,10 @@ public class WordleGameServiceTests
         const ulong userId = 123;
         Wordle wordle = new() { WordToGuess = word };
 
+        _wordRepositoryMock
+            .Setup(x => x.IsGuessableAsync(word, wordle.Language, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
+        
         // Setup mocks to not do anything when AddGuessAsync is called
         _unitOfWorkMock
             .Setup(x => x.WordleRepository.AddGuessAsync(It.IsAny<Wordle>(), It.IsAny<WordleGuess>(),
