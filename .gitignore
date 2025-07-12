@@ -7,4 +7,4 @@ riderModule.iml
 !/Blink3.sln
 .env
 data/
-logs/Blink3.DataAccess/Words/*
+logs/
