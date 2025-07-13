@@ -9,6 +9,7 @@ public interface IUnitOfWork : IDisposable
     IBlinkUserRepository BlinkUserRepository { get; }
     ITempVcRepository TempVcRepository { get; }
     IWordleRepository WordleRepository { get; }
+    IBlinkMixRepository BlinkMixRepository { get; }
     IWordRepository WordRepository { get; }
     IUserTodoRepository UserTodoRepository { get; }
     IGameStatisticsRepository GameStatisticsRepository { get; }

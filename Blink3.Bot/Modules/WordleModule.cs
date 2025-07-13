@@ -113,8 +113,7 @@ public class WordleModule(
 
             // Update game statistics
             GameStatistics stats = await StreakHelpers.EnsureStatsUpdatedAsync(_unitOfWork, Context.User.Id, GameType.BlinkWord);
-            if (wordle.Players.Contains(Context.User.Id) is false)
-                wordle.Players.Add(Context.User.Id);
+            wordle.AddPlayer(Context.User.Id);
 
             WordleGuess guess = guessResult.SafeValue();
             string responseMessage = BuildGuessResponse(wordle, guess, stats);
@@ -159,11 +158,11 @@ public class WordleModule(
                 await _unitOfWork.GameStatisticsRepository.UpdateAsync(playerStats);
             }
 
-            await _unitOfWork.WordleRepository.DeleteAsync(wordle);
+            _unitOfWork.WordleRepository.Delete(wordle);
         }
         else
         {
-            await _unitOfWork.WordleRepository.UpdateAsync(wordle);
+            _unitOfWork.WordleRepository.Update(wordle);
         }
 
         await _unitOfWork.GameStatisticsRepository.UpdateAsync(stats);

@@ -13,6 +13,7 @@ public class UnitOfWork(BlinkDbContext context, ICachingService cache) : IUnitOf
     private ITempVcRepository? _tempVcRepository;
     private IUserTodoRepository? _userTodoRepository;
     private IWordleRepository? _wordleRepository;
+    private IBlinkMixRepository? _blinkMixRepository;
     private IWordRepository? _wordRepository;
 
     public IBlinkGuildRepository BlinkGuildRepository =>
@@ -27,6 +28,9 @@ public class UnitOfWork(BlinkDbContext context, ICachingService cache) : IUnitOf
     public IWordleRepository WordleRepository =>
         _wordleRepository ??= new WordleRepository(context);
 
+    public IBlinkMixRepository BlinkMixRepository =>
+        _blinkMixRepository ??= new BlinkMixRepository(context);
+    
     public IWordRepository WordRepository =>
         _wordRepository ??= new WordRepository(context, cache);
 
