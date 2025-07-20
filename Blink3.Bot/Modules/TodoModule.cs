@@ -8,16 +8,15 @@ using Blink3.Core.Interfaces;
 using Blink3.Core.LogContexts;
 using Discord;
 using Discord.Interactions;
+using JetBrains.Annotations;
 using Microsoft.Extensions.Logging;
-
-// ReSharper disable UnusedType.Global
-// ReSharper disable UnusedMember.Global
 
 namespace Blink3.Bot.Modules;
 
 [CommandContextType(InteractionContextType.Guild, InteractionContextType.BotDm, InteractionContextType.PrivateChannel)]
 [IntegrationType(ApplicationIntegrationType.GuildInstall, ApplicationIntegrationType.UserInstall)]
 [Group("todo", "Simple todo list")]
+[UsedImplicitly]
 public class TodoModule(IUnitOfWork unitOfWork, ILogger<TodoModule> logger) : BlinkModuleBase<IInteractionContext>(unitOfWork)
 {
     private readonly IUnitOfWork _unitOfWork = unitOfWork;

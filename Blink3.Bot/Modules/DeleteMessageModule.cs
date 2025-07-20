@@ -3,6 +3,7 @@ using Blink3.Core.Interfaces;
 using Blink3.Core.LogContexts;
 using Discord;
 using Discord.Interactions;
+using JetBrains.Annotations;
 using Microsoft.Extensions.Logging;
 
 namespace Blink3.Bot.Modules;
@@ -11,6 +12,7 @@ namespace Blink3.Bot.Modules;
 [RequireUserPermission(GuildPermission.ManageMessages)]
 [CommandContextType(InteractionContextType.Guild)]
 [IntegrationType(ApplicationIntegrationType.GuildInstall)]
+[UsedImplicitly]
 public class DeleteMessageModule(
     IUnitOfWork unitOfWork,
     IDiscordAttachmentService discordAttachmentService,

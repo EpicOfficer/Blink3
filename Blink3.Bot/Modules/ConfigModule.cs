@@ -3,6 +3,7 @@ using Blink3.Core.Interfaces;
 using Blink3.Core.LogContexts;
 using Discord;
 using Discord.Interactions;
+using JetBrains.Annotations;
 using Microsoft.Extensions.Logging;
 using Color = SixLabors.ImageSharp.Color;
 
@@ -12,6 +13,7 @@ namespace Blink3.Bot.Modules;
 [RequireUserPermission(GuildPermission.ManageGuild)]
 [CommandContextType(InteractionContextType.Guild)]
 [IntegrationType(ApplicationIntegrationType.GuildInstall)]
+[UsedImplicitly]
 [Group("config", "Configure the bot for this server")]
 public class ConfigModule(IUnitOfWork unitOfWork, ILogger<ConfigModule> logger)
     : BlinkModuleBase<IInteractionContext>(unitOfWork)

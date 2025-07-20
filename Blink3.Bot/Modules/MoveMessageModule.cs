@@ -7,16 +7,15 @@ using Discord;
 using Discord.Interactions;
 using Discord.Webhook;
 using Discord.WebSocket;
+using JetBrains.Annotations;
 using Microsoft.Extensions.Logging;
-
-// ReSharper disable UnusedType.Global
-// ReSharper disable UnusedMember.Global
 
 namespace Blink3.Bot.Modules;
 
 [RequireContext(ContextType.Guild)]
 [RequireUserPermission(GuildPermission.ManageMessages)]
 [RequireBotPermission(GuildPermission.ManageMessages | GuildPermission.ManageWebhooks)]
+[UsedImplicitly]
 public class MoveMessageModule(IDiscordAttachmentService discordAttachmentService,
     ILogger<MoveMessageModule> logger)
     : BlinkModuleBase<IInteractionContext>

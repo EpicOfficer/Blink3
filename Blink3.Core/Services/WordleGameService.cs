@@ -17,8 +17,7 @@ public class WordleGameService(
     public async Task<bool> IsGameInProgressAsync(ulong channelId, CancellationToken cancellationToken = default)
     {
         return await unitOfWork.WordleRepository.GetByChannelIdAsync(channelId, cancellationToken)
-                .ConfigureAwait(false) is not
-            null;
+                .ConfigureAwait(false) is not null;
     }
 
     public async Task<Result<WordleGuess>> MakeGuessAsync(string word, ulong userId, Wordle wordle,
