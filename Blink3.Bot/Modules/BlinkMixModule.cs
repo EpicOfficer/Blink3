@@ -54,7 +54,7 @@ public class BlinkMixModule(
                                      Compete to unscramble the word. The first one to guess wins!
                                      """)
                     .WithSeparator(isDivider: false)
-                    .WithTextDisplay($$"""
+                    .WithTextDisplay($"""
                                         ### 🌐 Game Details
                                         - **Shuffled Word:** {newGame.GetShuffledSolution()}
                                         - **How to Play:** Type `/unmix` to take a guess!
