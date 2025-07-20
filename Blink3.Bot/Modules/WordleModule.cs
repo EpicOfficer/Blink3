@@ -9,6 +9,7 @@ using Blink3.Core.LogContexts;
 using Blink3.Core.Models;
 using Discord;
 using Discord.Interactions;
+using JetBrains.Annotations;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.ObjectPool;
 
@@ -16,6 +17,7 @@ namespace Blink3.Bot.Modules;
 
 [CommandContextType(InteractionContextType.Guild, InteractionContextType.BotDm, InteractionContextType.PrivateChannel)]
 [IntegrationType(ApplicationIntegrationType.GuildInstall, ApplicationIntegrationType.UserInstall)]
+[UsedImplicitly]
 public class WordleModule(
     IUnitOfWork unitOfWork,
     IWordleGameService wordleGameService,
@@ -82,7 +84,7 @@ public class WordleModule(
                     .WithTextDisplay("***Good luck, and have fun!***"));
 
             logger.LogInformation("{User} Started a new {Language}, {WordLength} letter BlinkWord ",
-                userLogContext, langString, wordLength);;
+                userLogContext, langString, wordLength);
             await RespondOrFollowUpAsync(components: builder.Build(), allowedMentions: AllowedMentions.None);
         }
     }
@@ -113,8 +115,7 @@ public class WordleModule(
 
             // Update game statistics
             GameStatistics stats = await StreakHelpers.EnsureStatsUpdatedAsync(_unitOfWork, Context.User.Id, GameType.BlinkWord);
-            if (wordle.Players.Contains(Context.User.Id) is false)
-                wordle.Players.Add(Context.User.Id);
+            wordle.AddPlayer(Context.User.Id);
 
             WordleGuess guess = guessResult.SafeValue();
             string responseMessage = BuildGuessResponse(wordle, guess, stats);
@@ -159,11 +160,11 @@ public class WordleModule(
                 await _unitOfWork.GameStatisticsRepository.UpdateAsync(playerStats);
             }
 
-            await _unitOfWork.WordleRepository.DeleteAsync(wordle);
+            _unitOfWork.WordleRepository.Delete(wordle);
         }
         else
         {
-            await _unitOfWork.WordleRepository.UpdateAsync(wordle);
+            _unitOfWork.WordleRepository.Update(wordle);
         }
 
         await _unitOfWork.GameStatisticsRepository.UpdateAsync(stats);

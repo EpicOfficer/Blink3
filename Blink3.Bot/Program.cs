@@ -4,6 +4,7 @@ using Blink3.Core.Configuration;
 using Blink3.Core.Configuration.Extensions;
 using Blink3.Core.Extensions;
 using Blink3.Core.Interfaces;
+using Blink3.Core.Repositories.Interfaces;
 using Blink3.Core.Services;
 using Blink3.Core.Services.Generators;
 using Blink3.DataAccess.Extensions;
@@ -36,6 +37,7 @@ try
 
     builder.Services.AddSingleton<IWordleGuessImageGenerator, WordleGuessImageGenerator>();
     builder.Services.AddScoped<IWordleGameService, WordleGameService>();
+    builder.Services.AddScoped<IBlinkMixGameService, BlinkMixGameService>();
 
     builder.Services.AddDiscordHost((config, _) =>
     {

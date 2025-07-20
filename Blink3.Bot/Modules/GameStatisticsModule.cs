@@ -8,12 +8,14 @@ using Blink3.Core.Interfaces;
 using Blink3.Core.LogContexts;
 using Discord;
 using Discord.Interactions;
+using JetBrains.Annotations;
 using Microsoft.Extensions.Logging;
 
 namespace Blink3.Bot.Modules;
 
 [CommandContextType(InteractionContextType.Guild, InteractionContextType.BotDm, InteractionContextType.PrivateChannel)]
 [IntegrationType(ApplicationIntegrationType.GuildInstall, ApplicationIntegrationType.UserInstall)]
+[UsedImplicitly]
 public class GameStatisticsModule(
     IUnitOfWork unitOfWork,
     ILogger<GameStatisticsModule> logger) : BlinkModuleBase<IInteractionContext>(unitOfWork)
@@ -21,7 +23,7 @@ public class GameStatisticsModule(
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
     
     [SlashCommand("statistics", "View your game statistics and compare them with your friends.")]
-    public async Task Statistics(IUser? user = null)
+    public async Task Statistics(IUser? user = null, GameType? game = null)
     {
         UserLogContext userLogContext = new(Context.User);
         using (logger.BeginScope(new { User = userLogContext }))
@@ -29,13 +31,21 @@ public class GameStatisticsModule(
             await DeferAsync();
             IUser targetUser = user ?? Context.User;
 
-            GameStatistics stats = await _unitOfWork.GameStatisticsRepository.GetGlobalStatisticsAsync(targetUser.Id);
+            GameStatistics stats;
+            if (game is null)
+            {
+                stats = await _unitOfWork.GameStatisticsRepository.GetGlobalStatisticsAsync(targetUser.Id);
+            }
+            else
+            {
+                stats = await _unitOfWork.GameStatisticsRepository.GetOrCreateGameStatistics(targetUser.Id, game.Value);
+            }
  
-            await RespondOrFollowUpAsync(components: GenerateGameStatisticsResponse(stats, targetUser, null),
+            await RespondOrFollowUpAsync(components: GenerateGameStatisticsResponse(stats, targetUser, game),
                 allowedMentions: new AllowedMentions(AllowedMentionTypes.Users));
             
-            logger.LogInformation("{User} Viewed Global statistics for {TargetUser}",
-                userLogContext, new UserLogContext(targetUser));
+            logger.LogInformation("{User} Viewed {GameType} statistics for {TargetUser}",
+                userLogContext, game.GetFriendlyName(), new UserLogContext(targetUser));
         }
     }
 

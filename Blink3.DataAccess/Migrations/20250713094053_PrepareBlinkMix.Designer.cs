@@ -3,6 +3,7 @@ using System;
 using Blink3.DataAccess;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Blink3.DataAccess.Migrations
 {
     [DbContext(typeof(BlinkDbContext))]
-    partial class BlinkDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250713094053_PrepareBlinkMix")]
+    partial class PrepareBlinkMix
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -52,31 +55,6 @@ namespace Blink3.DataAccess.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("BlinkGuilds");
-                });
-
-            modelBuilder.Entity("Blink3.Core.Entities.BlinkMix", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<decimal>("ChannelId")
-                        .HasColumnType("numeric(20,0)");
-
-                    b.PrimitiveCollection<decimal[]>("Players")
-                        .IsRequired()
-                        .HasColumnType("numeric(20,0)[]");
-
-                    b.Property<string>("Solution")
-                        .IsRequired()
-                        .HasMaxLength(10)
-                        .HasColumnType("character varying(10)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("BlinkMixes");
                 });
 
             modelBuilder.Entity("Blink3.Core.Entities.BlinkUser", b =>
