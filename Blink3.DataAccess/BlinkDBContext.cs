@@ -34,6 +34,7 @@ public class BlinkDbContext(DbContextOptions<BlinkDbContext> options) : DbContex
     ///     Represents a Wordle game entity.
     /// </summary>
     public DbSet<Wordle> Wordles => Set<Wordle>();
+    public DbSet<BlinkMix> BlinkMixes => Set<BlinkMix>();
 
     /// <summary>
     ///     Represents a word guess entered by a player in the Wordle game.
