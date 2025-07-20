@@ -50,14 +50,15 @@ public class BlinkMixModule(
                 .WithContainer(new ContainerBuilder()
                     .WithAccentColor(Colours.Success)
                     .WithTextDisplay("""
-                                     ## A New BlinkMix Game Has Started! 🎉
-                                     First to unscramble the word wins!
+                                     ## 🎮 A New BlinkMix Game Has Begun! 🎉
+                                     Compete to unscramble the word. The first one to guess wins!
                                      """)
                     .WithSeparator(isDivider: false)
-                    .WithTextDisplay($"""
-                                      ### 🌐 Game Details
-                                      **{newGame.GetShuffledSolution()}**
-                                      """)
+                    .WithTextDisplay($$"""
+                                        ### 🌐 Game Details
+                                        - **Shuffled Word:** {newGame.GetShuffledSolution()}
+                                        - **How to Play:** Type `/unmix` to take a guess!
+                                        """)
                     .WithSeparator(isDivider: false)
                     .WithTextDisplay("***Good luck, and have fun!***"));
 
@@ -126,11 +127,13 @@ public class BlinkMixModule(
 
         string responseMessage = isCorrect
             ? $"""
-               🎉 **Congratulations, <@{stats.BlinkUserId}>!** You solved the BlinkMix!
-               You've earned **{pointsAwarded} points**, bringing your total to **{stats.Points} points**.
-               """
+                🎉 **Congratulations, <@{stats.BlinkUserId}>!** 
+                You’ve cracked the BlinkMix and earned **{pointsAwarded} points**!  
+                Your total is now **{stats.Points} points**. 
+                """
             : """
-              ⚠️ **Not quite!** Keep trying, you’ve got this!
+              ⚠️ **Not quite!**  
+              Keep trying, you’re getting closer!
               """;
 
         ContainerBuilder container = new ContainerBuilder()
@@ -140,8 +143,11 @@ public class BlinkMixModule(
         // If correct, show the solution explicitly
         if (isCorrect)
         {
-            container.WithSeparator(isDivider: false)
-                .WithTextDisplay($"### The solution was: **{game.Solution}**");
+            container.WithSeparator(isDivider: true)
+                .WithTextDisplay($"""
+                                  ### ✅ The solution was:
+                                  **{game.Solution}**
+                                  """);
         }
 
         ComponentBuilderV2 builder = new ComponentBuilderV2()
