@@ -55,12 +55,11 @@ public class BlinkMixModule(
                                      """)
                     .WithSeparator(isDivider: false)
                     .WithTextDisplay($"""
-                                        ### 🌐 Game Details
-                                        - **Shuffled Word:** {newGame.GetShuffledSolution()}
-                                        - **How to Play:** Type `/unmix` to take a guess!
+                                        Unscramble this word:
+                                        - **{newGame.ShuffledSolution}**
                                         """)
                     .WithSeparator(isDivider: false)
-                    .WithTextDisplay("***Good luck, and have fun!***"));
+                    .WithTextDisplay("***Type `/unmix` to make a guess!***"));
 
             logger.LogInformation("{User} Started a new BlinkMix", userLogContext);
             await RespondOrFollowUpAsync(components: builder.Build(), allowedMentions: AllowedMentions.None);
@@ -123,32 +122,31 @@ public class BlinkMixModule(
 
     private async Task RespondWithMessageAsync(BlinkMix game, GameStatistics stats, bool isCorrect)
     {
-        int pointsAwarded = game.GetScore();
+        int pointsToAdd = game.GetScore();
 
         string responseMessage = isCorrect
             ? $"""
-                🎉 **Congratulations, <@{stats.BlinkUserId}>!** 
-                You’ve cracked the BlinkMix and earned **{pointsAwarded} points**!  
-                Your total is now **{stats.Points} points**. 
+                🎉 **Congratulations, <@{stats.BlinkUserId}>**! You solved the BlinkMix!
+                You've earned **{pointsToAdd} point{(pointsToAdd == 1 ? "" : "s")}**, and now have a total of **{stats.Points}** point{(stats.Points == 1 ? "" : "s")}.
                 """
-            : """
-              ⚠️ **Not quite!**  
-              Keep trying, you’re getting closer!
-              """;
+            : $"""
+               ❌ **Not quite, <@{Context.User.Id}>!** Keep trying!
+               """;
 
         ContainerBuilder container = new ContainerBuilder()
             .WithAccentColor(isCorrect ? Colours.Success : Colours.Danger)
-            .WithTextDisplay(responseMessage);
-
-        // If correct, show the solution explicitly
-        if (isCorrect)
-        {
-            container.WithSeparator(isDivider: true)
-                .WithTextDisplay($"""
-                                  ### ✅ The solution was:
-                                  **{game.Solution}**
-                                  """);
-        }
+            .WithTextDisplay(responseMessage)
+            .WithSeparator(isDivider: false);
+        
+        container.WithTextDisplay(isCorrect
+            ? $"""
+               The solution was:
+               - **{game.Solution}**
+               """
+            : $"""
+               The current word is:
+               - **{game.ShuffledSolution}**
+               """);
 
         ComponentBuilderV2 builder = new ComponentBuilderV2()
             .WithContainer(container);
