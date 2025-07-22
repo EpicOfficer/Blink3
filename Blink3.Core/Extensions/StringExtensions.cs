@@ -104,4 +104,23 @@ public static class StringExtensions
 
         return indexes;
     }
+    
+    /// <summary>
+    ///     Helper method to shuffle the string.
+    /// </summary>
+    public static string Shuffle(this string text)
+    {
+        if (string.IsNullOrWhiteSpace(text))
+            throw new InvalidOperationException("Text is not set.");
+
+        char[] shuffled = text.ToCharArray();
+        Random random = new();
+        for (int i = shuffled.Length - 1; i > 0; i--)
+        {
+            int j = random.Next(i + 1);
+            (shuffled[i], shuffled[j]) = (shuffled[j], shuffled[i]);
+        }
+
+        return new string(shuffled).ToUpper();
+    }
 }
