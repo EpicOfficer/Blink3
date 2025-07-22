@@ -121,6 +121,6 @@ public static class StringExtensions
             (shuffled[i], shuffled[j]) = (shuffled[j], shuffled[i]);
         }
 
-        return new string(shuffled).ToUpper();
+        return new string(shuffled);
     }
 }
