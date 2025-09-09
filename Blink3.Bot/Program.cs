@@ -45,12 +45,9 @@ try
         {
             LogLevel = LogSeverity.Verbose,
             AlwaysDownloadUsers = true,
-            MessageCacheSize = 200,
+            MessageCacheSize = 0,
             GatewayIntents = GatewayIntents.Guilds |
                              GatewayIntents.GuildMembers |
-                             GatewayIntents.GuildMessages |
-                             GatewayIntents.MessageContent |
-                             GatewayIntents.DirectMessages |
                              GatewayIntents.GuildVoiceStates
         };
 
