@@ -30,15 +30,12 @@ public class DeleteMessageModule(
             BlinkGuild guildConfig = await FetchConfig();
             logger.LogInformation("{User} initiated Delete & Log for a message in {Guild}", userLogContext, guildLogContext);
 
-            IMessage fullMessage = await Context.Channel.GetMessageAsync(message.Id);
-            logger.LogDebug("Fetched full message content for logging. Message ID: {MessageId}", fullMessage.Id);
-            
-            IMessageChannel? logChannel = await GetValidatedLogChannel(guildConfig, fullMessage, userLogContext, guildLogContext);;
+            IMessageChannel? logChannel = await GetValidatedLogChannel(guildConfig, message, userLogContext, guildLogContext);;
             if (logChannel is null) return;
 
-            EmbedBuilder embed = BuildEmbed(fullMessage);
+            EmbedBuilder embed = BuildEmbed(message);
 
-            if (fullMessage.Attachments.Count > 0)
+            if (message.Attachments.Count > 0)
             {
                 logger.LogDebug("Message contains attachments. Downloading attachments...");
                 await DeferAsync(true);

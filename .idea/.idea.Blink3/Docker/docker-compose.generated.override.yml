@@ -5,105 +5,54 @@ services:
       context: "/Users/joshua/RiderProjects/Blink3"
       dockerfile: "Blink3.API/Dockerfile"
       target: "base"
-      args:
-        BUILD_CONFIGURATION: "Debug"
     command: []
     entrypoint:
-    - "/opt/JetBrains/RiderDebuggerTools/linux-arm64/JetBrains.Debugger.Worker"
-    - "--runtimeconfig"
-    - "/opt/JetBrains/RiderDebuggerTools/JetBrains.Debugger.Worker.runtimeconfig.json"
-    - "--mode=server"
-    - "--frontend-port=57000"
-    - "--backend-port=57200"
-    - "--roslyn-worker-port=57415"
-    - "--timeout=60"
+    - "dotnet"
+    - "/app/bin/Debug/net9.0/Blink3.API.dll"
     environment:
       DOTNET_USE_POLLING_FILE_WATCHER: "true"
-      RIDER_DEBUGGER_LOG_DIR: "/var/opt/JetBrains/RiderDebuggerTools"
-      RESHARPER_LOG_CONF: "/etc/opt/JetBrains/RiderDebuggerTools/backend-log.xml"
     image: "ghcr.io/epicofficer/blink3.api:dev"
-    ports:
-    - "127.0.0.1:57015:57000"
-    - "127.0.0.1:57215:57200"
-    - "127.0.0.1:57415:57415"
+    ports: []
     volumes:
     - "/Users/joshua/RiderProjects/Blink3/Blink3.API:/app:rw"
     - "/Users/joshua/RiderProjects/Blink3:/src:rw"
     - "/Users/joshua/.microsoft/usersecrets:/home/app/.microsoft/usersecrets"
     - "/Users/joshua/.nuget/packages:/home/app/.nuget/packages"
-    - "/Users/joshua/.local/share/JetBrains/RiderRemoteDebugger/2025.1.2/LinuxArm64:/opt/JetBrains/RiderDebuggerTools"
-    - "/Applications/Rider.app/Contents/bin/backend-log.xml:/etc/opt/JetBrains/RiderDebuggerTools/backend-log.xml"
-    - "/Users/joshua/Library/Logs/JetBrains/Rider2025.1/DebuggerWorker/JetBrains.Debugger.Worker.2025_6_09_15_14_18:/var/opt/JetBrains/RiderDebuggerTools:rw"
     working_dir: "/app"
   bot:
     build:
       context: "/Users/joshua/RiderProjects/Blink3"
       dockerfile: "Blink3.Bot/Dockerfile"
       target: "base"
-      args:
-        BUILD_CONFIGURATION: "Debug"
     command: []
     entrypoint:
-    - "/opt/JetBrains/RiderDebuggerTools/linux-arm64/JetBrains.Debugger.Worker"
-    - "--runtimeconfig"
-    - "/opt/JetBrains/RiderDebuggerTools/JetBrains.Debugger.Worker.runtimeconfig.json"
-    - "--mode=server"
-    - "--frontend-port=57000"
-    - "--backend-port=57200"
-    - "--roslyn-worker-port=57416"
-    - "--timeout=60"
+    - "dotnet"
+    - "/app/bin/Debug/net9.0/Blink3.Bot.dll"
     environment:
       DOTNET_USE_POLLING_FILE_WATCHER: "true"
-      RIDER_DEBUGGER_LOG_DIR: "/var/opt/JetBrains/RiderDebuggerTools"
-      RESHARPER_LOG_CONF: "/etc/opt/JetBrains/RiderDebuggerTools/backend-log.xml"
     image: "ghcr.io/epicofficer/blink3.bot:dev"
-    ports:
-    - "127.0.0.1:57016:57000"
-    - "127.0.0.1:57216:57200"
-    - "127.0.0.1:57416:57416"
+    ports: []
     volumes:
     - "/Users/joshua/RiderProjects/Blink3/Blink3.Bot:/app:rw"
     - "/Users/joshua/RiderProjects/Blink3:/src:rw"
     - "/Users/joshua/.microsoft/usersecrets:/home/app/.microsoft/usersecrets"
     - "/Users/joshua/.nuget/packages:/home/app/.nuget/packages"
-    - "/Users/joshua/.local/share/JetBrains/RiderRemoteDebugger/2025.1.2/LinuxArm64:/opt/JetBrains/RiderDebuggerTools"
-    - "/Applications/Rider.app/Contents/bin/backend-log.xml:/etc/opt/JetBrains/RiderDebuggerTools/backend-log.xml"
-    - "/Users/joshua/Library/Logs/JetBrains/Rider2025.1/DebuggerWorker/JetBrains.Debugger.Worker.2025_6_09_15_14_18:/var/opt/JetBrains/RiderDebuggerTools:rw"
     working_dir: "/app"
-  web:
+  scout:
     build:
       context: "/Users/joshua/RiderProjects/Blink3"
-      dockerfile: "Blink3.Web/Dockerfile"
+      dockerfile: "Blink3.Scout/Dockerfile"
       target: "base"
-      args:
-        BUILD_CONFIGURATION: "Debug"
     command: []
     entrypoint:
-    - "/opt/JetBrains/RiderDebuggerTools/linux-musl-arm64/dotnet/dotnet"
-    - "exec"
-    - "--runtimeconfig"
-    - "/opt/JetBrains/RiderDebuggerTools/JetBrains.Debugger.Worker.runtimeconfig.json"
-    - "/opt/JetBrains/RiderDebuggerTools/JetBrains.Debugger.Worker.exe"
-    - "--mode=server"
-    - "--frontend-port=57000"
-    - "--backend-port=57200"
-    - "--roslyn-worker-port=57417"
-    - "--timeout=60"
+    - "dotnet"
+    - "/app/bin/Debug/net9.0/Blink3.Scout.dll"
     environment:
-      ASPNETCORE_ENVIRONMENT: "Development"
       DOTNET_USE_POLLING_FILE_WATCHER: "true"
-      RIDER_DEBUGGER_LOG_DIR: "/var/opt/JetBrains/RiderDebuggerTools"
-      RESHARPER_LOG_CONF: "/etc/opt/JetBrains/RiderDebuggerTools/backend-log.xml"
-    image: "ghcr.io/epicofficer/blink3.web:dev"
-    ports:
-    - "127.0.0.1:57017:57000"
-    - "127.0.0.1:57217:57200"
-    - "127.0.0.1:57417:57417"
+    image: "ghcr.io/epicofficer/blink3.scout:dev"
+    ports: []
     volumes:
-    - "/Users/joshua/RiderProjects/Blink3/Blink3.Web:/app:rw"
+    - "/Users/joshua/RiderProjects/Blink3/Blink3.Scout:/app:rw"
     - "/Users/joshua/RiderProjects/Blink3:/src:rw"
-    - "/Users/joshua/.nuget/packages:/root/.nuget/packages"
-    - "/Users/joshua/.local/share/JetBrains/RiderRemoteDebugger/2025.1.2/LinuxMuslArm64:/opt/JetBrains/RiderDebuggerTools"
-    - "/Applications/Rider.app/Contents/bin/backend-log.xml:/etc/opt/JetBrains/RiderDebuggerTools/backend-log.xml"
-    - "/Users/joshua/Library/Logs/JetBrains/Rider2025.1/DebuggerWorker/JetBrains.Debugger.Worker.2025_6_09_15_14_18:/var/opt/JetBrains/RiderDebuggerTools:rw"
+    - "/Users/joshua/.nuget/packages:/home/app/.nuget/packages"
     working_dir: "/app"
