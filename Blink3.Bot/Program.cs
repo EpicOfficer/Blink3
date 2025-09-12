@@ -44,10 +44,9 @@ try
         config.SocketConfig = new DiscordSocketConfig
         {
             LogLevel = LogSeverity.Verbose,
-            AlwaysDownloadUsers = true,
+            AlwaysDownloadUsers = false,
             MessageCacheSize = 0,
             GatewayIntents = GatewayIntents.Guilds |
-                             GatewayIntents.GuildMembers |
                              GatewayIntents.GuildVoiceStates
         };
 
