@@ -109,15 +109,14 @@ public class TempVcCleanService(
         
         if (tempVc.CamOnly)
         {
-            // Kick users who are not videoing, are not bots, and do not have manage messages permission
-            IEnumerable<SocketGuildUser> membersToKick = connectedUsers.Where(u =>
-                u is { IsBot: false, IsVideoing: false } && !u.GetPermissions(channel).ManageMessages);
+            // Kick users who are not videoing and are not bots.
+            IEnumerable<SocketGuildUser> membersToKick = connectedUsers.Where(u => u is { IsBot: false, IsVideoing: false });
 
             foreach (SocketGuildUser user in membersToKick)
             {
                 UserLogContext userContext = new(user);
                 GuildChannelLogContext channelContext = new(channel);
-                _logger.LogInformation("Kicking {User} from {Channel;} as they are not videoing", userContext, channelContext);
+                _logger.LogInformation("Kicking {User} from {Channel} as they are not videoing", userContext, channelContext);
                 await user.ModifyAsync(u => u.Channel = null);
                 try
                 {
